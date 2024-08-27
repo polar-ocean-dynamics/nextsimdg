@@ -18,7 +18,6 @@
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
 
-#include "include/ModelArray.hpp"
 #include "include/Xios.hpp"
 
 #include <boost/algorithm/string.hpp>

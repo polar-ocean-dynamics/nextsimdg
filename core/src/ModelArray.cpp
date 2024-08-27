@@ -1,7 +1,7 @@
 /*!
- * @file ModelData.cpp
+ * @file   ModelArray.cpp
  *
- * @date Feb 24, 2022
+ * @date   Feb 24, 2022
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
