@@ -125,7 +125,7 @@ int Xios::getClientMPIRank() { return mpi_rank; }
  */
 bool Xios::isInitialized()
 {
-    bool init { false };
+    bool init = false;
     cxios_context_is_initialized(contextId.c_str(), contextId.length(), &init);
     return init;
 }
@@ -327,7 +327,7 @@ void Xios::updateCalendar(const int stepNumber) { cxios_update_calendar(stepNumb
  */
 xios::CAxisGroup* Xios::getAxisGroup()
 {
-    const std::string groupId = { "axis_definition" };
+    const std::string groupId = "axis_definition";
     xios::CAxisGroup* group = NULL;
     cxios_axisgroup_handle_create(&group, groupId.c_str(), groupId.length());
     if (!group) {
@@ -467,7 +467,7 @@ std::vector<double> Xios::getAxisValues(const std::string axisId)
  */
 xios::CDomainGroup* Xios::getDomainGroup()
 {
-    const std::string groupId = { "domain_definition" };
+    const std::string groupId = "domain_definition";
     xios::CDomainGroup* group = NULL;
     cxios_domaingroup_handle_create(&group, groupId.c_str(), groupId.length());
     if (!group) {
@@ -862,7 +862,7 @@ std::vector<double> Xios::getDomainLocalYValues(const std::string domainId)
  */
 xios::CGridGroup* Xios::getGridGroup()
 {
-    const std::string groupId = { "grid_definition" };
+    const std::string groupId = "grid_definition";
     xios::CGridGroup* group = NULL;
     cxios_gridgroup_handle_create(&group, groupId.c_str(), groupId.length());
     if (!group) {
@@ -1003,7 +1003,7 @@ std::vector<std::string> Xios::gridGetDomainIds(const std::string gridId)
  */
 xios::CFieldGroup* Xios::getFieldGroup()
 {
-    const std::string groupId = { "field_definition" };
+    const std::string groupId = "field_definition";
     xios::CFieldGroup* group = NULL;
     cxios_fieldgroup_handle_create(&group, groupId.c_str(), groupId.length());
     if (!group) {
@@ -1241,7 +1241,7 @@ Duration Xios::getFieldFreqOffset(const std::string fieldId)
  */
 xios::CFileGroup* Xios::getFileGroup()
 {
-    const std::string groupId = { "file_definition" };
+    const std::string groupId = "file_definition";
     xios::CFileGroup* group = NULL;
     cxios_filegroup_handle_create(&group, groupId.c_str(), groupId.length());
     if (!group) {
