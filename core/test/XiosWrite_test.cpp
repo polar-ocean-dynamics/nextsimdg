@@ -92,9 +92,7 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     xios_handler.fileAddField("xios_test_output", "field_2D");
     xios_handler.fileAddField("xios_test_output", "field_3D");
 
-    xios_handler.close_context_definition();
-
-    // --- Tests for writing to file
+    // Set ModelArray dimensions
     Module::setImplementation<IStructure>("Nextsim::ParametricGrid");
     const size_t nx = xios_handler.getDomainLocalXSize("xy_domain");
     const size_t ny = xios_handler.getDomainLocalYSize("xy_domain");
@@ -104,6 +102,10 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     ModelArray::setDimension(
         ModelArray::Dimension::Y, xios_handler.getDomainGlobalYSize("xy_domain"), ny, 0);
     ModelArray::setDimension(ModelArray::Dimension::Z, nz, nz, 0);
+
+    xios_handler.close_context_definition();
+
+    // --- Tests for writing to file
     // Create some fake data to test writing methods
     HField field_2D(ModelArray::Type::H);
     field_2D.resize();
