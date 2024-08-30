@@ -23,6 +23,8 @@ public:
         , qia(getStore())
         , penSW(getStore())
         , dqia_dt(getStore())
+        , Q_sw_ow(getStore())
+        , Q_sw_base(getStore())
     {
     }
     virtual ~IFluxCalculation() = default;
@@ -53,6 +55,8 @@ protected:
     ModelArrayRef<Shared::Q_IA, RW> qia;
     ModelArrayRef<Shared::Q_PEN_SW, RW> penSW;
     ModelArrayRef<Shared::DQIA_DT, RW> dqia_dt;
+    ModelArrayRef<Shared::Q_SW_OW, RW> Q_sw_ow;
+    ModelArrayRef<Shared::Q_SW_BASE, RW> Q_sw_base;
 };
 }
 #endif /* IFLUXCALCULATION_HPP */

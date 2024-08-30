@@ -25,7 +25,6 @@ public:
         , evap(ModelArray::Type::H)
         , Q_lh_ow(ModelArray::Type::H)
         , Q_sh_ow(ModelArray::Type::H)
-        , Q_sw_ow(ModelArray::Type::H)
         , Q_lw_ow(ModelArray::Type::H)
         , Q_lh_ia(ModelArray::Type::H)
         , Q_sh_ia(ModelArray::Type::H)
@@ -89,7 +88,6 @@ private:
     HField evap; // Open water evaporative mass flux [kg  m⁻²]
     HField Q_lh_ow; // Open water latent heat flux [W m⁻²]
     HField Q_sh_ow; // Open water sensible heat flux [W m⁻²]
-    HField Q_sw_ow; // Open water incident shortwave radiative flux [W m⁻²]
     HField Q_lw_ow; // Open water net longwave radiative flux [W m⁻²]
     HField Q_lh_ia; // Ice latent heat flux [W m⁻²]
     HField Q_sh_ia; // Ice sensible heat flux [W m⁻²]

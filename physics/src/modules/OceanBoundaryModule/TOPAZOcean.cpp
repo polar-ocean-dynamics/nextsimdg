@@ -10,6 +10,7 @@
 #include "include/Finalizer.hpp"
 #include "include/IIceOceanHeatFlux.hpp"
 #include "include/IFreezingPoint.hpp"
+#include "include/IIceOceanHeatFlux.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/constants.hpp"
@@ -76,6 +77,9 @@ void TOPAZOcean::updateBefore(const TimestepTime& tst)
 
 void TOPAZOcean::updateAfter(const TimestepTime& tst)
 {
+    overElements(
+        std::bind(&IOceanBoundary::mergeFluxes, this, std::placeholders::_1, std::placeholders::_2),
+        tst);
     slabOcean.update(tst);
     sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
     sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();

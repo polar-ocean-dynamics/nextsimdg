@@ -38,6 +38,8 @@ public:
         , uwind(ModelArray::Type::U)
         , vwind(ModelArray::Type::V)
         , penSW(ModelArray::Type::H)
+        , qswow(ModelArray::Type::H)
+        , qswBase(ModelArray::Type::H)
     {
         m_couplingArrays.registerArray(CouplingFields::SUBL, &subl, RW);
         m_couplingArrays.registerArray(CouplingFields::SNOW, &snow, RW);
@@ -55,6 +57,8 @@ public:
         getStore().registerArray(Protected::WIND_U, &uwind, RO);
         getStore().registerArray(Protected::WIND_V, &vwind, RO);
         getStore().registerArray(Shared::Q_PEN_SW, &penSW, RW);
+        getStore().registerArray(Shared::Q_SW_OW, &qswow, RW);
+        getStore().registerArray(Shared::Q_SW_BASE, &qswBase, RW);
     }
     virtual ~IAtmosphereBoundary() = default;
 
@@ -75,6 +79,8 @@ public:
         uwind.resize();
         vwind.resize();
         penSW.resize();
+        qswow.resize();
+        qswBase.resize();
     }
     virtual void update(const TimestepTime& tst) { }
 
@@ -92,6 +98,8 @@ protected:
     UField uwind;
     VField vwind;
     HField penSW;
+    HField qswow;
+    HField qswBase;
 
     ModelArrayReferenceStore m_couplingArrays;
 };
