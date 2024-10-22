@@ -73,7 +73,7 @@ protected:
     CGVector<CGdegree> uAtmos;
     CGVector<CGdegree> vAtmos;
 
-    ParametricMomentumMap<CGdegree>* pmap;
+    std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
 };
 
 } /* namespace Nextsim */
