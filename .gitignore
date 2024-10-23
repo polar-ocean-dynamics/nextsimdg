@@ -19,3 +19,4 @@ Results
 __pycache__/
 *.sif
 .*sw?
+/run/*.cdl
