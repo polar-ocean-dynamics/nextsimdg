@@ -13,12 +13,22 @@
 namespace Nextsim {
 
 class VPParameters : public DynamicsParameters {
-public:
-    double compactionParam = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
-    double Pstar = 27.5e3; //!< Ice strength
-    double DeltaMin = 2e-9; //!< Viscous regime
 
+private:
+    double compactionParam = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
+    double pStar = 27.5e3; //!< Ice strength
+    double deltaMin = 2e-9; //!< Viscous regime
+
+public:
     VPParameters() = default;
+
+    void setCompactionParam(const double C) { compactionParam = C; };
+    void setPstar(const double P) { pStar = P; };
+    void setDeltaMin(const double D) { deltaMin = D; };
+
+    double getCompactionParam() const { return compactionParam; }
+    double getPStar() const { return pStar; }
+    double getDeltaMin() const { return deltaMin; }
 };
 
 } /* namespace Nextsim */
