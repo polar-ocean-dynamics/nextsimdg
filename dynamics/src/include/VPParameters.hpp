@@ -14,6 +14,7 @@ namespace Nextsim {
 
 class VPParameters : public DynamicsParameters {
 public:
+    double compactionParam = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
     double Pstar = 27.5e3; //!< Ice strength
     double DeltaMin = 2e-9; //!< Viscous regime
 

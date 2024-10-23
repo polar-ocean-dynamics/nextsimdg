@@ -1,7 +1,7 @@
 /*!
  * @file MEVPStressUpdateStep.hpp
  *
- * @date 24 Sep 2024
+ * @date 23 Oct 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -72,9 +72,9 @@ public:
 
             //   //! Ice strength
             //   double P = vpparameters.Pstar * H(i, 0) * exp(-20.0 * (1.0 - A(i, 0)));
-            const LocalEdgeVector<nGauss * nGauss> P
-                = (vpParams.Pstar * h_gauss.array() * (-20.0 * (1.0 - a_gauss.array())).exp())
-                      .matrix();
+            const LocalEdgeVector<nGauss * nGauss> P = (vpParams.Pstar * h_gauss.array()
+                * (vpParams.compactionParam * (1.0 - a_gauss.array())).exp())
+                                                           .matrix();
 
             //   // S = S_old + 1/alpha (S(u)-S_old) = (1-1/alpha) S_old + 1/alpha S(u)
             s11.row(i) *= (1.0 - 1.0 / alpha);
