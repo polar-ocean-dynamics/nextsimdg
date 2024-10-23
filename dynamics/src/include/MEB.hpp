@@ -1,13 +1,13 @@
 /*!
  * @file MEB.hpp
- * @date 24 Sep 2024
+ * @date 09 Nov 2024
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  */
 
 #ifndef __MEB_HPP
 #define __MEB_HPP
 
-#include "MEBParameters.hpp"
+#include "BBMParameters.hpp"
 #include "ParametricTools.hpp"
 #include "codeGenerationDGinGauss.hpp"
 #include "dgVector.hpp"
@@ -45,7 +45,7 @@ namespace MEB {
      * @param dt_mom timestep for momentum subcycle
      */
     template <int CG, int DGs, int DGa>
-    void StressUpdateHighOrder(const MEBParameters& params, const ParametricMesh& smesh,
+    void StressUpdateHighOrder(const BBMParameters& params, const ParametricMesh& smesh,
         DGVector<DGs>& S11, DGVector<DGs>& S12, DGVector<DGs>& S22, const DGVector<DGs>& E11,
         const DGVector<DGs>& E12, const DGVector<DGs>& E22, const DGVector<DGa>& H,
         const DGVector<DGa>& A, DGVector<DGa>& D, const double dt_mom)

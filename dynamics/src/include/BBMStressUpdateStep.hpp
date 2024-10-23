@@ -1,7 +1,7 @@
 /*!
  * @file BBMStressUpdateStep.hpp
  *
- * @date 24 Sep 2024
+ * @date 09 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -10,7 +10,7 @@
 
 #include "include/StressUpdateStep.hpp"
 
-#include "include/MEBParameters.hpp"
+#include "include/BBMParameters.hpp"
 #include "include/ParametricMap.hpp"
 #include "include/codeGenerationDGinGauss.hpp"
 
@@ -42,7 +42,7 @@ public:
         DGVector<DGstress>& e12 = strain[I12];
         DGVector<DGstress>& e22 = strain[I22];
 
-        const MEBParameters& params = reinterpret_cast<const MEBParameters&>(dParams);
+        const BBMParameters& params = reinterpret_cast<const BBMParameters&>(dParams);
         // Number of Gauss points
         const size_t nGauss = (((DGstress == 8) || (DGstress == 6)) ? 3 : (DGstress == 3 ? 2 : -1));
 //! Stress and Damage Update

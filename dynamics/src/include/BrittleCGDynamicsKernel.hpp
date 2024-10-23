@@ -1,7 +1,8 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date Jul 1, 2024
+ * @date 09 Nov 2024
+ * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
@@ -10,7 +11,7 @@
 
 #include "CGDynamicsKernel.hpp"
 
-#include "MEBParameters.hpp"
+#include "BBMParameters.hpp"
 #include "ParametricMap.hpp"
 #include "StressUpdateStep.hpp"
 
@@ -60,7 +61,7 @@ public:
         const DynamicsParameters& paramsIn)
         : CGDynamicsKernel<DGadvection>()
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const MEBParameters&>(paramsIn))
+        , params(reinterpret_cast<const BBMParameters&>(paramsIn))
         , stresstransport(nullptr)
     {
     }
@@ -167,7 +168,7 @@ protected:
     CGVector<CGdegree> avgV;
 
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const MEBParameters& params;
+    const BBMParameters& params;
 
     Nextsim::DGTransport<DGstressComp>* stresstransport;
 

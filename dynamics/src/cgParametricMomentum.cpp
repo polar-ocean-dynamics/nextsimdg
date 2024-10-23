@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMomentum.cpp
- * @date 24 Sep 2024
+ * @date 09 Nov 2024
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -308,7 +308,7 @@ void CGParametricMomentum<CG>::prepareIteration(
  */
 template <int CG>
 template <int DG>
-void CGParametricMomentum<CG>::BBMStep(const MEBParameters& params, const size_t NT_meb,
+void CGParametricMomentum<CG>::BBMStep(const BBMParameters& params, const size_t NT_meb,
     double dt_adv, const DGVector<DG>& H, const DGVector<DG>& A, DGVector<DG>& D)
 {
 
@@ -391,7 +391,7 @@ void CGParametricMomentum<CG>::BBMStep(const MEBParameters& params, const size_t
 
 template <int CG>
 template <int DG>
-void CGParametricMomentum<CG>::MEBStep(const MEBParameters& params, const size_t NT_meb,
+void CGParametricMomentum<CG>::MEBStep(const BBMParameters& params, const size_t NT_meb,
     double dt_adv, const DGVector<DG>& H, const DGVector<DG>& A, DGVector<DG>& D)
 {
 
@@ -509,34 +509,34 @@ template void CGParametricMomentum<2>::mEVPStep(const VPParameters& params, size
 
 // --------------------------------------------------
 
-template void CGParametricMomentum<1>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<1>& H, const DGVector<1>& A, DGVector<1>& D);
-template void CGParametricMomentum<1>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<3>& H, const DGVector<3>& A, DGVector<3>& D);
-template void CGParametricMomentum<1>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<6>& H, const DGVector<6>& A, DGVector<6>& D);
 
-template void CGParametricMomentum<2>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<1>& H, const DGVector<1>& A, DGVector<1>& D);
-template void CGParametricMomentum<2>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<3>& H, const DGVector<3>& A, DGVector<3>& D);
-template void CGParametricMomentum<2>::MEBStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::MEBStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<6>& H, const DGVector<6>& A, DGVector<6>& D);
 
 // --------------------------------------------------
 
-template void CGParametricMomentum<1>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<1>& H, const DGVector<1>& A, DGVector<1>& D);
-template void CGParametricMomentum<1>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<3>& H, const DGVector<3>& A, DGVector<3>& D);
-template void CGParametricMomentum<1>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<1>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<6>& H, const DGVector<6>& A, DGVector<6>& D);
 
-template void CGParametricMomentum<2>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<1>& H, const DGVector<1>& A, DGVector<1>& D);
-template void CGParametricMomentum<2>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<3>& H, const DGVector<3>& A, DGVector<3>& D);
-template void CGParametricMomentum<2>::BBMStep(const MEBParameters& params, size_t NT_evp,
+template void CGParametricMomentum<2>::BBMStep(const BBMParameters& params, size_t NT_evp,
     double dt_adv, const DGVector<6>& H, const DGVector<6>& A, DGVector<6>& D);
 
 } /* namespace Nextsim */

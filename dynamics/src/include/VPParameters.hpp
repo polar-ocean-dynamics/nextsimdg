@@ -1,6 +1,6 @@
 /*!
  * @file VPParameters.hpp
- * @date 18 Jan 2024
+ * @date 09 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
@@ -14,14 +14,10 @@ namespace Nextsim {
 
 class VPParameters : public DynamicsParameters {
 public:
-    double Pstar; //!< Ice strength
-    double DeltaMin; //!< Viscous regime
+    double Pstar = 27.5e3; //!< Ice strength
+    double DeltaMin = 2e-9; //!< Viscous regime
 
-    VPParameters()
-    {
-        Pstar = 27500.0; //!< Ice strength
-        DeltaMin = 2.e-9; //!< Viscous regime
-    }
+    VPParameters() = default;
 };
 
 } /* namespace Nextsim */
