@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.cpp
  *
- * @date 09 Nov 2024
+ * @date 11 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -23,7 +23,7 @@ static const double compactionParamDefault
     = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
 static const double pStarDefault = 27.5e3; //!< Ice strength
 static const double deltaMinDefault = 2e-9; //!< Viscous regime
-static const int nStepsDefault = 100; //!< Viscous regime
+static const int nStepsDefault = 100; //!< Number of sub-steps
 
 // TODO: We should use getName() here, but it isn't static.
 static const std::string prefix = "MEVPDynamics"; // MEVPDynamics::getName();
@@ -118,7 +118,7 @@ ModelState MEVPDynamics::getStateRecursive(const OutputSpec& os) const
 
 MEVPDynamics::HelpMap& MEVPDynamics::getHelpText(HelpMap& map, bool getAll)
 {
-    map["ConstantHealing"] = {
+    map["MEVPDynamics"] = {
         { keyMap.at(PSTAR_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(pStarDefault),
             "Pa", "The sea-ice strength parameter P*" },
         { keyMap.at(DELTA_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(deltaMinDefault),

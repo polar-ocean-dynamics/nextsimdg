@@ -1,6 +1,6 @@
 /*!
  * @file VPParameters.hpp
- * @date 09 Nov 2024
+ * @date 11 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
@@ -28,10 +28,10 @@ public:
     void setDeltaMin(const double D) { deltaMin = D; };
     void setNSteps(const int N) { nSteps = N; };
 
-    double getCompactionParam() const { return compactionParam; }
-    double getPStar() const { return pStar; }
-    double getDeltaMin() const { return deltaMin; }
-    int getNSteps() const { return nSteps; }
+    const double getCompactionParam() const { return compactionParam; }
+    const double getPStar() const { return pStar; }
+    const double getDeltaMin() const { return deltaMin; }
+    const int getNSteps() const { return nSteps; }
 };
 
 } /* namespace Nextsim */
