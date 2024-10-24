@@ -1,7 +1,7 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date Feb 2, 2024
+ * @date 09 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -20,7 +20,6 @@ namespace Nextsim {
 // The VP pseudo-timestepping momentum equation solver for CG velocities
 template <int DGadvection> class VPCGDynamicsKernel : public CGDynamicsKernel<DGadvection> {
 protected:
-    using DynamicsKernel<DGadvection, DGstressComp>::nSteps;
     using DynamicsKernel<DGadvection, DGstressComp>::s11;
     using DynamicsKernel<DGadvection, DGstressComp>::s12;
     using DynamicsKernel<DGadvection, DGstressComp>::s22;
@@ -70,7 +69,7 @@ public:
         // The critical timestep for the VP solver is the advection timestep
         deltaT = tst.step.seconds();
 
-        for (size_t mevpstep = 0; mevpstep < nSteps; ++mevpstep) {
+        for (size_t mevpstep = 0; mevpstep < params.getNSteps(); ++mevpstep) {
 
             projectVelocityToStrain();
 

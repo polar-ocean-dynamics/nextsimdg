@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.cpp
  *
- * @date 24 Sep 2024
+ * @date 09 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -11,7 +11,6 @@
 
 #include "include/gridNames.hpp"
 
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,9 +19,30 @@ namespace Nextsim {
 // Degrees to radians as a hex float
 static const double radians = 0x1.1df46a2529d39p-6;
 
+static const double compactionParamDefault
+    = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
+static const double pStarDefault = 27.5e3; //!< Ice strength
+static const double deltaMinDefault = 2e-9; //!< Viscous regime
+static const int nStepsDefault = 100; //!< Viscous regime
+
+// TODO: We should use getName() here, but it isn't static.
+static const std::string prefix = "MEVPDynamics"; // MEVPDynamics::getName();
+static const std::map<int, std::string> keyMap = {
+    { MEVPDynamics::PSTAR_KEY, prefix + ".Pstar" },
+    { MEVPDynamics::DELTA_KEY, prefix + ".DeltaMin" },
+    { MEVPDynamics::C_KEY, prefix + ".C" },
+    { MEVPDynamics::NSTEPS_KEY, prefix + ".nsteps" },
+};
+
 void MEVPDynamics::configure()
 {
     Module::Module<Nextsim::IDamageHealing>::setImplementation("Nextsim::NoHealing");
+
+    params.setPStar(Configured::getConfiguration(keyMap.at(PSTAR_KEY), pStarDefault));
+    params.setDeltaMin(Configured::getConfiguration(keyMap.at(DELTA_KEY), deltaMinDefault));
+    params.setCompactionParam(
+        Configured::getConfiguration(keyMap.at(C_KEY), compactionParamDefault));
+    params.setNSteps(Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault));
 }
 
 static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };
@@ -94,6 +114,26 @@ ModelState MEVPDynamics::getStateRecursive(const OutputSpec& os) const
         });
     }
     return state;
+}
+
+MEVPDynamics::HelpMap& MEVPDynamics::getHelpText(HelpMap& map, bool getAll)
+{
+    map["ConstantHealing"] = {
+        { keyMap.at(PSTAR_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(pStarDefault),
+            "Pa", "The sea-ice strength parameter P*" },
+        { keyMap.at(DELTA_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(deltaMinDefault),
+            "1/s", "Capping value of the 𝛥 variable" },
+        { keyMap.at(C_KEY), ConfigType::NUMERIC, { "-∞", "0" },
+            std::to_string(compactionParamDefault), "[None]", "The compaction parameter C" },
+        { keyMap.at(NSTEPS_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(nStepsDefault),
+            "[No unit]", "The number of sub-cycling steps" },
+    };
+    return map;
+}
+
+MEVPDynamics::HelpMap& MEVPDynamics::getHelpRecursive(HelpMap& map, bool getAll)
+{
+    return getHelpText(map, getAll);
 }
 
 }

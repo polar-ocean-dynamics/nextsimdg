@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.hpp
  *
- * @date 18 Jul 2024
+ * @date 09 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -36,6 +36,11 @@ public:
     void setData(const ModelState::DataMap&) override;
     ModelState getStateRecursive(const OutputSpec& os) const override;
     void configure() override;
+
+    enum { PSTAR_KEY, DELTA_KEY, C_KEY, NSTEPS_KEY };
+
+    static HelpMap& getHelpText(HelpMap& map, bool getAll);
+    static HelpMap& getHelpRecursive(HelpMap&, bool getAll);
 
 private:
     MEVPDynamicsKernel<DGCOMP> kernel;
