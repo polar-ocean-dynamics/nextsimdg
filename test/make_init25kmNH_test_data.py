@@ -20,7 +20,7 @@ def get_data(name):
         return ny
     elif name == "nz":
         return nz
-    elif name == "coords":
+    elif name == "ncoords":
         return ncoords
     elif name == "longitude":
         return np.asarray([
@@ -29083,7 +29083,7 @@ def get_data(name):
   101.23179744267, 66.8492233112465,
   100.765787454442, 66.7251983143797,
   100.304877466086, 66.5997383175491
-            ]).reshape((ny, nx, ncoords))
+            ]).reshape((ny + 1, nx + 1, ncoords))
     elif name == "grid_azimuth":
         return np.asarray([
   -69.2460164180442, -69.0443635099935, -68.8389766123616, 
@@ -65115,44 +65115,32 @@ if __name__ == "__main__":
     coord_dims = ("yvertex", "xvertex", "ncoords")
     zfield_dims = ("zdim", "ydim", "xdim")
 
-    coords = datagrp.createVariable("coords", "f8", coord_dims)
-    coords[:] = get_data("coords")
-    longitude = datagrp.createVariable("longitude", "f8", field_dims)
-    longitude[:] = get_data("longitude")
+    datagrp.createVariable("coords", "f8", coord_dims)[:] = get_data("coords")
+    datagrp.createVariable("longitude", "f8", field_dims)[:] = get_data("longitude")
     datagrp.createVariable("latitude", "f8", field_dims)[:] = get_data("latitude")
     
     datagrp.createVariable("grid_azimuth", "f8", field_dims)[:] = get_data("grid_azimuth")
     
-    # Land mask data from the CDL data
-    mask = datagrp.createVariable("mask", "f8", field_dims)
-    mask[:, :] = get_data("mask")
+    datagrp.createVariable("mask", "f8", field_dims)[:, :] = get_data("mask")
 
-    cice = datagrp.createVariable("cice", "f8", field_dims)
-    hice = datagrp.createVariable("hice", "f8", field_dims)
-    cice[:, :] = get_data("cice")
-    hice[:, :] = get_data("hice")
+    datagrp.createVariable("cice", "f8", field_dims)[:, :] = get_data("cice")
+    datagrp.createVariable("hice", "f8", field_dims)[:, :] = get_data("hice")
     
     # Snow thickness. Zero everywhere on the ocean
-    hsnow = datagrp.createVariable("hsnow", "f8", field_dims)
-    hsnow[:, :] = 0 * hice[:, :]
+    datagrp.createVariable("hsnow", "f8", field_dims)[:, :] = 0 * get_data("hice")
 
     # SSS
-    sss = datagrp.createVariable("sss", "f8", field_dims)
-    sss[:, :] = get_data("sss")
+    datagrp.createVariable("sss", "f8", field_dims)[:, :] = get_data("sss")
 
     # SST
-    sst = datagrp.createVariable("sst", "f8", field_dims)
-    sst[:, :] = get_data("sst")
+    datagrp.createVariable("sst", "f8", field_dims)[:, :] = get_data("sst")
 
     # Ice temperature
-    tice = datagrp.createVariable("tice", "f8", zfield_dims)
-    tice[:, :, :] = get_data("tice")
+    datagrp.createVariable("tice", "f8", zfield_dims)[:, :, :] = get_data("tice")
     
     # Ice starts at rest
-    u = datagrp.createVariable("u", "f8", field_dims)
-    u[:, :] = 0
+    datagrp.createVariable("u", "f8", field_dims)[:, :] = 0
 
-    v = datagrp.createVariable("v", "f8", field_dims)
-    v[:, :] = 0
+    datagrp.createVariable("v", "f8", field_dims)[:, :] = 0
     
     root.close()
