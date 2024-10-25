@@ -44,10 +44,13 @@ jobs:
         mv ../test .
         cd test
         python3 ThermoIntegration_test.py
-        python3 make_init25kmNH_test_data.py
-        python3 era5_topaz4_test_data.py
-        echo run_integration_test.sh
-        ./run_integratin_test.sh
+        (
+        python3 make_init25kmNH_test_data.py;
+        python3 era5_topaz4_test_data.py;
+        echo run_integration_test.sh;
+        ./run_integration_test.sh;
+        python3 test_integration_test.py
+        )
         cd -
 
   test-ubuntu-mpi:
