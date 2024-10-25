@@ -77,4 +77,5 @@ cice_max = 1
 if np.any(cice_dg0 < cice_min) or np.any(cice_dg0 > cice_max):
     print(f"Error: ice concentration at at least one sample point is outside the range 0 ≤ c_ice ≤ 1.")
     sys.exit(8)
-cice_dg1 = cice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg1]
+
+print("Success: integration test passed.")
