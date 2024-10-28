@@ -49,7 +49,7 @@ jobs:
         mv ../test .
         cd test
         python3 ThermoIntegration_test.py
-        ./run_test_jan2010_integration_test.sh
+        ./run_test_jan2010_integration_test.sh python3
         cd -
 
   test-ubuntu-mpi:
@@ -134,5 +134,5 @@ jobs:
         mv ../test .
         cd test
         python ThermoIntegration_test.py
-        ./run_test_jan2010_integration_test.sh
+        ./run_test_jan2010_integration_test.sh python
         cd -
