@@ -59,7 +59,7 @@ print(f"hice_dg0={hice_dg0}")
 # These values should be greater than zero and less than 10 m
 hice_min = 0
 hice_max = 10
-if np.any(hice_dg0 < hice_min) or np.any(hice_dg0 > hice_max):
+if np.any(hice_dg0 <= hice_min) or np.any(hice_dg0 > hice_max):
     print(f"Error: ice thickness at at least one sample point is outside the range 0 < h_ice < 10 m.")
     sys.exit(8)
 hice_dg1 = hice[y_lo:y_hi:y_lo, x_lo:x_hi:x_lo, dg1]
@@ -76,7 +76,7 @@ cice_dg0 = cice[y_lo:y_hi:y_lo, x_lo:x_hi:x_lo, dg0]
 print(f"cice_dg0={cice_dg0}")
 cice_min = 0
 cice_max = 1
-if np.any(cice_dg0 < cice_min) or np.any(cice_dg0 > cice_max):
+if np.any(cice_dg0 <= cice_min) or np.any(cice_dg0 > cice_max):
     print(f"Error: ice concentration at at least one sample point is outside the range 0 ≤ c_ice ≤ 1.")
     sys.exit(8)
 
