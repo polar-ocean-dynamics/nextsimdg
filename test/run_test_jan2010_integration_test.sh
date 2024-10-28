@@ -8,11 +8,11 @@ era5_file=25km_NH.ERA5_2010-01-01T000000_test_data.nc
 topaz_file=25km_NH.TOPAZ4_2010-01-01T000000_test_data.nc
 out_file=out.integration_test.nc
 
-python3 make_init25kmNH_test_data.py
-python3 era5_topaz4_test_data.py
+python make_init25kmNH_test_data.py
+python era5_topaz4_test_data.py
 echo run_integration_test.sh
 ./run_integration_test.sh
-python3 test_integration_test.py
+python test_integration_test.py
 test_return_value=$?
 rm $restart_file $era5_file $topaz_file $out_file
 rm nextsim.*.log
