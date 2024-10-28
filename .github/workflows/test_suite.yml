@@ -24,6 +24,11 @@ jobs:
         cmake ..
         make -j 4
 
+    - name: installs for python tests
+      run: |
+        pip install numpy
+        pip install netCDF4
+
     - name: run serial tests
       run: |
         . /opt/spack-environment/activate.sh
