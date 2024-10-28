@@ -55,6 +55,7 @@ dg1 = 1
 
 # DG0, average or finite difference values
 hice_dg0 = hice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg0]
+print(f"hice_dg0={hice_dg0}")
 # These values should be greater than zero and less than 10 m
 hice_min = 0
 hice_max = 10
@@ -72,6 +73,7 @@ if np.all(np.abs(hice_dg1) <= abs_dg_min) or np.any(np.abs(hice_dg1) > abs_dg_ma
 cice_name = "cice"
 cice = data_group[cice_name]
 cice_dg0 = cice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg0]
+print(f"cice_dg0={cice_dg0}")
 cice_min = 0
 cice_max = 1
 if np.any(cice_dg0 < cice_min) or np.any(cice_dg0 > cice_max):
