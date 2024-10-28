@@ -47,14 +47,14 @@ if hice.shape[2] != ndg:
     
 # Test the contents of hice
 x_lo = 51
-x_hi = 102
+x_hi = x_lo*2 + 1
 y_lo = 40
-y_hi = 80
+y_hi = y_lo*2 + 1
 dg0 = 0
 dg1 = 1
 
 # DG0, average or finite difference values
-hice_dg0 = hice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg0]
+hice_dg0 = hice[y_lo:y_hi:y_lo, x_lo:x_hi:x_lo, dg0]
 print(f"hice_dg0={hice_dg0}")
 # These values should be greater than zero and less than 10 m
 hice_min = 0
@@ -62,7 +62,7 @@ hice_max = 10
 if np.any(hice_dg0 < hice_min) or np.any(hice_dg0 > hice_max):
     print(f"Error: ice thickness at at least one sample point is outside the range 0 < h_ice < 10 m.")
     sys.exit(8)
-hice_dg1 = hice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg1]
+hice_dg1 = hice[y_lo:y_hi:y_lo, x_lo:x_hi:x_lo, dg1]
 abs_dg_min = 0
 abs_dg_max = 1
 # Only check if all the DG1 components are zero. Some are allowed to be 0. But any above the maximum is a failure
@@ -72,7 +72,7 @@ if np.all(np.abs(hice_dg1) <= abs_dg_min) or np.any(np.abs(hice_dg1) > abs_dg_ma
     
 cice_name = "cice"
 cice = data_group[cice_name]
-cice_dg0 = cice[y_lo:y_hi+1:y_hi, x_lo:x_hi+1:x_lo, dg0]
+cice_dg0 = cice[y_lo:y_hi:y_lo, x_lo:x_hi:x_lo, dg0]
 print(f"cice_dg0={cice_dg0}")
 cice_min = 0
 cice_max = 1
