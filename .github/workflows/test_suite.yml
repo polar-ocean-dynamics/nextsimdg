@@ -21,7 +21,7 @@ jobs:
       run: |
         . /opt/spack-environment/activate.sh
         mkdir -p build && cd build
-        cmake ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
         make -j 4
 
     - name: installs for python tests
@@ -116,7 +116,7 @@ jobs:
         mkdir -p build
         cd build
         # added Python_ROOT_DIR to help cmake find correct Python in the mac VM
-        cmake -DENABLE_MPI=OFF -DENABLE_XIOS=OFF -DPython_ROOT_DIR=/Library/Frameworks/Python.framework/Versions/Current/bin ..
+        cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_MPI=OFF -DENABLE_XIOS=OFF -DPython_ROOT_DIR=/Library/Frameworks/Python.framework/Versions/Current/bin ..
         make -j 4
     - name: run serial tests
       run: |
