@@ -129,4 +129,5 @@ jobs:
         mv ../test .
         cd test
         python ThermoIntegration_test.py
+        ./run_test_jan2010_integration_test.sh
         cd -
