@@ -87,14 +87,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     xios_handler.createAxis("z_axis");
     xios_handler.setAxisValues("z_axis", { 0.0, 1.0 });
 
-    // Create a 2D grid comprised of the xy-domain and a 3D grid which also includes the z-axis
-    // TODO: Create grid_2D along with xy_domain, grid_3D along with xy_domain plus z_axis
-    xios_handler.createGrid("grid_2D");
-    xios_handler.gridAddDomain("grid_2D", "xy_domain");
-    xios_handler.createGrid("grid_3D");
-    xios_handler.gridAddDomain("grid_3D", "xy_domain");
-    xios_handler.gridAddAxis("grid_3D", "z_axis");
-
     // Create some fake data to test writing methods
     HField field_2D(ModelArray::Type::H);
     field_2D.resize();
@@ -105,12 +97,12 @@ MPI_TEST_CASE("TestXiosRead", 2)
     // TODO: Create field along with HField
     xios_handler.createField("field_2D");
     xios_handler.setFieldOperation("field_2D", "instant");
-    xios_handler.setFieldGridRef("field_2D", "grid_2D");
+    xios_handler.setFieldGridRef("field_2D", "grid_2D"); // NOTE: grid_2D auto-generated
     xios_handler.setFieldReadAccess("field_2D", true);
     xios_handler.setFieldFreqOffset("field_2D", timestep);
     xios_handler.createField("field_3D");
     xios_handler.setFieldOperation("field_3D", "instant");
-    xios_handler.setFieldGridRef("field_3D", "grid_3D");
+    xios_handler.setFieldGridRef("field_3D", "grid_3D"); // NOTE: grid_3D auto-generated
     xios_handler.setFieldReadAccess("field_3D", true);
     xios_handler.setFieldFreqOffset("field_3D", timestep);
 

@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    21 August 2024
+ * @date    01 Nov 2024
  * @brief   XIOS interface implementation
  * @details
  *
@@ -357,7 +357,10 @@ xios::CAxis* Xios::getAxis(const std::string axisId)
 }
 
 /*!
- * Create an axis with some ID
+ * Create an axis with some ID.
+ *
+ * If the axis ID is 'z_axis' and a domain called 'xy_domain' exists then a grid called 'grid_3D'
+ * will automatically be created with this axis and that domain.
  *
  * @param the axis ID
  */
@@ -376,6 +379,15 @@ void Xios::createAxis(const std::string axisId)
     cxios_axis_valid_id(&exists, axisId.c_str(), axisId.length());
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create axis '" + axisId + "'");
+    }
+    if (axisId == "z_axis") {
+        std::string domainId = "xy_domain";
+        cxios_domain_valid_id(&exists, domainId.c_str(), domainId.length());
+        if (exists) {
+            createGrid("grid_3D");
+            gridAddDomain("grid_3D", "xy_domain");
+            gridAddAxis("grid_3D", "z_axis");
+        }
     }
 }
 
@@ -497,7 +509,11 @@ xios::CDomain* Xios::getDomain(const std::string domainId)
 }
 
 /*!
- * Create a domain with some ID
+ * Create a domain with some ID.
+ *
+ * If the domain ID is 'xy_domain' then a grid called 'grid_2D' will automatically be created with
+ * this domain. If an axis called 'z_axis' also exists then a grid called 'grid_3D' will
+ * automatically be created with this domain and that axis.
  *
  * @param the domain ID
  */
@@ -516,6 +532,17 @@ void Xios::createDomain(const std::string domainId)
     cxios_domain_valid_id(&exists, domainId.c_str(), domainId.length());
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create domain '" + domainId + "'");
+    }
+    if (domainId == "xy_domain") {
+        createGrid("grid_2D");
+        gridAddDomain("grid_2D", "xy_domain");
+        std::string axisId = "z_axis";
+        cxios_axis_valid_id(&exists, axisId.c_str(), axisId.length());
+        if (exists) {
+            createGrid("grid_3D");
+            gridAddDomain("grid_3D", "xy_domain");
+            gridAddAxis("grid_3D", "z_axis");
+        }
     }
 }
 
