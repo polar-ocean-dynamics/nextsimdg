@@ -44,11 +44,11 @@ class Slice {
         {
         }
         Bounds(Index i)
-            : Bounds(i, max, 1)
+            : Bounds(i, i+1, 1)
         {
         }
         Bounds(NegIndex n)
-            : Bounds(n, max, 1)
+            : Bounds(n, n+1, 1)
         {
         }
         Bounds(Index i, Index j)
