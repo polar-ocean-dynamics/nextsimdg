@@ -116,6 +116,7 @@ public:
     }
 
     const VBounds& bounds() const { return m_bounds; }
+    const size_t n() const { return m_bounds.size(); }
 
     class SliceIter
     {
@@ -130,6 +131,8 @@ public:
         , current(dimensions.size(), 0)
         {
             // TODO Add exceptions if the length of Slice and dimensions do not match.
+            if (slice.n() != dimensions.size())
+                throw std::invalid_argument("SliceIter: mismatch in number of dimensions between Slice (" + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size()) + ").");
         }
 //        SliceIter(SliceIter& other);
         SliceIter& operator++();

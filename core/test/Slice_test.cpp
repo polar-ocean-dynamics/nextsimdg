@@ -28,6 +28,9 @@ TEST_CASE("Multidimensional indexing")
     Slice::SliceIter iter610(element, {6, 10});
     REQUIRE(iter610.toBegin().index() == Indexer::indexer({6, 10}, {3, 5}));
     REQUIRE(Slice::SliceIter(element, {8, 7}).toBegin().index() == Indexer::indexer({8, 7}, {3, 5}));
+
+    // Check that a mismatch in number of dimensions is correctly detected
+    REQUIRE_THROWS_AS(Slice::SliceIter(element, {8, 7, 6}), std::invalid_argument);
 }
 
 TEST_SUITE_END();
