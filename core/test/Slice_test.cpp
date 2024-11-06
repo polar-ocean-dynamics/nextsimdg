@@ -14,7 +14,10 @@
 TEST_SUITE_BEGIN("Slice");
 TEST_CASE("One dimensional indexing")
 {
-
+    // A single element
+    Slice element3 {{3, 4}};
+    Slice::SliceIter iter3(element3, {10});
+    REQUIRE(iter3.toBegin().index() == 3);
     Slice allOneD;
 }
 

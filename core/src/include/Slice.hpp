@@ -2,6 +2,8 @@
 #include <limits>
 #include <vector>
 
+#include "include/indexer.hpp"
+
 // Generic n-dimensional slice
 class Slice {
     // public:
@@ -98,50 +100,22 @@ class Slice {
         {
         }
     };
-    std::vector<Bounds> bounds;
+public:
+    using VBounds = std::vector<Bounds>;
+private:
+    VBounds m_bounds;
 
 public:
     Slice()
-        : Slice(Bounds())
+        : Slice({Bounds()})
     {
     }
-    Slice(Bounds bx)
-        : bounds({ bx })
-    {
-    }
-    Slice(Bounds bx, Bounds by)
-        : bounds({ bx, by })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz)
-        : bounds({ bx, by, bz })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz, Bounds bw)
-        : bounds({ bx, by, bz, bw })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz, Bounds bw, Bounds bv)
-        : bounds({ bx, by, bz, bw, bv })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz, Bounds bw, Bounds bv, Bounds bu)
-        : bounds({ bx, by, bz, bw, bv, bu })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz, Bounds bw, Bounds bv, Bounds bu, Bounds bt)
-        : bounds({ bx, by, bz, bw, bv, bu, bt })
-    {
-    }
-    Slice(Bounds bx, Bounds by, Bounds bz, Bounds bw, Bounds bv, Bounds bu, Bounds bt, Bounds bs)
-        : bounds({ bx, by, bz, bw, bv, bu, bt, bs })
-    {
-    }
-    // Support up to 8 dimensions as individual arguments
     Slice(std::vector<Bounds> allBounds)
-        : bounds(allBounds)
+        : m_bounds(allBounds)
     {
     }
+
+    const VBounds& bounds() const { return m_bounds; }
 
     class SliceIter
     {
@@ -165,14 +139,19 @@ public:
         /*!
          * Returns the one-dimensional index equivalent to the current state of the iterator
          */
-        size_t index() const;
+        size_t index() const {
+            // TODO deal with negative positions
+            return Indexer::indexer(m_dimensions, current);
+        }
         /*!
          * Sets the state to the beginning of the slice
          */
         SliceIter& toBegin()
         {
             // TODO deal with reverseStart == true
-
+            for (size_t dim = 0; dim < m_slice.bounds().size(); ++dim) {
+                current[dim] = m_slice.bounds()[dim].start;
+            }
             return *this;
         }
         /*!
@@ -180,6 +159,13 @@ public:
          */
         SliceIter& toEnd()
         {
+            // TODO deal with negative indices
+            // TODO deal with non-unit steps
+            size_t ndim = m_slice.bounds().size();
+            for (size_t dim = 0; dim < ndim - 1; ++dim) {
+                current[dim] = 0;
+            }
+            current[ndim - 1] = m_slice.bounds()[ndim - 1].stop;
             return *this;
         }
     private:
