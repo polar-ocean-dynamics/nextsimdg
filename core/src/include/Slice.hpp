@@ -130,6 +130,7 @@ public:
         , m_dimensions(dimensions)
         , current(dimensions.size(), 0)
         {
+            toBegin();
             // TODO Add exceptions if the length of Slice and dimensions do not match.
             if (slice.n() != dimensions.size())
                 throw std::invalid_argument("SliceIter: mismatch in number of dimensions between Slice (" + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size()) + ").");
