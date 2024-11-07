@@ -61,6 +61,32 @@ TEST_CASE("Multidimensional indexing")
 
     // Check that a mismatch in number of dimensions is correctly detected
     REQUIRE_THROWS_AS(Slice::SliceIter(element, {8, 7, 6}), std::invalid_argument);
+
+    // A multidimensional slice
+    Slice elements3748 {{{3, 7}, {4, 8}}};
+    const size_t nx = 11;
+    const size_t ny = 13;
+    Slice::SliceIter iter3748(elements3748, {nx, ny});
+    size_t index = iter3748.index();
+    REQUIRE(index == Indexer::indexer({nx, ny}, {3, 4}));
+    size_t count = 0;
+    size_t indexLast = index - 1;
+    while(!iter3748.isEnd()) {
+        index = iter3748.index();
+        std::ptrdiff_t deltaIndex = index - indexLast;
+        bool xStep = deltaIndex == 1;
+        bool yStep = deltaIndex == (Indexer::indexer({nx, ny}, {3, 5}) - Indexer::indexer({nx, ny}, {6, 4}));
+        bool allowedStep = xStep || yStep;
+        REQUIRE_MESSAGE(allowedStep, "Forbidden step value Δi=", deltaIndex);
+        REQUIRE(index % nx >= 3);
+        REQUIRE(index % nx < 7);
+        REQUIRE(index / nx >= 4);
+        REQUIRE(index / nx < 8);
+        REQUIRE(count <= 16);
+        indexLast = index;
+        ++iter3748;
+        ++count;
+    }
 }
 
 TEST_SUITE_END();

@@ -103,7 +103,17 @@ public:
         {
             // TODO deal with non-unit steps
             // TODO deal with multiple dimensions
-            ++current[0];
+            size_t dim = 0;
+            for(;;) {
+                // Increment current in this dimension, and test if it is at or past the end.
+                if (!stopTest(++current[dim], dim)) break;
+                // Never reset the final valid dimension.
+                if (dim + 1 >= current.size()) break;
+                // Reset the dimension to the start
+                current[dim] = m_slice.bounds()[dim].start;
+                // Increment dimension
+                ++dim;
+            }
             return *this;
         }
         SliceIter operator++(int)
@@ -119,6 +129,13 @@ public:
          */
         size_t index() const {
             // TODO deal with negative positions
+            if (false) {
+                std::cout << "current=(";
+                for (auto pos : current) {
+                    std::cout << pos << ",";
+                }
+                std::cout << ")" << std::endl;
+            }
             return Indexer::indexer(m_dimensions, current);
         }
         /*!
@@ -143,10 +160,7 @@ public:
             for (size_t dim = 0; dim < lastDim - 1; ++dim) {
                 current[dim] = 0;
             }
-            current[lastDim] = (
-                    (m_slice.bounds()[lastDim].stop.isAll()) ?
-                            m_dimensions[lastDim] :
-                            static_cast<Slice::Int>(m_slice.bounds()[lastDim].stop));
+            current[lastDim] = dimEnd(lastDim);
             return *this;
         }
         /*!
@@ -167,12 +181,23 @@ public:
         {
             // TODO handle reversed starts, stops, steps
             size_t lastDim = m_slice.n() - 1;
-            return current[lastDim]
-                    >= ((m_slice.bounds()[lastDim].stop.isAll()) ?
-                            m_dimensions[lastDim] :
-                            static_cast<Slice::Int>(m_slice.bounds()[lastDim].stop));
+            return stopTest(current, lastDim);
         }
     private:
+
+        size_t dimEnd(size_t dim) const
+        {
+            return (m_slice.bounds()[dim].stop.isAll()) ?
+                                m_dimensions[dim] :
+                                static_cast<Slice::Int>(m_slice.bounds()[dim].stop);
+        }
+        // Test whether a dimension has run past the end of its bounds
+        bool stopTest(size_t subject, size_t dim) const
+        {
+            return subject >= dimEnd(dim);
+        }
+        bool stopTest(const MultiDim& loc, size_t dim) const { return stopTest(loc[dim], dim); }
+
         const MultiDim m_dimensions;
         MultiDim current;
         const Slice& m_slice;
