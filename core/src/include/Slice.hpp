@@ -4,9 +4,12 @@
 
 #include "include/indexer.hpp"
 
+#include <iostream> // FIXME remove me
+
 // Generic n-dimensional slice
 class Slice {
-    // public:
+     public:
+    using Int = std::ptrdiff_t;
     //  Bounds for one dimension
     class Bounds {
     public:
@@ -18,87 +21,47 @@ class Slice {
                 : m_isAll(true)
                 , i(0)
             {
+//                std::cout << "Index::Index()" << std::endl;
             }
-            Index(size_t ii)
+            // A constructor only for unsigned integers
+            Index(Int ii)
                 : m_isAll(false)
                 , i(ii)
             {
+//                std::cout << "Index::Index(" << ii << ")" << std::endl;
             }
             bool isAll() const { return m_isAll; }
-            operator size_t() const { return i; }
+            operator std::ptrdiff_t() const { return i; }
 
         private:
             bool m_isAll;
-            size_t i;
+            Int i;
         };
 
     public:
-        using NegIndex = std::ptrdiff_t;
-        size_t start;
-        size_t stop;
-        ptrdiff_t step;
-        bool reverseStart;
-        bool reverseStop;
+        Index start;
+        Index stop;
+        Int step;
         Bounds()
-            : Bounds(0, max, 1)
+            : Bounds(0, {}/*, 1*/)
         {
         }
         Bounds(Index i)
-            : Bounds(i, i+1, 1)
-        {
-        }
-        Bounds(NegIndex n)
-            : Bounds(n, n+1, 1)
+            : Bounds(i, i+1/*, 1*/)
         {
         }
         Bounds(Index i, Index j)
-            : Bounds(i, j, 1)
+//            : Bounds(i, j, 1)
+        : start(i)
+        , stop(j)
         {
         }
-        Bounds(NegIndex n, Index j)
-            : Bounds(n, j, 1)
-        {
-        }
-        Bounds(Index i, NegIndex m)
-            : Bounds(i, m, 1)
-        {
-        }
-        Bounds(NegIndex n, NegIndex m)
-            : Bounds(n, m, 1)
-        {
-        }
-        Bounds(Index i, Index j, NegIndex l)
-            : start(i.isAll() ? 0 : static_cast<size_t>(i))
-            , stop(j.isAll() ? max : static_cast<size_t>(j))
-            , step(l)
-            , reverseStart(false)
-            , reverseStop(false)
-        {
-        }
-        Bounds(NegIndex n, Index j, NegIndex l)
-            : start(std::abs(n))
-            , stop(j.isAll() ? max : static_cast<size_t>(j))
-            , step(l)
-            , reverseStart(n < 0)
-            , reverseStop(false)
-        {
-        }
-        Bounds(Index i, NegIndex m, NegIndex l)
-            : start(i.isAll() ? 0 : static_cast<size_t>(i))
-            , stop(std::abs(m))
-            , step(l)
-            , reverseStart(false)
-            , reverseStop(m < 0)
-        {
-        }
-        Bounds(NegIndex n, NegIndex m, NegIndex l)
-            : start(std::abs(n))
-            , stop(std::abs(m))
-            , step(l)
-            , reverseStart(n < 0)
-            , reverseStop(m < 0)
-        {
-        }
+//        Bounds(Index i, Index j, Int step_in)
+//            : start(i)
+//            , stop(j)
+//            , step(step_in)
+//        {
+//        }
     };
 public:
     using VBounds = std::vector<Bounds>;
@@ -136,8 +99,19 @@ public:
                 throw std::invalid_argument("SliceIter: mismatch in number of dimensions between Slice (" + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size()) + ").");
         }
 //        SliceIter(SliceIter& other);
-        SliceIter& operator++();
-        SliceIter operator++(int);
+        SliceIter& operator++()
+        {
+            // TODO deal with non-unit steps
+            // TODO deal with multiple dimensions
+            ++current[0];
+            return *this;
+        }
+        SliceIter operator++(int)
+        {
+            SliceIter copy(*this);
+            ++(*this);
+            return copy;
+        }
         SliceIter& operator--();
         SliceIter operator--(int);
         /*!
@@ -153,7 +127,7 @@ public:
         SliceIter& toBegin()
         {
             // TODO deal with reverseStart == true
-            for (size_t dim = 0; dim < m_slice.bounds().size(); ++dim) {
+            for (size_t dim = 0; dim < m_slice.n(); ++dim) {
                 current[dim] = m_slice.bounds()[dim].start;
             }
             return *this;
@@ -165,12 +139,38 @@ public:
         {
             // TODO deal with negative indices
             // TODO deal with non-unit steps
-            size_t ndim = m_slice.bounds().size();
-            for (size_t dim = 0; dim < ndim - 1; ++dim) {
+            size_t lastDim = m_slice.n() - 1;
+            for (size_t dim = 0; dim < lastDim - 1; ++dim) {
                 current[dim] = 0;
             }
-            current[ndim - 1] = m_slice.bounds()[ndim - 1].stop;
+            current[lastDim] = (
+                    (m_slice.bounds()[lastDim].stop.isAll()) ?
+                            m_dimensions[lastDim] :
+                            static_cast<Slice::Int>(m_slice.bounds()[lastDim].stop));
             return *this;
+        }
+        /*!
+         * Is the iterator at its 'begin'?
+         */
+        bool isBegin() const
+        {
+            for (size_t dim = 0; dim < m_slice.n(); ++dim) {
+                if (current[dim] != m_slice.bounds()[dim].start)
+                    return false;
+            }
+            return true;
+        }
+        /*!
+         * Is the iterator at its 'end'?
+         */
+        bool isEnd() const
+        {
+            // TODO handle reversed starts, stops, steps
+            size_t lastDim = m_slice.n() - 1;
+            return current[lastDim]
+                    >= ((m_slice.bounds()[lastDim].stop.isAll()) ?
+                            m_dimensions[lastDim] :
+                            static_cast<Slice::Int>(m_slice.bounds()[lastDim].stop));
         }
     private:
         const MultiDim m_dimensions;
