@@ -10,6 +10,22 @@
 
 #include "include/Slice.hpp"
 
+#include <array>
+
+TEST_SUITE_BEGIN("Indexer");
+TEST_CASE("indexer <-> deIndexer")
+{
+    using MultiDim = std::vector<size_t>;
+    MultiDim origLoc = { 2, 3, 5, 7, 11, 13 };
+    MultiDim dims = { 4, 6, 8, 10, 12, 14 };
+
+    size_t index = Indexer::indexer(dims, origLoc);
+    MultiDim finalLoc = Indexer::deIndexer(dims, index);
+    for (size_t i = 0; i < dims.size(); ++i) {
+        REQUIRE(origLoc[i] == finalLoc[i]);
+    }
+}
+TEST_SUITE_END();
 
 TEST_SUITE_BEGIN("Slice");
 TEST_CASE("One dimensional indexing")
@@ -87,6 +103,22 @@ TEST_CASE("Multidimensional indexing")
         ++iter3748;
         ++count;
     }
+
+    Slice elements8d {{{2, 6}, {4, 9}, {6, 12}, {8, 15}, {10, 18}, {12, 21}, {14, 24}, {16, 27}}};
+    std::vector<size_t> ni = { 7, 12, 13, 16, 30, 30, 30, 30};
+    Slice::SliceIter iter8d(elements8d, ni);
+    count = 0;
+    const size_t expt = 11 * 10 * 9 * 8 * 7 * 6 * 5 * 4;
+    while (!iter8d.isEnd()) {
+        auto loc = Indexer::deIndexer(ni, iter8d.index());
+        for (size_t dim = 0; dim < ni.size(); ++dim) {
+            REQUIRE(loc[dim] >= elements8d.bounds()[dim].start);
+            REQUIRE(loc[dim] < elements8d.bounds()[dim].stop);
+        }
+        ++iter8d;
+        ++count;
+    }
+    REQUIRE(count == expt);
 }
 
 TEST_SUITE_END();
