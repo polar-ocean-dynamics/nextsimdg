@@ -43,25 +43,25 @@ class Slice {
         Index stop;
         Int step;
         Bounds()
-            : Bounds(0, {}/*, 1*/)
+            : Bounds(0, {}, 1)
         {
         }
         Bounds(Index i)
-            : Bounds(i, i+1/*, 1*/)
+            : Bounds(i, i+1, 1)
         {
         }
         Bounds(Index i, Index j)
-//            : Bounds(i, j, 1)
-        : start(i)
-        , stop(j)
+            : Bounds(i, j, 1)
+//        : start(i)
+//        , stop(j)
         {
         }
-//        Bounds(Index i, Index j, Int step_in)
-//            : start(i)
-//            , stop(j)
-//            , step(step_in)
-//        {
-//        }
+        Bounds(Index i, Index j, Int step_in)
+            : start(i)
+            , stop(j)
+            , step(step_in)
+        {
+        }
     };
 public:
     using VBounds = std::vector<Bounds>;
@@ -106,7 +106,7 @@ public:
             size_t dim = 0;
             for(;;) {
                 // Increment current in this dimension, and test if it is at or past the end.
-                if (!stopTest(++current[dim], dim)) break;
+                if (!stopTest(current[dim] += m_slice.bounds()[dim].step, dim)) break;
                 // Never reset the final valid dimension.
                 if (dim + 1 >= current.size()) break;
                 // Reset the dimension to the start

@@ -12,6 +12,8 @@
 
 #include <array>
 
+#define ciel(num , denom) (((num) + (denom) - 1) / (denom))
+
 TEST_SUITE_BEGIN("Indexer");
 TEST_CASE("indexer <-> deIndexer")
 {
@@ -63,6 +65,31 @@ TEST_CASE("One dimensional indexing")
     REQUIRE(iter3_.isEnd());
     REQUIRE(count == 7);
 
+    // Non-unit stride, also full length of the array.
+    Slice stride2 {{{{},{},2}}};
+    Slice::SliceIter iter__2(stride2, {10});
+    REQUIRE(iter__2.index() == 0);
+    count = 0;
+    size_t expt = 10 / 2;
+    while (!iter__2.isEnd()) {
+        REQUIRE(iter__2.index() % 2 == 0);
+        ++iter__2;
+        ++count;
+    }
+    REQUIRE(count == expt);
+
+    // And starting from 1
+    stride2 = {{{1, {}, 2}}};
+    Slice::SliceIter iter1_2(stride2, {10});
+    REQUIRE(iter1_2.index() == 1);
+    count = 0;
+    // expt still = 5
+    while (!iter1_2.isEnd()) {
+        REQUIRE(iter1_2.index() % 2 == 1);
+        ++iter1_2;
+        ++count;
+    }
+    REQUIRE(count == expt);
 
     Slice allOneD;
 }
@@ -131,8 +158,20 @@ TEST_CASE("Multidimensional indexing")
         for (Slice::SliceIter iter(slice3_5_, nj); !iter.isEnd(); ++iter) {
             ++count;
         }
-        REQUIRE(count == (xi - nj[0]) * (yi - nj[1]));
+        REQUIRE(count == (nj[0] - xi) * (nj[1] - yi));
     }
+
+    // Multiple dimensions, multiple strides
+    auto dx = 2;
+    auto dy = 3;
+    auto lenY = 13;
+    Slice sliceMultiStride {{{xi, {}, dx}, {yi, yi + lenY, dy}}};
+    count = 0;
+    auto dim = dims[1]; // Take the arrays sizes from above
+    for (Slice::SliceIter iter(sliceMultiStride, dim); !iter.isEnd(); ++iter) {
+        count++;
+    }
+    REQUIRE(count == ciel(dim[0] - xi, dx) * ciel(lenY, dy));
 }
 
 TEST_SUITE_END();
