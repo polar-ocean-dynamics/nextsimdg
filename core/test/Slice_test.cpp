@@ -104,6 +104,7 @@ TEST_CASE("Multidimensional indexing")
         ++count;
     }
 
+    // 8 dimensional array slicing
     Slice elements8d {{{2, 6}, {4, 9}, {6, 12}, {8, 15}, {10, 18}, {12, 21}, {14, 24}, {16, 27}}};
     std::vector<size_t> ni = { 7, 12, 13, 16, 30, 30, 30, 30};
     Slice::SliceIter iter8d(elements8d, ni);
@@ -119,6 +120,19 @@ TEST_CASE("Multidimensional indexing")
         ++count;
     }
     REQUIRE(count == expt);
+
+    // n to whatever in 2 dimensions
+    const size_t xi = 3;
+    const size_t yi = 5;
+    Slice slice3_5_ {{{xi, {}}, {yi, {}}}};
+    std::vector<std::vector<size_t>> dims = { { 11, 17 }, { 37, 43 } };
+    for (std::vector<size_t> nj : dims) {
+        count = 0;
+        for (Slice::SliceIter iter(slice3_5_, nj); !iter.isEnd(); ++iter) {
+            ++count;
+        }
+        REQUIRE(count == (xi - nj[0]) * (yi - nj[1]));
+    }
 }
 
 TEST_SUITE_END();
