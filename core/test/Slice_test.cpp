@@ -172,6 +172,17 @@ TEST_CASE("Multidimensional indexing")
         count++;
     }
     REQUIRE(count == ciel(dim[0] - xi, dx) * ciel(lenY, dy));
+
+    // Reuse elements8d to test higher dimensional incrementing
+    size_t i1, i2;
+    iter8d.toBegin();
+    i1 = iter8d.index();
+    i2 = (++iter8d).index();
+    REQUIRE(Indexer::deIndexer(ni, i2)[0] == Indexer::deIndexer(ni, i1)[0] + 1);
+    i1 = iter8d.incrementDim(1).index();
+    REQUIRE(Indexer::deIndexer(ni, i1)[1] == Indexer::deIndexer(ni, i2)[1] + 1);
+    i2 = iter8d.incrementDim(7).index();
+    REQUIRE(Indexer::deIndexer(ni, i2)[7] == Indexer::deIndexer(ni, i1)[7] + 1);
 }
 
 TEST_SUITE_END();

@@ -90,6 +90,7 @@ public:
         : m_slice(slice)
         , m_dimensions(dimensions)
         , current(dimensions.size(), 0)
+        , dimSteps(makeDimSteps(dimensions))
         {
             toBegin();
             // TODO Add exceptions if the length of Slice and dimensions do not match.
@@ -99,9 +100,17 @@ public:
 //        SliceIter(SliceIter& other);
         SliceIter& operator++()
         {
-            // TODO deal with non-unit steps
-            // TODO deal with multiple dimensions
-            size_t dim = 0;
+            return incrementDim(0);
+        }
+        SliceIter operator++(int)
+        {
+            SliceIter copy(*this);
+            ++(*this);
+            return copy;
+        }
+
+        SliceIter& incrementDim(size_t dim)
+        {
             for(;;) {
                 // Increment current in this dimension, and test if it is at or past the end.
                 if (!stopTest(current[dim] += m_slice.bounds[dim].step, dim)) break;
@@ -114,12 +123,7 @@ public:
             }
             return *this;
         }
-        SliceIter operator++(int)
-        {
-            SliceIter copy(*this);
-            ++(*this);
-            return copy;
-        }
+
         SliceIter& operator--();
         SliceIter operator--(int);
         /*!
@@ -181,6 +185,13 @@ public:
             size_t lastDim = m_slice.n() - 1;
             return stopTest(current, lastDim);
         }
+
+        bool& doDetailedOutput()
+        {
+            static bool ddo = false;
+            return ddo;
+        }
+
     private:
 
         size_t dimEnd(size_t dim) const
@@ -196,8 +207,22 @@ public:
         }
         bool stopTest(const MultiDim& loc, size_t dim) const { return stopTest(loc[dim], dim); }
 
+        static MultiDim makeDimSteps(const MultiDim& dims)
+        {
+            MultiDim dimSteps;
+            dimSteps.resize(dims.size());
+            dimSteps[0] = 1;
+            for (size_t idim = 1; idim < dims.size(); ++idim)
+            {
+                dimSteps[idim] = dimSteps[idim - 1] * dims[idim - 1];
+            }
+            return dimSteps;
+        }
+
+
         const MultiDim m_dimensions;
         MultiDim current;
         const Slice& m_slice;
+        const MultiDim dimSteps;
     };
 };
