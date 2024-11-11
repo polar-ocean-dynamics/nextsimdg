@@ -12,7 +12,7 @@
 
 #include <array>
 
-#define ciel(num , denom) (((num) + (denom) - 1) / (denom))
+#define ceil(num , denom) (((num) + (denom) - 1) / (denom))
 
 TEST_SUITE_BEGIN("Indexer");
 TEST_CASE("indexer <-> deIndexer")
@@ -171,7 +171,7 @@ TEST_CASE("Multidimensional indexing")
     for (Slice::SliceIter iter(sliceMultiStride, dim); !iter.isEnd(); ++iter) {
         count++;
     }
-    REQUIRE(count == ciel(dim[0] - xi, dx) * ciel(lenY, dy));
+    REQUIRE(count == ceil(dim[0] - xi, dx) * ceil(lenY, dy));
 
     // Reuse elements8d to test higher dimensional incrementing
     size_t i1, i2;
