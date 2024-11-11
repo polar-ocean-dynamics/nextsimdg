@@ -37,7 +37,6 @@ protected:
 
 public:
     CGDynamicsKernel()
-        : pmap(nullptr)
     {
     }
     virtual ~CGDynamicsKernel() = default;
@@ -73,7 +72,7 @@ protected:
     CGVector<CGdegree> uAtmos;
     CGVector<CGdegree> vAtmos;
 
-    std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
+    std::unique_ptr<ParametricMomentumMap<CGdegree>> pmap;
 };
 
 } /* namespace Nextsim */
