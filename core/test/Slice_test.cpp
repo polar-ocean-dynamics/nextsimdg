@@ -147,6 +147,11 @@ TEST_CASE("Multidimensional indexing")
         ++count;
     }
     REQUIRE(count == expt);
+    Slice::SliceIter::MultiDim targ = {4, 5, 6, 7, 8, 9, 10, 11};
+    REQUIRE(iter8d.shape().size() == targ.size());
+    for (auto i = 0; i < targ.size(); ++i) {
+        REQUIRE(iter8d.shape()[i] == targ[i]);
+    }
 
     // n to whatever in 2 dimensions
     const size_t xi = 3;
@@ -171,7 +176,13 @@ TEST_CASE("Multidimensional indexing")
     for (Slice::SliceIter iter(sliceMultiStride, dim); !iter.isEnd(); ++iter) {
         count++;
     }
-    REQUIRE(count == ceil(dim[0] - xi, dx) * ceil(lenY, dy));
+    Slice::SliceIter::MultiDim shape = Slice::SliceIter(sliceMultiStride, dim).shape();
+    Slice::SliceIter::MultiDim shapeTarget = {static_cast<size_t>(ceil(dim[0] - xi, dx)), static_cast<size_t>(ceil(lenY, dy))};
+    REQUIRE(count == shapeTarget[0] * shapeTarget[1]);
+    REQUIRE(shape.size() == shapeTarget.size());
+    for (auto i = 0; i < shape.size(); ++i) {
+        REQUIRE(shape[i] == shapeTarget[i]);
+    }
 
     // Reuse elements8d to test higher dimensional incrementing
     size_t i1, i2;

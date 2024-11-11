@@ -6,6 +6,9 @@
 
 #include <iostream> // FIXME remove me
 
+// A macro definition of the two-argument ceiling function
+#define ceil(num , denom) (((num) + (denom) - 1) / (denom))
+
 // Generic n-dimensional slice
 class Slice {
      public:
@@ -191,6 +194,26 @@ public:
             return ddo;
         }
 
+        /*!
+         * Returns the overall shape of the Slice, constrained by the given dimensions.
+         */
+        MultiDim shape()
+        {
+            MultiDim shapey;
+
+            // TODO handle negative indices
+            shapey.resize(m_slice.bounds.size());
+            for (size_t dim = 0; dim < m_slice.bounds.size(); ++dim)
+            {
+                size_t start = (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
+                size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
+                size_t step = m_slice.bounds[dim].step;
+                shapey[dim] = ceil(stop - start, step);
+            }
+
+            return shapey;
+        }
+
     private:
 
         size_t dimEnd(size_t dim) const
@@ -211,3 +234,5 @@ public:
         const Slice& m_slice;
     };
 };
+
+#undef ceil
