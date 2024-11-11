@@ -19,6 +19,7 @@
 
 namespace Nextsim {
 
+class ModelArraySlice;
 /*
  * Set the storage order to row major. This matches with DGVector when there is
  * more than one DG component. If there is only one DG component (the finite
@@ -617,6 +618,9 @@ private:
     };
     static DimensionMap m_dims;
     DataType m_data;
+
+    // ModelArraySlice needs access to the internals for fast slcing
+    friend ModelArraySlice;
 };
 
 #include "include/ModelArrayTypedefs.hpp"

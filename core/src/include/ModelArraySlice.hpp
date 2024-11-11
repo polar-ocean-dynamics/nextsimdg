@@ -34,10 +34,7 @@ public:
     Slice slice;
 private:
     ModelArray& data;
-    friend ModelArray& operator=(ModelArray& ma, const ModelArraySlice& mas);
 };
-
-ModelArray& operator=(ModelArray& ma, const ModelArraySlice& mas);
 
 } // namespace Nextsim
 

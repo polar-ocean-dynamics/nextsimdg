@@ -22,11 +22,25 @@ TEST_CASE("Assign to slice")
 
     TwoDField target(ModelArray::Type::TWOD);
     target.resize();
-    target = 0;
+    double orig = 0.;
+    target = orig;
     Slice patch {{{5, 14}, {8, 15}}};
     ModelArraySlice mas(target, patch);
-    mas = 1.;
-    REQUIRE(target(5, 8) == 1.);
+    double set = 1.;
+    mas = set;
+    REQUIRE(target(5, 8) == set);
+    REQUIRE(target(13, 8) == set);
+    REQUIRE(target(5, 14) == set);
+    REQUIRE(target(13, 14) == set);
+
+    REQUIRE(target(4, 8) == orig);
+    REQUIRE(target(5, 7) == orig);
+    REQUIRE(target(14, 8) == orig);
+    REQUIRE(target(13, 7) == orig);
+    REQUIRE(target(4, 14) == orig);
+    REQUIRE(target(5, 15) == orig);
+    REQUIRE(target(14, 14) == orig);
+    REQUIRE(target(13, 15) == orig);
 }
 
 TEST_CASE("Slice to Slice")
