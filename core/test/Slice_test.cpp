@@ -79,8 +79,8 @@ TEST_CASE("One dimensional indexing")
     REQUIRE(count == expt);
 
     // And starting from 1
-    stride2 = {{{1, {}, 2}}};
-    Slice::SliceIter iter1_2(stride2, {10});
+    Slice stride2a = {{{1, {}, 2}}};
+    Slice::SliceIter iter1_2(stride2a, {10});
     REQUIRE(iter1_2.index() == 1);
     count = 0;
     // expt still = 5
@@ -140,8 +140,8 @@ TEST_CASE("Multidimensional indexing")
     while (!iter8d.isEnd()) {
         auto loc = Indexer::deIndexer(ni, iter8d.index());
         for (size_t dim = 0; dim < ni.size(); ++dim) {
-            REQUIRE(loc[dim] >= elements8d.bounds()[dim].start);
-            REQUIRE(loc[dim] < elements8d.bounds()[dim].stop);
+            REQUIRE(loc[dim] >= elements8d.bounds[dim].start);
+            REQUIRE(loc[dim] < elements8d.bounds[dim].stop);
         }
         ++iter8d;
         ++count;

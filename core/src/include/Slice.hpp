@@ -65,8 +65,7 @@ class Slice {
     };
 public:
     using VBounds = std::vector<Bounds>;
-private:
-    VBounds m_bounds;
+    const VBounds bounds;
 
 public:
     Slice()
@@ -74,12 +73,11 @@ public:
     {
     }
     Slice(std::vector<Bounds> allBounds)
-        : m_bounds(allBounds)
+        : bounds(allBounds)
     {
     }
 
-    const VBounds& bounds() const { return m_bounds; }
-    const size_t n() const { return m_bounds.size(); }
+    const size_t n() const { return bounds.size(); }
 
     class SliceIter
     {
@@ -106,11 +104,11 @@ public:
             size_t dim = 0;
             for(;;) {
                 // Increment current in this dimension, and test if it is at or past the end.
-                if (!stopTest(current[dim] += m_slice.bounds()[dim].step, dim)) break;
+                if (!stopTest(current[dim] += m_slice.bounds[dim].step, dim)) break;
                 // Never reset the final valid dimension.
                 if (dim + 1 >= current.size()) break;
                 // Reset the dimension to the start
-                current[dim] = m_slice.bounds()[dim].start;
+                current[dim] = m_slice.bounds[dim].start;
                 // Increment dimension
                 ++dim;
             }
@@ -145,7 +143,7 @@ public:
         {
             // TODO deal with reverseStart == true
             for (size_t dim = 0; dim < m_slice.n(); ++dim) {
-                current[dim] = m_slice.bounds()[dim].start;
+                current[dim] = m_slice.bounds[dim].start;
             }
             return *this;
         }
@@ -169,7 +167,7 @@ public:
         bool isBegin() const
         {
             for (size_t dim = 0; dim < m_slice.n(); ++dim) {
-                if (current[dim] != m_slice.bounds()[dim].start)
+                if (current[dim] != m_slice.bounds[dim].start)
                     return false;
             }
             return true;
@@ -187,9 +185,9 @@ public:
 
         size_t dimEnd(size_t dim) const
         {
-            return (m_slice.bounds()[dim].stop.isAll()) ?
+            return (m_slice.bounds[dim].stop.isAll()) ?
                                 m_dimensions[dim] :
-                                static_cast<Slice::Int>(m_slice.bounds()[dim].stop);
+                                static_cast<Slice::Int>(m_slice.bounds[dim].stop);
         }
         // Test whether a dimension has run past the end of its bounds
         bool stopTest(size_t subject, size_t dim) const
