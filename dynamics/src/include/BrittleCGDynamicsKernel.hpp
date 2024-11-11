@@ -79,8 +79,8 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
-        cosOceanAngle = cos(radians * params.ocean_turning_angle);
-        sinOceanAngle = sin(radians * params.ocean_turning_angle);
+        cosOceanAngle = cos(radians * params.getOceanTurningAngle());
+        sinOceanAngle = sin(radians * params.getOceanTurningAngle());
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP
@@ -177,29 +177,33 @@ protected:
     // Common brittle parts of the momentum solver.
     void updateMomentum(const TimestepTime& tst) override
     {
+        const double rhoIce = params.getRhoIce();
+        const double FAtm = params.getFAtm();
+        const double FOcean = params.getFOcean();
+        const double fc = params.getFC();
+
 #pragma omp parallel for
         for (size_t i = 0; i < u.rows(); ++i) {
             // FIXME dte_over_mass should include snow in the total mass
-            const double dteOverMass = deltaT / (params.rho_ice * cgH(i));
+            const double dteOverMass = deltaT / (rhoIce * cgH(i));
             // Memoized initial velocity values
             const double uIce = u(i);
             const double vIce = v(i);
 
-            const double cPrime
-                = cgA(i) * params.F_ocean * std::hypot(uOcean(i) - uIce, vOcean(i) - vIce);
+            const double cPrime = cgA(i) * FOcean * std::hypot(uOcean(i) - uIce, vOcean(i) - vIce);
 
             // FIXME grounding term tauB = cBu[i] / std::hypot(uIce, vIce) + u0
             const double tauB = 0.;
             const double alpha = 1 + dteOverMass * (cPrime * cosOceanAngle + tauB);
             /* FIXME latitude needed for spherical cases
-             * const double beta = deltaT * params.fc +
+             * const double beta = deltaT * fc +
              * dteOverMass * cPrime * std::copysign(sinOceanAngle, lat[i]);
              */
-            const double beta = deltaT * params.fc + dteOverMass * cPrime * sinOceanAngle;
+            const double beta = deltaT * fc + dteOverMass * cPrime * sinOceanAngle;
             const double rDenom = 1 / (SQR(alpha) + SQR(beta));
 
             // Atmospheric drag
-            const double dragAtm = cgA(i) * params.F_atm * std::hypot(uAtmos(i), vAtmos(i));
+            const double dragAtm = cgA(i) * FAtm * std::hypot(uAtmos(i), vAtmos(i));
             const double tauX = dragAtm * uAtmos(i)
                 + cPrime * (uOcean(i) * cosOceanAngle - vOcean(i) * sinOceanAngle);
             const double tauY = dragAtm * vAtmos(i)

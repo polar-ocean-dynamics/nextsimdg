@@ -56,6 +56,7 @@ public:
         const double mu = params.getMu();
         const double comprCap = params.getComprCap();
         const double cLab = params.getCLab();
+        const double rhoIce = params.getRhoIce();
 
 //! Stress and Damage Update
 #pragma omp parallel for
@@ -161,8 +162,8 @@ public:
             dcrit = dcrit.array().min(1.0);
 
             // Eqn. 29
-            const Eigen::Matrix<double, 1, nGauss * nGauss> td = smesh.h(i)
-                * std::sqrt(2. * (1. + nu0) * params.rho_ice) / elasticity.array().sqrt();
+            const Eigen::Matrix<double, 1, nGauss * nGauss> td
+                = smesh.h(i) * std::sqrt(2. * (1. + nu0) * rhoIce) / elasticity.array().sqrt();
 
             // Update damage
             dGauss.array() -= dGauss.array() * (1. - dcrit.array()) * deltaT / td.array();

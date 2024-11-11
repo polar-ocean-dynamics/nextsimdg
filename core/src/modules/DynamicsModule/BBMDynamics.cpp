@@ -28,7 +28,7 @@ static double muDefault = 0.7; //!< \param tan_phi (double) Internal friction co
 static double comprCapDefault
     = 1e10; //! \param compr_strength (double) Maximum compressive strength [N/m2]
 static double cLabDefault = 2e6; //! \param C_lab (double) Test [Pa]
-static const int nStepsDefault = 100; //!< Number of sub-steps
+static const int nStepsDefault = 120; //!< Number of sub-steps
 
 // TODO: We should use getName() here, but it isn't static.
 static const std::string prefix = "BBMDynamics"; // MEVPDynamics::getName();
