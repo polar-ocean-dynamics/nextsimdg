@@ -36,9 +36,7 @@ protected:
     using typename DynamicsKernel<DGadvection, DGstressComp>::DataMap;
 
 public:
-    CGDynamicsKernel()
-    {
-    }
+    CGDynamicsKernel() { }
     virtual ~CGDynamicsKernel() = default;
     void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask) override;
     void setData(const std::string& name, const ModelArray& data) override;
