@@ -1,6 +1,6 @@
 /*!
  * @file MEB.hpp
- * @date 09 Nov 2024
+ * @date 11 Nov 2024
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  */
 
@@ -53,6 +53,17 @@ namespace MEB {
 // #define NGP (DGs == 8 ? 3 : (DGs == 3 ? 2 : -1))
 #define NGP 3
 
+        const double compactionParam = params.getCompactionParam();
+        const double nu0 = params.getNu0();
+        const double young = params.getYoung();
+        const double P0 = params.getP0();
+        const double lambda = params.getLambda0();
+        const double alpha = params.getAlpha();
+        const double expPMax = params.getExpPMax();
+        const double mu = params.getMu();
+        const double comprCap = params.getComprCap();
+        const double cLab = params.getCLab();
+
         //! Stress and Damage Update
 #pragma omp parallel for
         for (size_t i = 0; i < smesh.nelements; ++i) {
@@ -75,16 +86,15 @@ namespace MEB {
 
             //! exp(-C(1-A))
             const Eigen::Matrix<double, 1, NGP * NGP> expC
-                = (params.compaction_param * (1.0 - a_gauss.array())).exp().array();
+                = (compactionParam * (1.0 - a_gauss.array())).exp().array();
 
             // Eqn. 20
-            Eigen::Matrix<double, 1, NGP * NGP> powalpha
-                = (d_gauss.array()).pow(params.exponent_relaxation_sigma - 1.);
+            Eigen::Matrix<double, 1, NGP * NGP> powalpha = (d_gauss.array()).pow(alpha - 1.);
             const Eigen::Matrix<double, 1, NGP * NGP> time_viscous
-                = (params.undamaged_time_relaxation_sigma * powalpha.array()).matrix();
+                = (lambda * powalpha.array()).matrix();
 
             // Eqn. 4: first factor on RHS
-            const double Dunit_factor = 1. / (1. - (params.nu0 * params.nu0));
+            const double Dunit_factor = 1. / (1. - (nu0 * nu0));
 
             //! MEB
             // 1. / (1. + dt / lambda)
@@ -93,7 +103,7 @@ namespace MEB {
 
             //! Eqn. 24
             const Eigen::Matrix<double, 1, NGP * NGP> elasticity
-                = h_gauss.array() * params.young * d_gauss.array() * expC.array();
+                = h_gauss.array() * young * d_gauss.array() * expC.array();
 
             // Eqn. 4: first factor on RHS
             /* Stiffness matrix
@@ -103,18 +113,15 @@ namespace MEB {
              */
 
             s11_gauss
-                += (dt_mom * 1. / (1. + params.nu0) * (elasticity.array() * e11_gauss.array()))
-                       .matrix()
-                + (dt_mom * Dunit_factor * params.nu0
+                += (dt_mom * 1. / (1. + nu0) * (elasticity.array() * e11_gauss.array())).matrix()
+                + (dt_mom * Dunit_factor * nu0
                     * (elasticity.array() * (e11_gauss.array() + e22_gauss.array())))
                       .matrix();
             s12_gauss
-                += (dt_mom * 1. / (1. + params.nu0) * (elasticity.array() * e12_gauss.array()))
-                       .matrix();
+                += (dt_mom * 1. / (1. + nu0) * (elasticity.array() * e12_gauss.array())).matrix();
             s22_gauss
-                += (dt_mom * 1. / (1. + params.nu0) * (elasticity.array() * e22_gauss.array()))
-                       .matrix()
-                + (dt_mom * Dunit_factor * params.nu0
+                += (dt_mom * 1. / (1. + nu0) * (elasticity.array() * e22_gauss.array())).matrix()
+                + (dt_mom * Dunit_factor * nu0
                     * (elasticity.array() * (e11_gauss.array() + e22_gauss.array())))
                       .matrix();
 
@@ -138,13 +145,12 @@ namespace MEB {
 
             //! This is not part of Dansereau et al. 2016
             const double scale_coef = std::sqrt(0.1 / smesh.h(i));
-            const double compr_strength = params.compr_strength * scale_coef;
+            const double compr_strength = comprCap * scale_coef;
 
             // Mohr-Coulomb failure using Mssrs. Plante & Tremblay's formulation
-            // sigma_s + tan_phi*sigma_n < 0 is always inside, but gives dcrit < 0
-            dcrit = (tau.array() + params.tan_phi * sigma_n.array() > 0.)
-                        .select(cohesion.array() / (tau.array() + params.tan_phi * sigma_n.array()),
-                            1.);
+            // sigma_s + mu*sigma_n < 0 is always inside, but gives dcrit < 0
+            dcrit = (tau.array() + mu * sigma_n.array() > 0.)
+                        .select(cohesion.array() / (tau.array() + mu * sigma_n.array()), 1.);
 
             // Compressive failure using Mssrs. Plante & Tremblay's formulation
             dcrit = (sigma_n.array() < -compr_strength)

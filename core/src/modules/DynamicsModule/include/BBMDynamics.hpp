@@ -1,7 +1,7 @@
 /*!
  * @file BBMDynamics.hpp
  *
- * @date 09 Nov 2024
+ * @date 11 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -19,7 +19,7 @@
 
 namespace Nextsim {
 
-class BBMDynamics : public IDynamics {
+class BBMDynamics : public IDynamics, public Configured<BBMDynamics> {
 public:
     BBMDynamics();
 
@@ -29,6 +29,24 @@ public:
     void setData(const ModelState::DataMap&) override;
     ModelState getState() const override;
     ModelState getStateRecursive(const OutputSpec& os) const override;
+    void configure() override;
+
+    enum {
+        C_KEY,
+        NU_KEY,
+        YOUNG_KEY,
+        P0_KEY,
+        LAMBDA0_KEY,
+        ALPHA_KEY,
+        EXPPMAX_KEY,
+        MU_KEY,
+        NMAX_KEY,
+        CLAB_KEY,
+        NSTEPS_KEY
+    };
+
+    static HelpMap& getHelpText(HelpMap& map, bool getAll);
+    static HelpMap& getHelpRecursive(HelpMap&, bool getAll);
 
 private:
     BBMDynamicsKernel<DGCOMP> kernel;

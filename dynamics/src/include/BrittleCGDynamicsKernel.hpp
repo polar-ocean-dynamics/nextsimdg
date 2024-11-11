@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 09 Nov 2024
+ * @date 11 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -111,7 +111,7 @@ public:
         avgU.zero();
         avgV.zero();
 
-        for (size_t subStep = 0; subStep < nSteps; ++subStep) {
+        for (size_t subStep = 0; subStep < params.getNSteps(); ++subStep) {
 
             projectVelocityToStrain();
 
