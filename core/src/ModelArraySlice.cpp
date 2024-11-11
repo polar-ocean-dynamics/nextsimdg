@@ -25,4 +25,20 @@ ModelArraySlice& ModelArraySlice::operator=(double v)
     return *this;
 }
 
+ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
+{
+    Slice::SliceIter thisIter(slice, data.dimensions());
+    Slice::SliceIter otherIter(other.slice, other.data.dimensions());
+    // Check that the shapes match
+    auto thisShape = thisIter.shape();
+    auto otherShape = otherIter.shape();
+    if (thisShape.size() != otherShape.size())
+        throw std::out_of_range("ModelArraySlice dimension mismatch");
+    for (auto i = 0; i < thisShape.size(); ++i) {
+        if (thisShape[i] != otherShape[i])
+            throw std::out_of_range("ModelArraySlice shape mismatch");
+    }
+        return *this;
+}
+
 } // namespace Nextsim

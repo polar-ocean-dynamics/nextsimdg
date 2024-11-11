@@ -15,7 +15,7 @@ const auto ny = 17;
 
 namespace Nextsim {
 TEST_SUITE_BEGIN("ModelArraySlice");
-TEST_CASE("Assign to slice")
+TEST_CASE("Assign scalar to slice")
 {
     ModelArray::setDimension(ModelArray::Dimension::X, nx);
     ModelArray::setDimension(ModelArray::Dimension::Y, ny);
@@ -49,7 +49,20 @@ TEST_CASE("Slice to Slice")
     ModelArray::setDimension(ModelArray::Dimension::Y, ny);
 
     TwoDField source(ModelArray::Type::TWOD);
+    source.resize();
     TwoDField target(ModelArray::Type::TWOD);
+    target.resize();
+    target = 0.;
+
+    for (size_t i = 0; i < source.size(); ++i) {
+        source[i] = i;
+    }
+
+    // First test the error conditions
+    ModelArraySlice masa(source, {{{1, 3}, {{}, 19}}});
+    ModelArraySlice masb(source, {{{1, 3}, {8, 19}}});
+    REQUIRE_THROWS_AS(masa = masb, std::out_of_range);
+
 }
 TEST_SUITE_END();
 } // namespace Nextsim
