@@ -205,15 +205,36 @@ public:
             shapey.resize(m_slice.bounds.size());
             for (size_t dim = 0; dim < m_slice.bounds.size(); ++dim)
             {
-                size_t start = (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
-                size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
-                size_t step = m_slice.bounds[dim].step;
-                shapey[dim] = ceil(stop - start, step);
+                shapey[dim] = ceil(stop(dim) - start(dim), step(dim));
             }
 
             return shapey;
         }
 
+        /*!
+         * Translates the default and negative bounds into an actual start index.
+         * @param dim the dimension for which the start value is requested.
+         */
+        size_t start(size_t dim) const
+        {
+            // TODO handle negative indices
+            return (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
+        }
+
+        /*!
+         * Translates the default and negative bounds into an actual stop index.
+         * @param dim the dimension for which the stop value is requested.
+         */
+        size_t stop(size_t dim) const
+        {
+            // TODO handle negative indices
+            return (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
+        }
+
+        Int step(size_t dim) const
+        {
+            return m_slice.bounds[dim].step;
+        }
     private:
 
         size_t dimEnd(size_t dim) const
