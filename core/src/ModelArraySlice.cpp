@@ -19,7 +19,7 @@ ModelArraySlice& ModelArraySlice::operator=(double v)
     Slice::SliceIter si(slice, data.dimensions());
     while (!si.isEnd()) {
         const size_t index = si.index();
-        data.m_data(Eigen::seq(index, index - 1 + si.stop(0) - si.start(0), si.step(0)), Eigen::all) = v;
+        data.m_data(Eigen::seqN(index, si.nElements(0), si.step(0)), Eigen::all) = v;
         si.incrementDim(1);
     }
     return *this;
@@ -39,15 +39,15 @@ ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
             throw std::out_of_range("ModelArraySlice shape mismatch");
     }
 
-    const size_t thisDelta = thisIter.stop(0) - thisIter.start(0);
-    const size_t otherDelta = otherIter.stop(0) - otherIter.start(0);
+    const size_t thisNEl = thisIter.nElements(0);
+    const size_t otherNEl = otherIter.nElements(0);
 
     while(!thisIter.isEnd() && !otherIter.isEnd())
     {
         const size_t thisIndex = thisIter.index();
         const size_t otherIndex = otherIter.index();
-        data.m_data(Eigen::seq(thisIndex, thisIndex - 1 + thisDelta, thisIter.step(0)), Eigen::all) =
-                other.data.m_data(Eigen::seq(otherIndex, otherIndex - 1 + otherDelta, otherIter.step(0)), Eigen::all);
+        data.m_data(Eigen::seqN(thisIndex, thisNEl, thisIter.step(0)), Eigen::all) =
+                other.data.m_data(Eigen::seqN(otherIndex, otherNEl, otherIter.step(0)), Eigen::all);
         thisIter.incrementDim(1);
         otherIter.incrementDim(1);
     }

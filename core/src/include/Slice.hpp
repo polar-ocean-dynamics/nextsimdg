@@ -205,7 +205,7 @@ public:
             shapey.resize(m_slice.bounds.size());
             for (size_t dim = 0; dim < m_slice.bounds.size(); ++dim)
             {
-                shapey[dim] = ceil(stop(dim) - start(dim), step(dim));
+                shapey[dim] = nElements(dim);
             }
 
             return shapey;
@@ -222,13 +222,14 @@ public:
         }
 
         /*!
-         * Translates the default and negative bounds into an actual stop index.
-         * @param dim the dimension for which the stop value is requested.
+         * Calculates the number of elements in the the slice along this dimension.
+         * @param dim the dimension for which the number of elements is requested.
          */
-        size_t stop(size_t dim) const
+        size_t nElements(size_t dim) const
         {
             // TODO handle negative indices
-            return (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
+            size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
+            return ceil(stop - start(dim), step(dim));
         }
 
         Int step(size_t dim) const
