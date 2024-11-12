@@ -19,7 +19,7 @@ ModelArraySlice& ModelArraySlice::operator=(double v)
     Slice::SliceIter si(slice, data.dimensions());
     while (!si.isEnd()) {
         const size_t index = si.index();
-        data.m_data(Eigen::seq(index, index - 1 + slice.bounds[0].stop - slice.bounds[0].start, slice.bounds[0].step), Eigen::all) = v;
+        data.m_data(Eigen::seq(index, index - 1 + si.stop(0) - si.start(0), si.step(0)), Eigen::all) = v;
         si.incrementDim(1);
     }
     return *this;
@@ -38,7 +38,20 @@ ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
         if (thisShape[i] != otherShape[i])
             throw std::out_of_range("ModelArraySlice shape mismatch");
     }
-        return *this;
+
+    const size_t thisDelta = thisIter.stop(0) - thisIter.start(0);
+    const size_t otherDelta = otherIter.stop(0) - otherIter.start(0);
+
+    while(!thisIter.isEnd() && !otherIter.isEnd())
+    {
+        const size_t thisIndex = thisIter.index();
+        const size_t otherIndex = otherIter.index();
+        data.m_data(Eigen::seq(thisIndex, thisIndex - 1 + thisDelta, thisIter.step(0)), Eigen::all) =
+                other.data.m_data(Eigen::seq(otherIndex, otherIndex - 1 + otherDelta, otherIter.step(0)), Eigen::all);
+        thisIter.incrementDim(1);
+        otherIter.incrementDim(1);
+    }
+    return *this;
 }
 
 } // namespace Nextsim

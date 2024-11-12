@@ -52,7 +52,8 @@ TEST_CASE("Slice to Slice")
     source.resize();
     TwoDField target(ModelArray::Type::TWOD);
     target.resize();
-    target = 0.;
+    double targetv = -1.;
+    target = targetv;
 
     for (size_t i = 0; i < source.size(); ++i) {
         source[i] = i;
@@ -63,6 +64,34 @@ TEST_CASE("Slice to Slice")
     ModelArraySlice masb(source, {{{1, 3}, {8, 19}}});
     REQUIRE_THROWS_AS(masa = masb, std::out_of_range);
 
+    size_t x0s = 0;
+    size_t x1s = 3;
+    size_t y0s = 0;
+    size_t y1s = 14;
+
+    size_t x0t = nx - x1s;
+    size_t x1t = nx;
+    size_t y0t = ny - y1s;
+    size_t y1t = ny;
+    ModelArraySlice sourceSlice(source, {{{x0s, x1s}, {y0s, y1s}}});
+    ModelArraySlice targetSlice(target, {{{x0t, x1t}, {y0t, y1t}}});
+
+    // Perform the Slice to Slice assignment
+    targetSlice = sourceSlice;
+
+    // Test the areas that should no be assigned to
+    REQUIRE(target(x0t-1, y0t) == targetv);
+    REQUIRE(target(x0t, y0t-1) == targetv);
+    REQUIRE(target(x1t - 1, y0t - 1) == targetv);
+    REQUIRE(target(x0t - 1, y0t - 1) == targetv);
+
+    // Test the areas that should be assigned to
+    REQUIRE(target(x0t, y0t) != targetv);
+    REQUIRE(target(x0t, y0t) == source(x0s, y0s));
+    REQUIRE(target(x0t, y1t - 1) == source(x0s, y1s - 1));
+    REQUIRE(target(x1t - 1, y0t) == source(x1s - 1, y0s));
+    REQUIRE(target(x1t - 1, y1t - 1) == source(x1s - 1, y1s - 1));
 }
+
 TEST_SUITE_END();
 } // namespace Nextsim
