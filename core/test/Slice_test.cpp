@@ -14,6 +14,8 @@
 
 #define ceil(num , denom) (((num) + (denom) - 1) / (denom))
 
+using MultiDim = Slice::SliceIter::MultiDim;
+
 TEST_SUITE_BEGIN("Indexer");
 TEST_CASE("indexer <-> deIndexer")
 {
@@ -219,6 +221,23 @@ TEST_CASE("Negative steps")
     }
     REQUIRE(count == 3);
 
+    // Forwards in one dimension, backwards in another
+    Slice to_fro {{{0, 8}, {7, {}, -1}}};
+    MultiDim dims = {10, 10};
+    Slice::SliceIter itereti(to_fro, dims);
+    REQUIRE(itereti.index() == Indexer::indexer(dims, {0, 7}));
+    REQUIRE(itereti.shape()[0] == 8);
+    REQUIRE(itereti.shape()[1] == 8);
+    count = 0;
+    while(!itereti.isEnd()) {
+        REQUIRE(Indexer::deIndexer(dims, itereti.index())[0] >= 0);
+        REQUIRE(Indexer::deIndexer(dims, itereti.index())[0] < 8);
+        REQUIRE(Indexer::deIndexer(dims, itereti.index())[1] >= 0);
+        REQUIRE(Indexer::deIndexer(dims, itereti.index())[1] < 8);
+        ++itereti;
+        ++count;
+    }
+    REQUIRE(count == itereti.shape()[0] * itereti.shape()[1]);
 }
 
 TEST_SUITE_END();
