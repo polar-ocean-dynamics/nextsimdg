@@ -218,7 +218,8 @@ public:
         Int start(size_t dim) const
         {
             // TODO handle negative indices
-            return (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
+            return (m_slice.bounds[dim].start.isAll()) ?
+                    ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0): static_cast<size_t>(m_slice.bounds[dim].start);
         }
         /*!
          * Translates the default and negative bounds into an actual start
