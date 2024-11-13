@@ -79,7 +79,7 @@ TEST_CASE("Slice to Slice")
     // Perform the Slice to Slice assignment
     targetSlice = sourceSlice;
 
-    // Test the areas that should no be assigned to
+    // Test the areas that should not be assigned to
     REQUIRE(target(x0t-1, y0t) == targetv);
     REQUIRE(target(x0t, y0t-1) == targetv);
     REQUIRE(target(x1t - 1, y0t - 1) == targetv);
@@ -91,6 +91,41 @@ TEST_CASE("Slice to Slice")
     REQUIRE(target(x0t, y1t - 1) == source(x0s, y1s - 1));
     REQUIRE(target(x1t - 1, y0t) == source(x1s - 1, y0s));
     REQUIRE(target(x1t - 1, y1t - 1) == source(x1s - 1, y1s - 1));
+
+    /*****************************************************************/
+    // Test negative step
+    target = targetv;
+
+    x0s = 0;
+    x1s = 3;
+    y0s = 3;
+    y1s = ny-3;
+
+    x0t = nx - 1;
+    x1t = x0t - (x1s - x0s);
+    Slice::Int xstep = -1;
+    y0t = y1s - 1;
+    y1t = y0s - 1;
+    Slice::Int ystep = -1;
+
+    ModelArraySlice sourceSlice2(source, {{{x0s, x1s}, {y0s, y1s}}});
+    ModelArraySlice targetSlice2(target, {{{x0t, x1t, -1}, {y0t, y1t, -1}}});
+
+    targetSlice2 = sourceSlice2;
+
+    // Test the areas that should not be assigned to
+    REQUIRE(target(x1t, y1t+1) == targetv);
+    REQUIRE(target(x1t+1, y1t) == targetv);
+    REQUIRE(target(x0t, y1t) == targetv);
+    REQUIRE(target(x0t, y0t+1) == targetv);
+
+    // Test the areas that should be assigned to
+    REQUIRE(target(x0t, y0t) != targetv);
+    REQUIRE(target(x0t, y0t) == source(x0s, y0s));
+    REQUIRE(target(x0t, y1t - ystep) == source(x0s, y1s - 1));
+    REQUIRE(target(x1t - xstep, y0t) == source(x1s - 1, y0s));
+    REQUIRE(target(x1t - xstep, y1t - ystep) == source(x1s - 1, y1s - 1));
+
 }
 
 TEST_SUITE_END();
