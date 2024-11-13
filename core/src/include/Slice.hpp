@@ -220,6 +220,17 @@ public:
             // TODO handle negative indices
             return (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
         }
+        /*!
+         * Translates the default and negative bounds into an actual start
+         * index for the first dimension.
+         */
+        Int start() const
+        {
+            if (m_slice.n() != 1) {
+                throw std::out_of_range("Slice::start(): use Slice::start(size_t) for multi-dimensional slices.");
+            }
+            return start(0);
+        }
 
         /*!
          * Calculates the number of elements in the the slice along this dimension.
@@ -231,10 +242,27 @@ public:
             size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
             return ceil(stop - start(dim), step(dim));
         }
+        /*!
+         * Calculates the number of elements in the the slice along the first dimension.
+         */
+        Int nElements() const
+        {
+            if (m_slice.n() != 1) {
+                throw std::out_of_range("Slice::nElements(): use Slice::nElements(size_t) for multi-dimensional slices.");
+            }
+            return nElements(0);
+        }
 
         Int step(size_t dim) const
         {
             return m_slice.bounds[dim].step;
+        }
+        Int step() const
+        {
+            if (m_slice.n() != 1) {
+                throw std::out_of_range("Slice::step(): use Slice::step(size_t) for multi-dimensional slices.");
+            }
+            return step(0);
         }
     private:
 
