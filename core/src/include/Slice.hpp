@@ -11,7 +11,7 @@
 
 // Generic n-dimensional slice
 class Slice {
-     public:
+    public:
     using Int = std::ptrdiff_t;
     //  Bounds for one dimension
     class Bounds {
@@ -131,7 +131,7 @@ public:
         /*!
          * Returns the one-dimensional index equivalent to the current state of the iterator
          */
-        size_t index() const {
+        Int index() const {
             // TODO deal with negative positions
             if (false) {
                 std::cout << "current=(";
@@ -215,7 +215,7 @@ public:
          * Translates the default and negative bounds into an actual start index.
          * @param dim the dimension for which the start value is requested.
          */
-        size_t start(size_t dim) const
+        Int start(size_t dim) const
         {
             // TODO handle negative indices
             return (m_slice.bounds[dim].start.isAll()) ? 0 : static_cast<size_t>(m_slice.bounds[dim].start);
@@ -225,7 +225,7 @@ public:
          * Calculates the number of elements in the the slice along this dimension.
          * @param dim the dimension for which the number of elements is requested.
          */
-        size_t nElements(size_t dim) const
+        Int nElements(size_t dim) const
         {
             // TODO handle negative indices
             size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
@@ -238,14 +238,14 @@ public:
         }
     private:
 
-        size_t dimEnd(size_t dim) const
+        Int dimEnd(size_t dim) const
         {
             return (m_slice.bounds[dim].stop.isAll()) ?
                                 m_dimensions[dim] :
                                 static_cast<Slice::Int>(m_slice.bounds[dim].stop);
         }
         // Test whether a dimension has run past the end of its bounds
-        bool stopTest(size_t subject, size_t dim) const
+        bool stopTest(Int subject, size_t dim) const
         {
             return subject >= dimEnd(dim);
         }
