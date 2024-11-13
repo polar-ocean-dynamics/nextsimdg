@@ -7,7 +7,7 @@
 #include <iostream> // FIXME remove me
 
 // A macro definition of the two-argument ceiling function
-#define ceil(num , denom) (((num) + (denom) - 1) / (denom))
+#define ceil(num , denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 
 // Generic n-dimensional slice
 class Slice {
@@ -219,7 +219,8 @@ public:
         {
             // TODO handle negative indices
             return (m_slice.bounds[dim].start.isAll()) ?
-                    ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0): static_cast<size_t>(m_slice.bounds[dim].start);
+                    ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0) :
+                    static_cast<size_t>(m_slice.bounds[dim].start);
         }
         /*!
          * Translates the default and negative bounds into an actual start
@@ -240,7 +241,9 @@ public:
         Int nElements(size_t dim) const
         {
             // TODO handle negative indices
-            size_t stop = (m_slice.bounds[dim].stop.isAll()) ? m_dimensions[dim] : static_cast<size_t>(m_slice.bounds[dim].stop);
+            Int stop = (m_slice.bounds[dim].stop.isAll()) ?
+                    ((step(dim) < 0) ? -1 : m_dimensions[dim]) :
+                    static_cast<size_t>(m_slice.bounds[dim].stop);
             return ceil(stop - start(dim), step(dim));
         }
         /*!
@@ -270,13 +273,13 @@ public:
         Int dimEnd(size_t dim) const
         {
             return (m_slice.bounds[dim].stop.isAll()) ?
-                                m_dimensions[dim] :
+                                ((step(dim) < 0) ? -1 : m_dimensions[dim]) :
                                 static_cast<Slice::Int>(m_slice.bounds[dim].stop);
         }
         // Test whether a dimension has run past the end of its bounds
         bool stopTest(Int subject, size_t dim) const
         {
-            return subject >= dimEnd(dim);
+            return (step(dim) < 0) ? subject <= dimEnd(dim) : subject >= dimEnd(dim);
         }
         bool stopTest(const MultiDim& loc, size_t dim) const { return stopTest(loc[dim], dim); }
 

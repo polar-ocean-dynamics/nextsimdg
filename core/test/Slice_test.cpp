@@ -196,4 +196,29 @@ TEST_CASE("Multidimensional indexing")
     REQUIRE(Indexer::deIndexer(ni, i2)[7] == Indexer::deIndexer(ni, i1)[7] + 1);
 }
 
+TEST_CASE("Negative steps")
+{
+    Slice sdrawkcab {{{{}, {}, -1}}};
+    size_t n = 8;
+    Slice::SliceIter::MultiDim dim1d = {n};
+    Slice::SliceIter reti(sdrawkcab, dim1d);
+    // Use the start and nElements functions to get the real indices
+    REQUIRE(reti.start() == n - 1);
+    REQUIRE(reti.nElements() == n);
+    REQUIRE(reti.step() == -1);
+
+    Slice sdraw2 {{{6, 1, -2}}};
+    Slice::SliceIter reti2(sdraw2, dim1d);
+    REQUIRE(reti2.start() == 6);
+    REQUIRE(reti2.nElements() == 3);
+    REQUIRE(reti2.step() == -2);
+    size_t count = 0;
+    while(!reti2.isEnd()) {
+        ++reti2;
+        ++count;
+    }
+    REQUIRE(count == 3);
+
+}
+
 TEST_SUITE_END();
