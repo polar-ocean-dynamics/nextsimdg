@@ -43,6 +43,45 @@ ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
     return *this;
 }
 
+ModelArraySlice& ModelArraySlice::operator=(ModelArray& ma)
+{
+    // Shape check
+    Slice::SliceIter thisIter(slice, data.dimensions());
+
+    // The slice needs to have at least as many dimensions as the ModelArray
+    for (size_t dim = 0; dim < ma.nDimensions(); ++dim) {
+        if (thisIter.nElements(dim) != ma.dimensions()[dim])
+            throw std::domain_error("ModelArraySlice::operator=(ModelArray): shape mismatch.");
+    }
+    // But any extra dimensions must have length 1
+    if (slice.n() > ma.nDimensions()) {
+        for (size_t dim = ma.nDimensions(); dim < slice.n(); ++dim) {
+            if (thisIter.nElements(dim) != 1)
+                throw std::domain_error("ModelArraySlice::operator=(ModelArray): additional dimensions must have length 1.");
+        }
+    }
+
+    Slice::Bounds all = {{}, {}};
+    Slice::Bounds first = {0};
+    Slice::VBounds bounds;
+    bounds.resize(slice.n());
+    Slice::SliceIter::MultiDim extendedDims;
+    extendedDims.resize(slice.n());
+    for (size_t dim = 0; dim < ma.nDimensions(); ++dim) {
+        bounds[dim] = all;
+        extendedDims[dim] = ma.dimensions()[dim];
+    }
+    for (size_t dim = ma.nDimensions(); dim < slice.n(); ++dim) {
+        bounds[dim] = first;
+        extendedDims[dim] = 1;
+    }
+
+    Slice sourceSlice(bounds);
+    Slice::SliceIter sourceIter(sourceSlice, extendedDims);
+    copySliceWithIters(ma, sourceIter, data, thisIter);
+    return *this;
+}
+
 void ModelArraySlice::copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter)
 {
     const size_t targetNEl = targetIter.nElements(0);
