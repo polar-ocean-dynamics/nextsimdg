@@ -33,6 +33,7 @@ public:
 
     Slice slice;
 private:
+    static void copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter);
     ModelArray& data;
 };
 

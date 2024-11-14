@@ -39,19 +39,23 @@ ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
             throw std::out_of_range("ModelArraySlice shape mismatch");
     }
 
-    const size_t thisNEl = thisIter.nElements(0);
-    const size_t otherNEl = otherIter.nElements(0);
-
-    while(!thisIter.isEnd() && !otherIter.isEnd())
-    {
-        const size_t thisIndex = thisIter.index();
-        const size_t otherIndex = otherIter.index();
-        data.m_data(Eigen::seqN(thisIndex, thisNEl, thisIter.step(0)), Eigen::all) =
-                other.data.m_data(Eigen::seqN(otherIndex, otherNEl, otherIter.step(0)), Eigen::all);
-        thisIter.incrementDim(1);
-        otherIter.incrementDim(1);
-    }
+    copySliceWithIters(other.data, otherIter, data, thisIter);
     return *this;
 }
 
+void ModelArraySlice::copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter)
+{
+    const size_t targetNEl = targetIter.nElements(0);
+    const size_t sourceNEl = sourceIter.nElements(0);
+
+    while(!targetIter.isEnd() && !sourceIter.isEnd())
+    {
+        const size_t targetIndex = targetIter.index();
+        const size_t sourceIndex = sourceIter.index();
+        target.m_data(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all) =
+                source.m_data(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
+        targetIter.incrementDim(1);
+        sourceIter.incrementDim(1);
+    }
+}
 } // namespace Nextsim
