@@ -7,6 +7,8 @@
 
 #include "include/ModelArray.hpp"
 
+#include "include/ModelArraySlice.hpp"
+
 #include <algorithm>
 #include <cstdarg>
 #include <iterator>
@@ -46,6 +48,11 @@ ModelArray& ModelArray::operator=(const double& fill)
     setData(fill);
 
     return *this;
+}
+
+ModelArray& ModelArray::operator=(const ModelArraySlice& mas)
+{
+    return mas.copyToModelArray(*this);
 }
 
 ModelArray ModelArray::operator+(const ModelArray& addend) const

@@ -12,6 +12,7 @@
 
 const auto nx = 23;
 const auto ny = 17;
+const auto nz = 5;
 
 namespace Nextsim {
 TEST_SUITE_BEGIN("ModelArraySlice");
@@ -130,7 +131,6 @@ TEST_CASE("Slice to Slice")
 
 TEST_CASE("ModelArray to Slice")
 {
-    const auto nz = 5;
     ModelArray::setDimension(ModelArray::Dimension::X, nx);
     ModelArray::setDimension(ModelArray::Dimension::Y, ny);
     ModelArray::setDimension(ModelArray::Dimension::Z, nz);
@@ -164,6 +164,38 @@ TEST_CASE("ModelArray to Slice")
     REQUIRE(target(nx-1, 0, k) == sourcev);
     REQUIRE(target(0, ny-1, k) == sourcev);
     REQUIRE(target(nx-1, ny-1, k) == sourcev);
+
+}
+
+TEST_CASE("Slice to ModelArray")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+    ModelArray::setDimension(ModelArray::Dimension::Z, nz);
+
+    ThreeDField source(ModelArray::Type::THREED);
+    source.resize();
+    double sourcev = 1.;
+    source = sourcev;
+    TwoDField target(ModelArray::Type::TWOD);
+    target.resize();
+    double targetv = -1.;
+    target = targetv;
+
+    const auto k = 2;
+    // Check the values before the copy
+    REQUIRE(target(0, 0) == targetv);
+    REQUIRE(target(nx-1, 0) == targetv);
+    REQUIRE(target(0, ny-1) == targetv);
+    REQUIRE(target(nx-1, ny-1) == targetv);
+    ModelArraySlice singleLevelSlice(source, {{{{}, {}}, {{}, {}}, {k}}});
+    target = singleLevelSlice;
+
+    // Test the areas that should be assigned to
+    REQUIRE(target(0, 0) == sourcev);
+    REQUIRE(target(nx-1, 0) == sourcev);
+    REQUIRE(target(0, ny-1) == sourcev);
+    REQUIRE(target(nx-1, ny-1) == sourcev);
 
 }
 

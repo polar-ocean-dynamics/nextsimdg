@@ -17,6 +17,8 @@
 
 #include "indexer.hpp"
 
+class Slice;
+
 namespace Nextsim {
 
 class ModelArraySlice;
@@ -123,6 +125,19 @@ public:
      */
     ModelArray& operator=(const double& val);
 
+    /*!
+     * @brief Assigns an entire ModelArray from the data contained in a ModelArraySlice.
+     *
+     * @details Given a ModelArraySlice, copy all of the data from that slice
+     * into all of the model array. For only copying to some of a ModelArray,
+     * please see ModelArraySlice::operator=(ModelArray&). The shape of the
+     * slice must match, up to any number of trailing length 1 dimensions.
+     */
+    ModelArray& operator=(const ModelArraySlice&);
+
+    // TODO Implement this
+//    ModelArraySlice operator[](const Slice&);
+//
     // ModelArray arithmetic
     //! In place addition of another ModelArray
     ModelArray& operator+=(const ModelArray& b)

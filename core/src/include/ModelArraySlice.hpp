@@ -31,8 +31,11 @@ public:
     // Assign the contents of a buffer to a slice
     ModelArraySlice& operator=(const double* v);
 
+    ModelArray& copyToModelArray(ModelArray& target) const;
+
     Slice slice;
 private:
+    static void copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
     static void copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter);
     ModelArray& data;
 };

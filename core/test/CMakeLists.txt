@@ -256,6 +256,7 @@ else()
         testModelArray
         "ModelArray_test.cpp"
         "../src/ModelArray.cpp"
+        "../src/ModelArraySlice.cpp"
         "${MODEL_INCLUDE_DIR}/ModelArrayDetails.cpp"
     )
     target_include_directories(testModelArray PRIVATE "../src" "${MODEL_INCLUDE_DIR}")
