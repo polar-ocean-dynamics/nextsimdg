@@ -16,7 +16,7 @@ ModelArraySlice& ModelArraySlice::operator=(double v)
      * outside of components. This can be directly used as arguments to an
      * Eigen::seq object
      */
-    Slice::SliceIter si(slice, data.dimensions());
+    SliceIter si(slice, data.dimensions());
     while (!si.isEnd()) {
         const size_t index = si.index();
         data.m_data(Eigen::seqN(index, si.nElements(0), si.step(0)), Eigen::all) = v;
@@ -27,8 +27,8 @@ ModelArraySlice& ModelArraySlice::operator=(double v)
 
 ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
 {
-    Slice::SliceIter thisIter(slice, data.dimensions());
-    Slice::SliceIter otherIter(other.slice, other.data.dimensions());
+    SliceIter thisIter(slice, data.dimensions());
+    SliceIter otherIter(other.slice, other.data.dimensions());
     // Check that the shapes match
     auto thisShape = thisIter.shape();
     auto otherShape = otherIter.shape();
@@ -58,7 +58,7 @@ ModelArray& ModelArraySlice::copyToModelArray(ModelArray& target) const
 void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName)
 {
     // Shape check
-    Slice::SliceIter masIter(mas.slice, mas.data.dimensions());
+    SliceIter masIter(mas.slice, mas.data.dimensions());
 
     // The slice needs to have at least as many dimensions as the ModelArray
     for (size_t dim = 0; dim < ma.nDimensions(); ++dim) {
@@ -77,7 +77,7 @@ void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySl
     Slice::Bounds first = {0};
     Slice::VBounds bounds;
     bounds.resize(mas.slice.n());
-    Slice::SliceIter::MultiDim extendedDims;
+    SliceIter::MultiDim extendedDims;
     extendedDims.resize(mas.slice.n());
     for (size_t dim = 0; dim < ma.nDimensions(); ++dim) {
         bounds[dim] = all;
@@ -89,7 +89,7 @@ void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySl
     }
 
     Slice maSlice(bounds);
-    Slice::SliceIter maIter(maSlice, extendedDims);
+    SliceIter maIter(maSlice, extendedDims);
 
     // Copy the data in the correct direction
     if (toSlice) {
@@ -99,7 +99,7 @@ void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySl
     }
 }
 
-void ModelArraySlice::copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter)
+void ModelArraySlice::copySliceWithIters(ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter)
 {
     const size_t targetNEl = targetIter.nElements(0);
     const size_t sourceNEl = sourceIter.nElements(0);

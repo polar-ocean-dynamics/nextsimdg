@@ -17,7 +17,9 @@
 
 #include "indexer.hpp"
 
+namespace ArraySlicer {
 class Slice;
+}
 
 namespace Nextsim {
 
@@ -53,6 +55,7 @@ using Indexer::indexer;
  */
 class ModelArray {
 public:
+    using Slice = ArraySlicer::Slice;
     // Forward defines make Eclipse less red and squiggly
     enum class Type;
     enum class Dimension;

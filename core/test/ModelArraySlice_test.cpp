@@ -12,6 +12,9 @@
 
 #include <array>
 
+using Slice = ArraySlicer::Slice;
+using SliceIter = ArraySlicer::SliceIter;
+
 const auto nx = 23;
 const auto ny = 17;
 const auto nz = 5;

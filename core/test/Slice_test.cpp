@@ -14,7 +14,9 @@
 
 #define ceil(num , denom) (((num) + (denom) - 1) / (denom))
 
-using MultiDim = Slice::SliceIter::MultiDim;
+using Slice = ArraySlicer::Slice;
+using SliceIter = ArraySlicer::SliceIter;
+using MultiDim = SliceIter::MultiDim;
 
 std::string to_string(const MultiDim& v)
 {
@@ -58,12 +60,12 @@ TEST_CASE("One dimensional indexing")
 {
     // A single element
     Slice element3 {{{3U}}};
-    Slice::SliceIter iter3(element3, {10});
+    SliceIter iter3(element3, {10});
     REQUIRE(iter3.index() == 3);
 
     // A range
     Slice range36 {{{3, 6}}};
-    Slice::SliceIter iter36(range36, {10});
+    SliceIter iter36(range36, {10});
     REQUIRE(iter36.index() == 3);
     REQUIRE(iter36.isBegin());
     ++iter36;
@@ -78,7 +80,7 @@ TEST_CASE("One dimensional indexing")
 
     // range to the end of the array
     Slice range3_ {{{3, {}}}};
-    Slice::SliceIter iter3_(range3_, {10});
+    SliceIter iter3_(range3_, {10});
     // count the values until the end 3456789
     size_t count = 0;
     while(!iter3_.isEnd()) {
@@ -91,7 +93,7 @@ TEST_CASE("One dimensional indexing")
 
     // Non-unit stride, also full length of the array.
     Slice stride2 {{{{},{},2}}};
-    Slice::SliceIter iter__2(stride2, {10});
+    SliceIter iter__2(stride2, {10});
     REQUIRE(iter__2.index() == 0);
     count = 0;
     size_t expt = 10 / 2;
@@ -104,7 +106,7 @@ TEST_CASE("One dimensional indexing")
 
     // And starting from 1
     Slice stride2a = {{{1, {}, 2}}};
-    Slice::SliceIter iter1_2(stride2a, {10});
+    SliceIter iter1_2(stride2a, {10});
     REQUIRE(iter1_2.index() == 1);
     count = 0;
     // expt still = 5
@@ -122,18 +124,18 @@ TEST_CASE("Multidimensional indexing")
 {
     // A single element
     Slice element {{{3}, {5}}};
-    Slice::SliceIter iter610(element, {6, 10});
+    SliceIter iter610(element, {6, 10});
     REQUIRE(iter610.index() == Indexer::indexer({6, 10}, {3, 5}));
-    REQUIRE(Slice::SliceIter(element, {8, 7}).index() == Indexer::indexer({8, 7}, {3, 5}));
+    REQUIRE(SliceIter(element, {8, 7}).index() == Indexer::indexer({8, 7}, {3, 5}));
 
     // Check that a mismatch in number of dimensions is correctly detected
-    REQUIRE_THROWS_AS(Slice::SliceIter(element, {8, 7, 6}), std::invalid_argument);
+    REQUIRE_THROWS_AS(SliceIter(element, {8, 7, 6}), std::invalid_argument);
 
     // A multidimensional slice
     Slice elements3748 {{{3, 7}, {4, 8}}};
     const size_t nx = 11;
     const size_t ny = 13;
-    Slice::SliceIter iter3748(elements3748, {nx, ny});
+    SliceIter iter3748(elements3748, {nx, ny});
     size_t index = iter3748.index();
     REQUIRE(index == Indexer::indexer({nx, ny}, {3, 4}));
     size_t count = 0;
@@ -158,7 +160,7 @@ TEST_CASE("Multidimensional indexing")
     // 8 dimensional array slicing
     Slice elements8d {{{2, 6}, {4, 9}, {6, 12}, {8, 15}, {10, 18}, {12, 21}, {14, 24}, {16, 27}}};
     std::vector<size_t> ni = { 7, 12, 13, 16, 30, 30, 30, 30};
-    Slice::SliceIter iter8d(elements8d, ni);
+    SliceIter iter8d(elements8d, ni);
     count = 0;
     const size_t expt = 11 * 10 * 9 * 8 * 7 * 6 * 5 * 4;
     std::string message = "";
@@ -178,7 +180,7 @@ TEST_CASE("Multidimensional indexing")
 end8d:
     REQUIRE_MESSAGE(message.empty(), "Position ", to_string(Indexer::deIndexer(ni, iter8d.index())), " is out of bounds ", to_string(elements8d));
     REQUIRE(count == expt);
-    Slice::SliceIter::MultiDim targ = {4, 5, 6, 7, 8, 9, 10, 11};
+    SliceIter::MultiDim targ = {4, 5, 6, 7, 8, 9, 10, 11};
     REQUIRE(iter8d.shape().size() == targ.size());
     for (auto i = 0; i < targ.size(); ++i) {
         REQUIRE(iter8d.shape()[i] == targ[i]);
@@ -191,7 +193,7 @@ end8d:
     std::vector<std::vector<size_t>> dims = { { 11, 17 }, { 37, 43 } };
     for (std::vector<size_t> nj : dims) {
         count = 0;
-        for (Slice::SliceIter iter(slice3_5_, nj); !iter.isEnd(); ++iter) {
+        for (SliceIter iter(slice3_5_, nj); !iter.isEnd(); ++iter) {
             ++count;
         }
         REQUIRE(count == (nj[0] - xi) * (nj[1] - yi));
@@ -204,11 +206,11 @@ end8d:
     Slice sliceMultiStride {{{xi, {}, dx}, {yi, yi + lenY, dy}}};
     count = 0;
     auto dim = dims[1]; // Take the arrays sizes from above
-    for (Slice::SliceIter iter(sliceMultiStride, dim); !iter.isEnd(); ++iter) {
+    for (SliceIter iter(sliceMultiStride, dim); !iter.isEnd(); ++iter) {
         count++;
     }
-    Slice::SliceIter::MultiDim shape = Slice::SliceIter(sliceMultiStride, dim).shape();
-    Slice::SliceIter::MultiDim shapeTarget = {static_cast<size_t>(ceil(dim[0] - xi, dx)), static_cast<size_t>(ceil(lenY, dy))};
+    SliceIter::MultiDim shape = SliceIter(sliceMultiStride, dim).shape();
+    SliceIter::MultiDim shapeTarget = {static_cast<size_t>(ceil(dim[0] - xi, dx)), static_cast<size_t>(ceil(lenY, dy))};
     REQUIRE(count == shapeTarget[0] * shapeTarget[1]);
     REQUIRE(shape.size() == shapeTarget.size());
     for (auto i = 0; i < shape.size(); ++i) {
@@ -231,15 +233,15 @@ TEST_CASE("Negative steps")
 {
     Slice sdrawkcab {{{{}, {}, -1}}};
     size_t n = 8;
-    Slice::SliceIter::MultiDim dim1d = {n};
-    Slice::SliceIter reti(sdrawkcab, dim1d);
+    SliceIter::MultiDim dim1d = {n};
+    SliceIter reti(sdrawkcab, dim1d);
     // Use the start and nElements functions to get the real indices
     REQUIRE(reti.start() == n - 1);
     REQUIRE(reti.nElements() == n);
     REQUIRE(reti.step() == -1);
 
     Slice sdraw2 {{{6, 1, -2}}};
-    Slice::SliceIter reti2(sdraw2, dim1d);
+    SliceIter reti2(sdraw2, dim1d);
     REQUIRE(reti2.start() == 6);
     REQUIRE(reti2.nElements() == 3);
     REQUIRE(reti2.step() == -2);
@@ -253,7 +255,7 @@ TEST_CASE("Negative steps")
     // Forwards in one dimension, backwards in another
     Slice to_fro {{{0, 8}, {7, {}, -1}}};
     MultiDim dims = {10, 10};
-    Slice::SliceIter itereti(to_fro, dims);
+    SliceIter itereti(to_fro, dims);
     REQUIRE(itereti.index() == Indexer::indexer(dims, {0, 7}));
     REQUIRE(itereti.shape()[0] == 8);
     REQUIRE(itereti.shape()[1] == 8);

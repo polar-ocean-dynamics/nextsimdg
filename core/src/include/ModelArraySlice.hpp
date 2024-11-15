@@ -15,6 +15,8 @@ namespace Nextsim {
 
 class ModelArraySlice {
 public:
+    using Slice = ArraySlicer::Slice;
+    using SliceIter = ArraySlicer::SliceIter;
     ModelArraySlice() = delete;
     ModelArraySlice(ModelArray& ma, const Slice& sl)
         : data(ma)
@@ -33,7 +35,7 @@ public:
     ModelArraySlice& operator=(const T& buffer)
     {
         // make no especial attempt at efficiency here
-        Slice::SliceIter thisIter(slice, data.dimensions());
+        SliceIter thisIter(slice, data.dimensions());
         auto biter = buffer.begin();
 
         while (!thisIter.isEnd()) {
@@ -53,7 +55,7 @@ public:
     T& copyToBuffer(T& buffer)
     {
         // make no especial attempt at efficiency here
-        Slice::SliceIter thisIter(slice, data.dimensions());
+        SliceIter thisIter(slice, data.dimensions());
         auto biter = buffer.begin();
 
         while (!thisIter.isEnd()) {
@@ -71,7 +73,7 @@ public:
     Slice slice;
 private:
     static void copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
-    static void copySliceWithIters(ModelArray& source, Slice::SliceIter& sourceIter, ModelArray& target, Slice::SliceIter targetIter);
+    static void copySliceWithIters(ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
     ModelArray& data;
 };
 
