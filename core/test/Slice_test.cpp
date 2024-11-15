@@ -16,6 +16,28 @@
 
 using MultiDim = Slice::SliceIter::MultiDim;
 
+std::string to_string(const MultiDim& v)
+{
+    std::string s = "(";
+    for (auto dim = 0; dim < v.size(); ++dim) {
+        s += std::to_string(v[dim]);
+        if (dim != v.size() - 1) s += ",";
+    }
+    return s += ")";
+}
+
+std::string to_string(const Slice& l)
+{
+    std::string s = "(";
+    // Use the "[" is inclusive, ")" is exclusive notation.
+    for (auto dim = 0; dim < l.n(); ++dim) {
+        s += "[" + (l.bounds[dim].start.isAll() ? "" : std::to_string(l.bounds[dim].start))
+                + ":"+ (l.bounds[dim].stop.isAll() ? "" : std::to_string(l.bounds[dim].stop)) + ")";
+        if (dim != l.n() - 1) s += ",";
+    }
+    return s += ")";
+}
+
 TEST_SUITE_BEGIN("Indexer");
 TEST_CASE("indexer <-> deIndexer")
 {
@@ -139,15 +161,22 @@ TEST_CASE("Multidimensional indexing")
     Slice::SliceIter iter8d(elements8d, ni);
     count = 0;
     const size_t expt = 11 * 10 * 9 * 8 * 7 * 6 * 5 * 4;
+    std::string message = "";
     while (!iter8d.isEnd()) {
         auto loc = Indexer::deIndexer(ni, iter8d.index());
         for (size_t dim = 0; dim < ni.size(); ++dim) {
-            REQUIRE(loc[dim] >= elements8d.bounds[dim].start);
-            REQUIRE(loc[dim] < elements8d.bounds[dim].stop);
+             if (!(loc[dim] >= elements8d.bounds[dim].start)) {
+                 message = "start";
+             } else if (!(loc[dim] < elements8d.bounds[dim].stop)) {
+                 message = "stop";
+             }
+             if (!message.empty()) goto end8d;
         }
         ++iter8d;
         ++count;
     }
+end8d:
+    REQUIRE_MESSAGE(message.empty(), "Position ", to_string(Indexer::deIndexer(ni, iter8d.index())), " is out of bounds ", to_string(elements8d));
     REQUIRE(count == expt);
     Slice::SliceIter::MultiDim targ = {4, 5, 6, 7, 8, 9, 10, 11};
     REQUIRE(iter8d.shape().size() == targ.size());
