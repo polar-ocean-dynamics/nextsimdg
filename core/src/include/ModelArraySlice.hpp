@@ -29,9 +29,44 @@ public:
     // Assign a scalar to the entire slice
     ModelArraySlice& operator=(double v);
     // Assign the contents of a buffer to a slice
-    ModelArraySlice& operator=(const double* v);
+    template <typename T>
+    ModelArraySlice& operator=(const T& buffer)
+    {
+        // make no especial attempt at efficiency here
+        Slice::SliceIter thisIter(slice, data.dimensions());
+        auto biter = buffer.begin();
+
+        while (!thisIter.isEnd()) {
+            // If the buffer ends before the slice, throw an exception
+            if (biter == buffer.end()) {
+                throw std::length_error("ModelArraySlice::operator=(T): buffer exhausted");
+            }
+            data[thisIter.index()] = *biter;
+            ++thisIter;
+            ++biter;
+        }
+        return *this;
+    }
 
     ModelArray& copyToModelArray(ModelArray& target) const;
+    template <typename T>
+    T& copyToBuffer(T& buffer)
+    {
+        // make no especial attempt at efficiency here
+        Slice::SliceIter thisIter(slice, data.dimensions());
+        auto biter = buffer.begin();
+
+        while (!thisIter.isEnd()) {
+            // If the buffer ends before the slice, throw an exception
+            if (biter == buffer.end()) {
+                throw std::length_error("ModelArraySlice::copyToBuffer(T): buffer exhausted");
+            }
+            *biter = data[thisIter.index()];
+            ++thisIter;
+            ++biter;
+        }
+        return buffer;
+    }
 
     Slice slice;
 private:

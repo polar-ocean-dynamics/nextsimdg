@@ -10,6 +10,8 @@
 
 #include "include/ModelArraySlice.hpp"
 
+#include <array>
+
 const auto nx = 23;
 const auto ny = 17;
 const auto nz = 5;
@@ -249,6 +251,70 @@ TEST_CASE("Index a ModelArray with a Slice")
     REQUIRE(data(x0, y1 - 1) == v1);
     REQUIRE(data(x1 - 1, y0) == v1);
     REQUIRE(data(x1 - 1, y1 - 1) == v1);
+}
+
+TEST_CASE("Test buffers")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    // Test 1 dimensional slices into and out of common buffer types
+    // std::vector
+    OneDField oned(ModelArray::Type::ONED);
+    oned.resize();
+    const auto x0 = 3;
+    const auto x1 = 11;
+    auto oneSlice = oned[{{{x0, x1}}}];
+
+    // Check the functions throw when given too small a buffer
+    std::vector<double> shortBuffer;
+    shortBuffer.resize(x1-x0-1);
+    REQUIRE_THROWS(oneSlice = shortBuffer);
+    REQUIRE_THROWS(oneSlice.copyToBuffer(shortBuffer));
+    // Fill the array with index values
+    for (auto i = 0; i < oned.size(); ++i) {
+        oned[i] = i;
+    }
+
+    std::vector<double> vectorBuffer;
+    vectorBuffer.resize(x1-x0);
+    // Fill with index values
+    for (auto i = 0; i < vectorBuffer.size(); ++i) {
+        vectorBuffer[i] = i;
+    }
+    // assign from the buffer
+    oneSlice = vectorBuffer;
+    REQUIRE(oned[x0-1] == x0 - 1);
+    REQUIRE(oned[x1] == x1);
+    REQUIRE(oned[x0 + 0] == 0);
+    REQUIRE(oned[x1 - 1] == x1 - x0 - 1);
+    // Refill with index values
+    for (auto i = 0; i < oned.size(); ++i) {
+        oned[i] = i;
+    }
+    oneSlice.copyToBuffer(vectorBuffer);
+    REQUIRE(vectorBuffer[0] == x0);
+    REQUIRE(vectorBuffer[x1 - x0 - 1] == x1 - 1);
+
+    // std::array<x1-x0>
+    std::array<double, x1-x0> arrayBuffer;
+    for (auto i = 0; i < arrayBuffer.size(); ++i) {
+        arrayBuffer[i] = i;
+    }
+    // assign from the buffer
+    oneSlice = arrayBuffer;
+    REQUIRE(oned[x0-1] == x0 - 1);
+    REQUIRE(oned[x1] == x1);
+    REQUIRE(oned[x0 + 0] == 0);
+    REQUIRE(oned[x1 - 1] == x1 - x0 - 1);
+    // Refill with index values
+    for (auto i = 0; i < oned.size(); ++i) {
+        oned[i] = i;
+    }
+    oneSlice.copyToBuffer(arrayBuffer);
+    REQUIRE(arrayBuffer[0] == x0);
+    REQUIRE(arrayBuffer[x1 - x0 - 1] == x1 - 1);
+
 }
 
 TEST_SUITE_END();
