@@ -135,9 +135,11 @@ public:
      */
     ModelArray& operator=(const ModelArraySlice&);
 
-    // TODO Implement this
-//    ModelArraySlice operator[](const Slice&);
-//
+    /*!
+     * Creates a ModelArraySlice.
+     */
+    ModelArraySlice operator[](const Slice&);
+
     // ModelArray arithmetic
     //! In place addition of another ModelArray
     ModelArray& operator+=(const ModelArray& b)

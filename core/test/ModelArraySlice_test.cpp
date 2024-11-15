@@ -199,5 +199,57 @@ TEST_CASE("Slice to ModelArray")
 
 }
 
+TEST_CASE("Index a ModelArray with a Slice")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+    ModelArray::setDimension(ModelArray::Dimension::Z, nz);
+
+    size_t x0 = 4;
+    size_t x1 = 9;
+    size_t y0 = 6;
+    size_t y1 = 14;
+
+    Slice slice {{{x0, x1}, {y0, y1}}};
+    TwoDField data(ModelArray::Type::TWOD);
+    double v0 = -1.;
+    data = v0;
+    double v1 = 1.;
+    data[slice] = v1;
+
+    // Test the areas that should not be assigned to
+    REQUIRE(data(x0 - 1, y0 - 1) == v0);
+    REQUIRE(data(x1, y0 - 1) == v0);
+    REQUIRE(data(x0 - 1, y1) == v0);
+    REQUIRE(data(x1, y1) == v0);
+    // Test the areas that should be assigned to
+    REQUIRE(data(x0, y0) == v1);
+    REQUIRE(data(x0, y1 - 1) == v1);
+    REQUIRE(data(x1 - 1, y0) == v1);
+    REQUIRE(data(x1 - 1, y1 - 1) == v1);
+
+    // Write the Slice directly into the indexing operator
+    x0 = 3;
+    x1 = 11;
+    y0 = 8;
+    y1 = 13;
+
+    v0 = -5.;
+    data = v0;
+    v1 = 8.;
+    data[{{{x0, x1}, {y0, y1}}}] = v1;
+
+    // Test the areas that should not be assigned to
+    REQUIRE(data(x0 - 1, y0 - 1) == v0);
+    REQUIRE(data(x1, y0 - 1) == v0);
+    REQUIRE(data(x0 - 1, y1) == v0);
+    REQUIRE(data(x1, y1) == v0);
+    // Test the areas that should be assigned to
+    REQUIRE(data(x0, y0) == v1);
+    REQUIRE(data(x0, y1 - 1) == v1);
+    REQUIRE(data(x1 - 1, y0) == v1);
+    REQUIRE(data(x1 - 1, y1 - 1) == v1);
+}
+
 TEST_SUITE_END();
 } // namespace Nextsim
