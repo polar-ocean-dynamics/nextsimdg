@@ -1,7 +1,7 @@
 /*!
  * @file    XiosWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    18 Nov 2024
+ * @date    19 Nov 2024
  * @brief   Tests for XIOS write method
  * @details
  * This test is designed to test the write method of the C++ interface
@@ -192,6 +192,6 @@ MPI_TEST_CASE("TestXiosWrite_3D", 2)
     testFileWrite(&xios_handler, field_3D, "field_3D");
 }
 
-}
-
 // TODO: Consider adding a 4D test case
+
+}
