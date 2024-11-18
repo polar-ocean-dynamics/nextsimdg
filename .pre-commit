@@ -2,6 +2,8 @@
 
 # An example pre-commit file for nextSIM-DG development
 
+git diff >nextsim_precommit_before.patch
+
 for FILE in $(git diff --cached --name-only | grep -iE '\.(cpp|cc|h|hpp)$'); do
   # Apply clang-format for linting
   clang-format -i ${FILE} --verbose
@@ -11,3 +13,10 @@ for FILE in $(git diff --cached --name-only | grep -iE '\.(cpp|cc|h|hpp)$'); do
   NEWLINE=$(printf "%s%$((SPACES))s%s\n" " @date" " " "$(date '+%d %b %Y')")
   sed -i~ "s/${LINE}/${NEWLINE}/" ${FILE}
 done
+
+# Abort commit if formatting was applied
+git diff >nextsim_precommit_after.patch
+if [ "$(diff nextsim_precommit_before.patch nextsim_precommit_after.patch)" ]; then
+  echo "Aborting git commit because the pre-commit hook made changes."
+  exit 1
+fi
