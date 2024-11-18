@@ -24,14 +24,11 @@ class Slice {
                 : m_isAll(true)
                 , i(0)
             {
-//                std::cout << "Index::Index()" << std::endl;
             }
-            // A constructor only for unsigned integers
             Index(Int ii)
                 : m_isAll(false)
                 , i(ii)
             {
-//                std::cout << "Index::Index(" << ii << ")" << std::endl;
             }
             bool isAll() const { return m_isAll; }
             operator std::ptrdiff_t() const { return i; }
@@ -50,13 +47,11 @@ class Slice {
         {
         }
         Bounds(Index i)
-            : Bounds(i, i+1, 1)
+            : Bounds((i.isAll()) ? Bounds() : Bounds(i, i+1, 1))
         {
         }
         Bounds(Index i, Index j)
             : Bounds(i, j, 1)
-//        : start(i)
-//        , stop(j)
         {
         }
         Bounds(Index i, Index j, Int step_in)
@@ -98,11 +93,9 @@ public:
     , current(dimensions.size(), 0)
     {
         toBegin();
-        // TODO Add exceptions if the length of Slice and dimensions do not match.
         if (slice.n() != dimensions.size())
             throw std::invalid_argument("SliceIter: mismatch in number of dimensions between Slice (" + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size()) + ").");
     }
-//        SliceIter(SliceIter& other);
     SliceIter& operator++()
     {
         return incrementDim(0);

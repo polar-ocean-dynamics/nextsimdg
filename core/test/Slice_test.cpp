@@ -63,6 +63,24 @@ TEST_CASE("One dimensional indexing")
     SliceIter iter3(element3, {10});
     REQUIRE(iter3.index() == 3);
 
+    // All the elements of an array
+    // Implicitly
+    SliceIter impAll({{{}}}, {3});
+    size_t count = 0;
+    while(!impAll.isEnd()) {
+        ++impAll;
+        ++count;
+    }
+    REQUIRE(count == 3);
+    // Explicitly
+    SliceIter expAll({{{{}}}}, {3});
+    count = 0;
+    while(!expAll.isEnd()) {
+        ++expAll;
+        ++count;
+    }
+    REQUIRE(count == 3);
+
     // A range
     Slice range36 {{{3, 6}}};
     SliceIter iter36(range36, {10});
@@ -82,7 +100,7 @@ TEST_CASE("One dimensional indexing")
     Slice range3_ {{{3, {}}}};
     SliceIter iter3_(range3_, {10});
     // count the values until the end 3456789
-    size_t count = 0;
+    count = 0;
     while(!iter3_.isEnd()) {
         ++iter3_;
         ++count;
