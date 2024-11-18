@@ -34,6 +34,16 @@ namespace Nextsim {
 
 static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" } };
 
+//! Enable XIOS in the 'config'
+void enableXios()
+{
+    Configurator::clearStreams();
+    std::stringstream config;
+    config << "[xios]" << std::endl << "enable = true" << std::endl;
+    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
+    Configurator::addStream(std::move(pcstream));
+}
+
 /*!
  * Constructor
  *

@@ -27,6 +27,8 @@
 
 namespace Nextsim {
 
+void enableXios();
+
 class Xios : public Configured<Xios> {
 public:
     Xios(const std::string contextId = "nextSIM-DG");

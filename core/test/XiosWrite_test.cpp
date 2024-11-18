@@ -1,7 +1,7 @@
 /*!
  * @file    XiosWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    01 Nov 2024
+ * @date    18 Nov 2024
  * @brief   Tests for XIOS write method
  * @details
  * This test is designed to test the write method of the C++ interface
@@ -18,7 +18,6 @@
 #include "include/Xios.hpp"
 
 #include <filesystem>
-#include <iostream>
 
 namespace Nextsim {
 
@@ -33,13 +32,7 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosWrite", 2)
 {
-
-    // Enable XIOS in the 'config'
-    Configurator::clearStreams();
-    std::stringstream config;
-    config << "[xios]" << std::endl << "enable = true" << std::endl;
-    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
-    Configurator::addStream(std::move(pcstream));
+    enableXios();
 
     // Create ParametricGrid and ParaGridIO instances
     Module::setImplementation<IStructure>("Nextsim::ParametricGrid");
