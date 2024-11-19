@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    18 Nov 2024
+ * @date    19 Nov 2024
  * @brief   XIOS interface implementation
  * @details
  *
@@ -117,6 +117,8 @@ void Xios::configureServer(const std::string calendarType)
     // Initialize calendar wrapper for 'nextSIM-DG' context
     cxios_get_current_calendar_wrapper(&clientCalendar);
     cxios_set_calendar_wrapper_type(clientCalendar, calendarType.c_str(), calendarType.length());
+    cxios_duration timestep { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };
+    cxios_set_calendar_wrapper_timestep(clientCalendar, timestep);
     cxios_create_calendar(clientCalendar);
 }
 
