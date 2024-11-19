@@ -6,17 +6,18 @@
 #include "include/indexer.hpp"
 
 // A macro definition of the two-argument ceiling function
-#define ceil(num , denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
+#define ceil(num, denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 namespace ArraySlicer {
 class SliceIter;
 // Generic n-dimensional slice
 class Slice {
-    public:
+public:
     using Int = std::ptrdiff_t;
     //  Bounds for one dimension
     class Bounds {
     public:
         static const size_t max = std::numeric_limits<size_t>::max();
+
     private:
         class Index {
         public:
@@ -47,7 +48,7 @@ class Slice {
         {
         }
         Bounds(Index i)
-            : Bounds((i.isAll()) ? Bounds() : Bounds(i, i+1, 1))
+            : Bounds((i.isAll()) ? Bounds() : Bounds(i, i + 1, 1))
         {
         }
         Bounds(Index i, Index j)
@@ -60,17 +61,19 @@ class Slice {
             , step(step_in)
         {
             if (!step)
-                throw std::invalid_argument("Slice::Bounds::Bounds(Index, Index, Int): slice step cannot be zero");
+                throw std::invalid_argument(
+                    "Slice::Bounds::Bounds(Index, Index, Int): slice step cannot be zero");
         }
         friend SliceIter;
     };
+
 public:
     using VBounds = std::vector<Bounds>;
     const VBounds bounds;
 
 public:
     Slice()
-        : Slice({Bounds()})
+        : Slice({ Bounds() })
     {
     }
     Slice(VBounds allBounds)
@@ -79,27 +82,25 @@ public:
     }
 
     const size_t n() const { return bounds.size(); }
-
 };
 
-class SliceIter
-{
+class SliceIter {
 public:
     using MultiDim = std::vector<size_t>;
     using Int = Slice::Int;
     SliceIter(const Slice& slice, const MultiDim& dimensions)
-    : m_slice(realiseIndices(slice.bounds, dimensions))
-    , m_dimensions(dimensions)
-    , current(dimensions.size(), 0)
+        : m_slice(realiseIndices(slice.bounds, dimensions))
+        , m_dimensions(dimensions)
+        , current(dimensions.size(), 0)
     {
         toBegin();
         if (slice.n() != dimensions.size())
-            throw std::invalid_argument("SliceIter: mismatch in number of dimensions between Slice (" + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size()) + ").");
+            throw std::invalid_argument(
+                "SliceIter: mismatch in number of dimensions between Slice ("
+                + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size())
+                + ").");
     }
-    SliceIter& operator++()
-    {
-        return incrementDim(0);
-    }
+    SliceIter& operator++() { return incrementDim(0); }
     SliceIter operator++(int)
     {
         SliceIter copy(*this);
@@ -109,11 +110,13 @@ public:
 
     SliceIter& incrementDim(size_t dim)
     {
-        for(;;) {
+        for (;;) {
             // Increment current in this dimension, and test if it is at or past the end.
-            if (!stopTest(current[dim] += m_slice.bounds[dim].step, dim)) break;
+            if (!stopTest(current[dim] += m_slice.bounds[dim].step, dim))
+                break;
             // Never reset the final valid dimension.
-            if (dim + 1 >= current.size()) break;
+            if (dim + 1 >= current.size())
+                break;
             // Reset the dimension to the start
             current[dim] = m_slice.bounds[dim].start;
             // Increment dimension
@@ -127,9 +130,7 @@ public:
     /*!
      * Returns the one-dimensional index equivalent to the current state of the iterator
      */
-    Int index() const {
-        return Indexer::indexer(m_dimensions, current);
-    }
+    Int index() const { return Indexer::indexer(m_dimensions, current); }
     /*!
      * Sets the state to the beginning of the slice
      */
@@ -187,8 +188,7 @@ public:
 
         // TODO handle negative indices
         shapey.resize(m_slice.bounds.size());
-        for (size_t dim = 0; dim < m_slice.bounds.size(); ++dim)
-        {
+        for (size_t dim = 0; dim < m_slice.bounds.size(); ++dim) {
             shapey[dim] = nElements(dim);
         }
 
@@ -202,9 +202,8 @@ public:
     Int start(size_t dim) const
     {
         // TODO handle negative indices
-        return (m_slice.bounds[dim].start.isAll()) ?
-                ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0) :
-                static_cast<size_t>(m_slice.bounds[dim].start);
+        return (m_slice.bounds[dim].start.isAll()) ? ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0)
+                                                   : static_cast<size_t>(m_slice.bounds[dim].start);
     }
     /*!
      * Translates the default and negative bounds into an actual start
@@ -213,7 +212,8 @@ public:
     Int start() const
     {
         if (m_slice.n() != 1) {
-            throw std::out_of_range("Slice::start(): use Slice::start(size_t) for multi-dimensional slices.");
+            throw std::out_of_range(
+                "Slice::start(): use Slice::start(size_t) for multi-dimensional slices.");
         }
         return start(0);
     }
@@ -225,9 +225,9 @@ public:
     Int nElements(size_t dim) const
     {
         // TODO handle negative indices
-        Int stop = (m_slice.bounds[dim].stop.isAll()) ?
-                ((step(dim) < 0) ? -1 : m_dimensions[dim]) :
-                static_cast<size_t>(m_slice.bounds[dim].stop);
+        Int stop = (m_slice.bounds[dim].stop.isAll())
+            ? ((step(dim) < 0) ? -1 : m_dimensions[dim])
+            : static_cast<size_t>(m_slice.bounds[dim].stop);
         return ceil(stop - start(dim), step(dim));
     }
     /*!
@@ -236,29 +236,28 @@ public:
     Int nElements() const
     {
         if (m_slice.n() != 1) {
-            throw std::out_of_range("Slice::nElements(): use Slice::nElements(size_t) for multi-dimensional slices.");
+            throw std::out_of_range(
+                "Slice::nElements(): use Slice::nElements(size_t) for multi-dimensional slices.");
         }
         return nElements(0);
     }
 
-    Int step(size_t dim) const
-    {
-        return m_slice.bounds[dim].step;
-    }
+    Int step(size_t dim) const { return m_slice.bounds[dim].step; }
     Int step() const
     {
         if (m_slice.n() != 1) {
-            throw std::out_of_range("Slice::step(): use Slice::step(size_t) for multi-dimensional slices.");
+            throw std::out_of_range(
+                "Slice::step(): use Slice::step(size_t) for multi-dimensional slices.");
         }
         return step(0);
     }
-private:
 
+private:
     Int dimEnd(size_t dim) const
     {
-        return (m_slice.bounds[dim].stop.isAll()) ?
-                            ((step(dim) < 0) ? -1 : m_dimensions[dim]) :
-                            static_cast<Slice::Int>(m_slice.bounds[dim].stop);
+        return (m_slice.bounds[dim].stop.isAll())
+            ? ((step(dim) < 0) ? -1 : m_dimensions[dim])
+            : static_cast<Slice::Int>(m_slice.bounds[dim].stop);
     }
     // Test whether a dimension has run past the end of its bounds
     bool stopTest(Int subject, size_t dim) const
@@ -281,7 +280,8 @@ private:
             if (in[i].start.isAll()) {
                 out[i].start = (in[i].step < 0) ? dims[i] - 1 : 0;
             } else if (in[i].start < 0) {
-                out[i].start = (in[i].step < 0) ? std::min(signedDim + in[i].start, signedDim) : std::max(signedDim + in[i].start, int0);
+                out[i].start = (in[i].step < 0) ? std::min(signedDim + in[i].start, signedDim)
+                                                : std::max(signedDim + in[i].start, int0);
             } else {
                 out[i].start = in[i].start;
             }

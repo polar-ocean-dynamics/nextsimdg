@@ -381,7 +381,8 @@ private:
     }
 
     // Fast special case for 2-d indexing
-    template <typename T = size_t, typename C, typename I> static inline T indexr(C dims, I first, I second)
+    template <typename T = size_t, typename C, typename I>
+    static inline T indexr(C dims, I first, I second)
     {
         return first + second * dims[0];
     }
@@ -395,7 +396,8 @@ private:
     }
 
     // Indices as a Dimensions object
-    template <typename T = size_t, typename C> static T indexr(C dims, const ModelArray::MultiDim& loc)
+    template <typename T = size_t, typename C>
+    static T indexr(C dims, const ModelArray::MultiDim& loc)
     {
         return indexer(dims, loc);
     }

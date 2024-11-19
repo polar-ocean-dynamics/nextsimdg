@@ -55,7 +55,8 @@ ModelArray& ModelArraySlice::copyToModelArray(ModelArray& target) const
     return target;
 }
 
-void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName)
+void ModelArraySlice::copyBetweenMAandMASlice(
+    ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName)
 {
     // Shape check
     SliceIter masIter(mas.slice, mas.data.dimensions());
@@ -69,12 +70,13 @@ void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySl
     if (mas.slice.n() > ma.nDimensions()) {
         for (size_t dim = ma.nDimensions(); dim < mas.slice.n(); ++dim) {
             if (masIter.nElements(dim) != 1)
-                throw std::domain_error(functionName + ": additional dimensions must have length 1.");
+                throw std::domain_error(
+                    functionName + ": additional dimensions must have length 1.");
         }
     }
 
-    Slice::Bounds all = {{}, {}};
-    Slice::Bounds first = {0};
+    Slice::Bounds all = { {}, {} };
+    Slice::Bounds first = { 0 };
     Slice::VBounds bounds;
     bounds.resize(mas.slice.n());
     SliceIter::MultiDim extendedDims;
@@ -99,17 +101,17 @@ void ModelArraySlice::copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySl
     }
 }
 
-void ModelArraySlice::copySliceWithIters(ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter)
+void ModelArraySlice::copySliceWithIters(
+    ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter)
 {
     const size_t targetNEl = targetIter.nElements(0);
     const size_t sourceNEl = sourceIter.nElements(0);
 
-    while(!targetIter.isEnd() && !sourceIter.isEnd())
-    {
+    while (!targetIter.isEnd() && !sourceIter.isEnd()) {
         const size_t targetIndex = targetIter.index();
         const size_t sourceIndex = sourceIter.index();
-        target.m_data(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all) =
-                source.m_data(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
+        target.m_data(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all)
+            = source.m_data(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
         targetIter.incrementDim(1);
         sourceIter.incrementDim(1);
     }

@@ -232,10 +232,7 @@ double& ModelArray::operator[](const MultiDim& dims)
     return const_cast<double&>(std::as_const(*this)[dims]);
 }
 
-ModelArraySlice ModelArray::operator[](const Slice& slice)
-{
-    return ModelArraySlice(*this, slice);
-}
+ModelArraySlice ModelArray::operator[](const Slice& slice) { return ModelArraySlice(*this, slice); }
 
 ModelArray::Component ModelArray::components(const MultiDim& loc)
 {

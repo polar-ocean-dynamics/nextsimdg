@@ -31,8 +31,7 @@ public:
     // Assign a scalar to the entire slice
     ModelArraySlice& operator=(double v);
     // Assign the contents of a buffer to a slice
-    template <typename T>
-    ModelArraySlice& operator=(const T& buffer)
+    template <typename T> ModelArraySlice& operator=(const T& buffer)
     {
         // make no especial attempt at efficiency here
         SliceIter thisIter(slice, data.dimensions());
@@ -51,8 +50,7 @@ public:
     }
 
     ModelArray& copyToModelArray(ModelArray& target) const;
-    template <typename T>
-    T& copyToBuffer(T& buffer)
+    template <typename T> T& copyToBuffer(T& buffer)
     {
         // make no especial attempt at efficiency here
         SliceIter thisIter(slice, data.dimensions());
@@ -71,9 +69,12 @@ public:
     }
 
     Slice slice;
+
 private:
-    static void copyBetweenMAandMASlice(ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
-    static void copySliceWithIters(ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
+    static void copyBetweenMAandMASlice(
+        ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
+    static void copySliceWithIters(
+        ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
     ModelArray& data;
 };
 

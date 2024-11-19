@@ -9,8 +9,8 @@
 #define INDEXER_HPP
 
 #include <cstddef>
-#include <vector>
 #include <limits>
+#include <vector>
 
 namespace Indexer {
 
