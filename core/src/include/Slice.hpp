@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <limits>
-#include <vector>
 #include <ostream>
+#include <vector>
 
 #include "include/indexer.hpp"
 
@@ -107,17 +107,23 @@ public:
     bool operator==(const SliceIter& other) const
     {
         // Number of dimensions must match
-        if (m_slice.n() != other.m_slice.n()) return false;
+        if (m_slice.n() != other.m_slice.n())
+            return false;
         const size_t ndim = m_slice.n();
         for (size_t dim = 0; dim < ndim; ++dim) {
             // Dimension length must match
-            if (m_dimensions[dim] != other.m_dimensions[dim]) return false;
+            if (m_dimensions[dim] != other.m_dimensions[dim])
+                return false;
             // Dimension limits must match
-            if (m_slice.bounds[dim].start != other.m_slice.bounds[dim].start) return false;
-            if (m_slice.bounds[dim].stop != other.m_slice.bounds[dim].stop) return false;
-            if (m_slice.bounds[dim].step != other.m_slice.bounds[dim].step) return false;
+            if (m_slice.bounds[dim].start != other.m_slice.bounds[dim].start)
+                return false;
+            if (m_slice.bounds[dim].stop != other.m_slice.bounds[dim].stop)
+                return false;
+            if (m_slice.bounds[dim].step != other.m_slice.bounds[dim].step)
+                return false;
             // Position must match
-            if (current[dim] != other.current[dim]) return false;
+            if (current[dim] != other.current[dim])
+                return false;
         }
         return true;
     }
@@ -281,13 +287,16 @@ public:
         // Print the bounds
         os << "{";
         for (size_t i = 0; i < ndims; ++i) {
-            os << m_slice.bounds[i].start << ":" << m_slice.bounds[i].stop << ":" << m_slice.bounds[i].step;
-            if (i <= lastComma) os << ",";
+            os << m_slice.bounds[i].start << ":" << m_slice.bounds[i].stop << ":"
+               << m_slice.bounds[i].step;
+            if (i <= lastComma)
+                os << ",";
         }
         os << "}[";
         for (size_t i = 0; i < ndims; ++i) {
             os << current[i];
-            if (i <= lastComma) os << ",";
+            if (i <= lastComma)
+                os << ",";
         }
         os << "]";
         return os;
@@ -348,10 +357,7 @@ private:
     const Slice m_slice;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const SliceIter& si)
-{
-    return si.print(os);
-}
+inline std::ostream& operator<<(std::ostream& os, const SliceIter& si) { return si.print(os); }
 } // namespace ArraySlicer
 
 #undef ceil
