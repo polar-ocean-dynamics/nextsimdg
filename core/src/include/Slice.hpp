@@ -59,6 +59,8 @@ class Slice {
             , stop(j)
             , step(step_in)
         {
+            if (!step)
+                throw std::invalid_argument("Slice::Bounds::Bounds(Index, Index, Int): slice step cannot be zero");
         }
         friend SliceIter;
     };

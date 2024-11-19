@@ -541,4 +541,16 @@ TEST_CASE("Indexing behaviour")
 
 }
 
+// Creates a Slice with step = 0
+bool makeZeroStep()
+{
+    Slice slice{{{{},{},0}}};
+    return true;
+}
+
+TEST_CASE("Zero step")
+{
+    REQUIRE_THROWS(makeZeroStep());
+}
+
 TEST_SUITE_END();
