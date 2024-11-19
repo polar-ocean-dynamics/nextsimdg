@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <limits>
 #include <vector>
+#include <ostream>
 
 #include "include/indexer.hpp"
 
@@ -100,6 +101,7 @@ public:
                 + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size())
                 + ").");
     }
+
     SliceIter& operator++() { return incrementDim(0); }
     SliceIter operator++(int)
     {
@@ -252,6 +254,25 @@ public:
         return step(0);
     }
 
+    std::ostream& print(std::ostream& os) const
+    {
+        size_t ndims = m_slice.n();
+        size_t lastComma = ndims - 2;
+        // Print the bounds
+        os << "{";
+        for (size_t i = 0; i < ndims; ++i) {
+            os << m_slice.bounds[i].start << ":" << m_slice.bounds[i].stop << ":" << m_slice.bounds[i].step;
+            if (i <= lastComma) os << ",";
+        }
+        os << "}[";
+        for (size_t i = 0; i < ndims; ++i) {
+            os << current[i];
+            if (i <= lastComma) os << ",";
+        }
+        os << "]";
+        return os;
+    }
+
 private:
     Int dimEnd(size_t dim) const
     {
@@ -306,6 +327,11 @@ private:
     MultiDim current;
     const Slice m_slice;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const SliceIter& si)
+{
+    return si.print(os);
+}
 } // namespace ArraySlicer
 
 #undef ceil
