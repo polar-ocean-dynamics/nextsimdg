@@ -1,6 +1,6 @@
 /*!
  * @file VPParameters.hpp
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
@@ -12,26 +12,21 @@
 
 namespace Nextsim {
 
-class VPParameters : public DynamicsParameters {
+// static const int nStepsDefault = 100; //!< number of sub-cycling steps
+// static const double compactionParamDefault = -20.; //!< Compation parameter: Hibler's C in
+// exp(-C(1-a))
+static const double pStarDefault = 27.5e3; //!< Ice strength
+static const double deltaMinDefault = 2e-9; //!< Viscous regime
 
-private:
-    double compactionParam = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
-    double pStar = 27.5e3; //!< Ice strength
-    double deltaMin = 2e-9; //!< Viscous regime
-    int nSteps = 100; //!< number of sub-cycling steps
+class VPParameters : public DynamicsParameters {
 
 public:
     VPParameters() = default;
 
-    void setCompactionParam(const double C) { compactionParam = C; };
-    void setPStar(const double P) { pStar = P; };
-    void setDeltaMin(const double D) { deltaMin = D; };
-    void setNSteps(const int N) { nSteps = N; };
-
-    const double getCompactionParam() const { return compactionParam; }
-    const double getPStar() const { return pStar; }
-    const double getDeltaMin() const { return deltaMin; }
-    const int getNSteps() const { return nSteps; }
+    double compactionParam = compactionParamDefault;
+    double pStar = pStarDefault;
+    double deltaMin = deltaMinDefault;
+    int nSteps = nStepsDefault;
 };
 
 } /* namespace Nextsim */

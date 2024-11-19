@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMomentum.cpp
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -230,10 +230,8 @@ void CGParametricMomentum<CG>::mEVPStep(const VPParameters& params, const size_t
     // Update the velocity
     double SC = 1.0; ///(1.0-pow(1.0+1.0/beta,-1.0*NT_evp));
 
-    const double rhoIce = params.getRhoIce();
-    const double FOcean = params.getFOcean();
-    const double FAtm = params.getFAtm();
-    const double fc = params.getFC();
+    const double FOcean = params.COcean * params.rhoOcean;
+    const double FAtm = params.CAtm * params.rhoAtm;
 
     //	    update by a loop.. implicit parts and h-dependent
 #pragma omp parallel for
@@ -242,22 +240,23 @@ void CGParametricMomentum<CG>::mEVPStep(const VPParameters& params, const size_t
         double absocn = sqrt(SQR(vx(i) - ox(i)) + SQR(vy(i) - oy(i)));
 
         vx(i) = (1.0
-            / (rhoIce * cg_H(i) / dt_adv * (1.0 + beta) // implicit parts
+            / (params.rhoIce * cg_H(i) / dt_adv * (1.0 + beta) // implicit parts
                 + cg_A(i) * FOcean * absocn) // implicit parts
-            * (rhoIce * cg_H(i) / dt_adv * (beta * vx(i) + vx_mevp(i)) // pseudo-timestepping
+            * (params.rhoIce * cg_H(i) / dt_adv * (beta * vx(i) + vx_mevp(i)) // pseudo-timestepping
                 + cg_A(i)
                     * (FAtm * absatm * ax(i) + // atm forcing
                         FOcean * absocn * SC * ox(i)) // ocean forcing
-                + rhoIce * cg_H(i) * fc * (vy(i) - oy(i)) // cor + surface
+                + params.rhoIce * cg_H(i) * params.fc * (vy(i) - oy(i)) // cor + surface
                 + tmpx(i) / pmap.lumpedcgmass(i)));
         vy(i) = (1.0
-            / (rhoIce * cg_H(i) / dt_adv * (1.0 + beta) // implicit parts
+            / (params.rhoIce * cg_H(i) / dt_adv * (1.0 + beta) // implicit parts
                 + cg_A(i) * FOcean * absocn) // implicit parts
-            * (rhoIce * cg_H(i) / dt_adv * (beta * vy(i) + vy_mevp(i)) // pseudo-timestepping
+            * (params.rhoIce * cg_H(i) / dt_adv * (beta * vy(i) + vy_mevp(i)) // pseudo-timestepping
                 + cg_A(i)
                     * (FAtm * absatm * ay(i) + // atm forcing
                         FOcean * absocn * SC * oy(i)) // ocean forcing
-                + rhoIce * cg_H(i) * fc * (ox(i) - vx(i)) + tmpy(i) / pmap.lumpedcgmass(i)));
+                + params.rhoIce * cg_H(i) * params.fc * (ox(i) - vx(i))
+                + tmpy(i) / pmap.lumpedcgmass(i)));
     }
 
     DirichletZero();
@@ -339,18 +338,16 @@ void CGParametricMomentum<CG>::BBMStep(const BBMParameters& params, const size_t
 
     /* This is Hunke and Dukowicz's solution to (22), multiplied
      * with (\Delta t/m)^2 to ensure stability for c' = 0 */
-    double const cos_ocean_turning_angle = std::cos(params.getOceanTurningAngle() * M_PI / 180.);
-    double const sin_ocean_turning_angle = std::sin(params.getOceanTurningAngle() * M_PI / 180.);
+    double const cos_ocean_turning_angle = std::cos(params.oceanTurningAngle * M_PI / 180.);
+    double const sin_ocean_turning_angle = std::sin(params.oceanTurningAngle * M_PI / 180.);
 
-    const double rhoIce = params.getRhoIce();
-    const double FOcean = params.getFOcean();
-    const double FAtm = params.getFAtm();
-    const double fc = params.getFC();
+    const double FOcean = params.COcean * params.rhoOcean;
+    const double FAtm = params.CAtm * params.rhoAtm;
 
 #pragma omp parallel for
     for (int i = 0; i < vx.rows(); ++i) {
         // FIXME: dte_over_mass should include snow (total mass)
-        double const dte_over_mass = dt_mom / (rhoIce * cg_H(i));
+        double const dte_over_mass = dt_mom / (params.rhoIce * cg_H(i));
         double const uice = vx(i);
         double const vice = vy(i);
 
@@ -362,7 +359,7 @@ void CGParametricMomentum<CG>::BBMStep(const BBMParameters& params, const size_t
         /* FIXME: We need latitude here. Then this becomes:
          * double const beta   = dt_mom*fc +
          * dte_over_mass*c_prime*std::copysign(sin_ocean_turning_angle, lat[i]); */
-        double const beta = dt_mom * fc + dte_over_mass * c_prime * sin_ocean_turning_angle;
+        double const beta = dt_mom * params.fc + dte_over_mass * c_prime * sin_ocean_turning_angle;
         double const rdenom = 1. / (alpha * alpha + beta * beta);
 
         double const drag_atm = cg_A(i) * FAtm * std::hypot(ax(i), ay(i));
@@ -423,13 +420,11 @@ void CGParametricMomentum<CG>::MEBStep(const BBMParameters& params, const size_t
     // AddStressTensor(-1.0, tmpx, tmpy);
     DivergenceOfStress(1.0, tmpx, tmpy); // Compute divergence of stress tensor
 
-    double const cos_ocean_turning_angle = std::cos(params.getOceanTurningAngle() * M_PI / 180.);
-    double const sin_ocean_turning_angle = std::sin(params.getOceanTurningAngle() * M_PI / 180.);
+    double const cos_ocean_turning_angle = std::cos(params.oceanTurningAngle * M_PI / 180.);
+    double const sin_ocean_turning_angle = std::sin(params.oceanTurningAngle * M_PI / 180.);
 
-    const double rhoIce = params.getRhoIce();
-    const double FOcean = params.getFOcean();
-    const double FAtm = params.getFAtm();
-    const double fc = params.getFC();
+    const double FOcean = params.COcean * params.rhoOcean;
+    const double FAtm = params.CAtm * params.rhoAtm;
 
 #pragma omp parallel for
     for (int i = 0; i < vx.rows(); ++i) {
@@ -441,32 +436,32 @@ void CGParametricMomentum<CG>::MEBStep(const BBMParameters& params, const size_t
         double absocn = sqrt(SQR(corsurf_x) + SQR(corsurf_y));
 
         vx(i) = (1.0
-            / (rhoIce * cg_H(i) / dt_mom // implicit parts
+            / (params.rhoIce * cg_H(i) / dt_mom // implicit parts
                 + cg_A(i) * FOcean * absocn) // implicit parts
-            * (rhoIce * cg_H(i) / dt_mom * vx(i)
+            * (params.rhoIce * cg_H(i) / dt_mom * vx(i)
                 + cg_A(i)
                     * (FAtm * absatm * ax(i) + // atm forcing
                         FOcean * absocn * ox(i)) // ocean forcing
-                + rhoIce * cg_H(i) * fc * corsurf_y)); // cor + surface
+                + params.rhoIce * cg_H(i) * params.fc * corsurf_y)); // cor + surface
 
         vy(i) = (1.0
-            / (rhoIce * cg_H(i) / dt_mom // implicit parts
+            / (params.rhoIce * cg_H(i) / dt_mom // implicit parts
                 + cg_A(i) * FOcean * absocn) // implicit parts
-            * (rhoIce * cg_H(i) / dt_mom * vy(i)
+            * (params.rhoIce * cg_H(i) / dt_mom * vy(i)
                 + cg_A(i)
                     * (FAtm * absatm * ay(i) + // atm forcing
                         FOcean * absocn * oy(i)) // ocean forcing
-                + rhoIce * cg_H(i) * fc * corsurf_x)); // cor + surface
+                + params.rhoIce * cg_H(i) * params.fc * corsurf_x)); // cor + surface
 
         vx(i) += (1.0
-                     / (rhoIce * cg_H(i) / dt_mom // implicit parts
+                     / (params.rhoIce * cg_H(i) / dt_mom // implicit parts
                          + cg_A(i) * FOcean * absocn) // implicit parts
                      * tmpx(i))
             / pmap.lumpedcgmass(i);
         ;
 
         vy(i) += (1.0
-                     / (rhoIce * cg_H(i) / dt_mom // implicit parts
+                     / (params.rhoIce * cg_H(i) / dt_mom // implicit parts
                          + cg_A(i) * FOcean * absocn) // implicit parts
                      * tmpy(i))
             / pmap.lumpedcgmass(i);

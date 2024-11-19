@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.cpp
  *
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -19,12 +19,6 @@ namespace Nextsim {
 // Degrees to radians as a hex float
 static const double radians = 0x1.1df46a2529d39p-6;
 
-static const double compactionParamDefault
-    = -20.; //!< Compation parameter: Hibler's C in exp(-C(1-a))
-static const double pStarDefault = 27.5e3; //!< Ice strength
-static const double deltaMinDefault = 2e-9; //!< Viscous regime
-static const int nStepsDefault = 100; //!< Number of sub-steps
-
 // TODO: We should use getName() here, but it isn't static.
 static const std::string prefix = "MEVPDynamics"; // MEVPDynamics::getName();
 static const std::map<int, std::string> keyMap = {
@@ -38,11 +32,10 @@ void MEVPDynamics::configure()
 {
     Module::Module<Nextsim::IDamageHealing>::setImplementation("Nextsim::NoHealing");
 
-    params.setPStar(Configured::getConfiguration(keyMap.at(PSTAR_KEY), pStarDefault));
-    params.setDeltaMin(Configured::getConfiguration(keyMap.at(DELTA_KEY), deltaMinDefault));
-    params.setCompactionParam(
-        Configured::getConfiguration(keyMap.at(C_KEY), compactionParamDefault));
-    params.setNSteps(Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault));
+    params.pStar = Configured::getConfiguration(keyMap.at(PSTAR_KEY), pStarDefault);
+    params.deltaMin = Configured::getConfiguration(keyMap.at(DELTA_KEY), deltaMinDefault);
+    params.compactionParam = Configured::getConfiguration(keyMap.at(C_KEY), compactionParamDefault);
+    params.nSteps = Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault);
 }
 
 static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };

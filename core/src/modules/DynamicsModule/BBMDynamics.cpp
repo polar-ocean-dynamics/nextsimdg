@@ -1,7 +1,7 @@
 /*!
  * @file BBMDynamics.cpp
  *
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -16,19 +16,6 @@ static const std::vector<std::string> namedFields = { hiceName, ciceName, uName,
 static const std::map<std::string, std::pair<ModelArray::Type, double>> defaultFields = {
     { damageName, { ModelArray::Type::H, 1.0 } },
 };
-
-static double compactionParamDefault = -20.; //!< Compation parameter
-static double nu0Default = 1. / 3.; //!< \param Poisson's ratio
-static double youngDefault = 5.96e8; //!< \param Young's modulus
-static double P0Default = 10e3; //! < \param Constant to parametrize Pmax
-static double lambda0Default = 1e7; //!< \param lambda
-static int alphaDefault = 5;
-static double expPMaxDefault = 1.5; //! \param Power of ice thickness in the pressure coefficient
-static double muDefault = 0.7; //!< \param tan_phi (double) Internal friction coefficient (mu)
-static double comprCapDefault
-    = 1e10; //! \param compr_strength (double) Maximum compressive strength [N/m2]
-static double cLabDefault = 2e6; //! \param C_lab (double) Test [Pa]
-static const int nStepsDefault = 120; //!< Number of sub-steps
 
 // TODO: We should use getName() here, but it isn't static.
 static const std::string prefix = "BBMDynamics"; // MEVPDynamics::getName();
@@ -48,18 +35,17 @@ static const std::map<int, std::string> keyMap = {
 
 void BBMDynamics::configure()
 {
-    params.setCompactionParam(
-        Configured::getConfiguration(keyMap.at(C_KEY), compactionParamDefault));
-    params.setNu0(Configured::getConfiguration(keyMap.at(NU_KEY), nu0Default));
-    params.setYoung(Configured::getConfiguration(keyMap.at(YOUNG_KEY), youngDefault));
-    params.setP0(Configured::getConfiguration(keyMap.at(P0_KEY), P0Default));
-    params.setLambda0(Configured::getConfiguration(keyMap.at(LAMBDA0_KEY), lambda0Default));
-    params.setAlpha(Configured::getConfiguration(keyMap.at(ALPHA_KEY), alphaDefault));
-    params.setExpPMax(Configured::getConfiguration(keyMap.at(EXPPMAX_KEY), expPMaxDefault));
-    params.setMu(Configured::getConfiguration(keyMap.at(MU_KEY), muDefault));
-    params.setComprCap(Configured::getConfiguration(keyMap.at(NMAX_KEY), comprCapDefault));
-    params.setCLab(Configured::getConfiguration(keyMap.at(CLAB_KEY), cLabDefault));
-    params.setNSteps(Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault));
+    params.compactionParam = Configured::getConfiguration(keyMap.at(C_KEY), compactionParamDefault);
+    params.nu0 = Configured::getConfiguration(keyMap.at(NU_KEY), nu0Default);
+    params.young = Configured::getConfiguration(keyMap.at(YOUNG_KEY), youngDefault);
+    params.P0 = Configured::getConfiguration(keyMap.at(P0_KEY), P0Default);
+    params.lambda0 = Configured::getConfiguration(keyMap.at(LAMBDA0_KEY), lambda0Default);
+    params.alpha = Configured::getConfiguration(keyMap.at(ALPHA_KEY), alphaDefault);
+    params.expPMax = Configured::getConfiguration(keyMap.at(EXPPMAX_KEY), expPMaxDefault);
+    params.mu = Configured::getConfiguration(keyMap.at(MU_KEY), muDefault);
+    params.comprCap = Configured::getConfiguration(keyMap.at(NMAX_KEY), comprCapDefault);
+    params.cLab = Configured::getConfiguration(keyMap.at(CLAB_KEY), cLabDefault);
+    params.nSteps = Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault);
 }
 
 BBMDynamics::BBMDynamics()

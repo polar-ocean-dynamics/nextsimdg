@@ -1,6 +1,6 @@
 /*!
  * @file mevp.hpp
- * @date 23 Oct 2024
+ * @date 19 Nov 2024
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -48,7 +48,7 @@ namespace mEVP {
             const LocalEdgeVector<NGP * NGP> e12_gauss = E12.row(i) * PSI<DGstress, NGP>;
             const LocalEdgeVector<NGP * NGP> e22_gauss = E22.row(i) * PSI<DGstress, NGP>;
 
-            const LocalEdgeVector<NGP * NGP> DELTA = (SQR(vpparameters.getDeltaMin())
+            const LocalEdgeVector<NGP * NGP> DELTA = (SQR(vpparameters.deltaMin)
                 + 1.25 * (e11_gauss.array().square() + e22_gauss.array().square())
                 + 1.50 * e11_gauss.array() * e22_gauss.array() + e12_gauss.array().square())
                                                          .sqrt()
@@ -60,9 +60,9 @@ namespace mEVP {
 
             //   //! Ice strength
             //   double P = vpparameters.pStar * H(i, 0) * exp(-20.0 * (1.0 - A(i, 0)));
-            const LocalEdgeVector<NGP * NGP> P = (vpparameters.getPStar() * h_gauss.array()
-                * (-20.0 * (1.0 - a_gauss.array())).exp())
-                                                     .matrix();
+            const LocalEdgeVector<NGP * NGP> P
+                = (vpparameters.pStar * h_gauss.array() * (-20.0 * (1.0 - a_gauss.array())).exp())
+                      .matrix();
 
             // //   double zeta = P / 2.0 / DELTA;
             // //   double eta = zeta / 4;
@@ -154,7 +154,7 @@ namespace mEVP {
             const LocalEdgeVector<NGP * NGP> e12_gauss = E12.row(i) * PSI<DGs, NGP>;
             const LocalEdgeVector<NGP * NGP> e22_gauss = E22.row(i) * PSI<DGs, NGP>;
 
-            const LocalEdgeVector<NGP * NGP> DELTA = (SQR(vpparameters.getDeltaMin())
+            const LocalEdgeVector<NGP * NGP> DELTA = (SQR(vpparameters.deltaMin)
                 + 1.25 * (e11_gauss.array().square() + e22_gauss.array().square())
                 + 1.50 * e11_gauss.array() * e22_gauss.array() + e12_gauss.array().square())
                                                          .sqrt()
@@ -166,9 +166,9 @@ namespace mEVP {
 
             //   //! Ice strength
             //   double P = vpparameters.pStar * H(i, 0) * exp(-20.0 * (1.0 - A(i, 0)));
-            const LocalEdgeVector<NGP * NGP> P = (vpparameters.getPStar() * h_gauss.array()
-                * (-20.0 * (1.0 - a_gauss.array())).exp())
-                                                     .matrix();
+            const LocalEdgeVector<NGP * NGP> P
+                = (vpparameters.pStar * h_gauss.array() * (-20.0 * (1.0 - a_gauss.array())).exp())
+                      .matrix();
 
             // //   double zeta = P / 2.0 / DELTA;
             // //   double eta = zeta / 4;

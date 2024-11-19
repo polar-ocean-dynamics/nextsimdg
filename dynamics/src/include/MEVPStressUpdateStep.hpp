@@ -1,7 +1,7 @@
 /*!
  * @file MEVPStressUpdateStep.hpp
  *
- * @date 23 Oct 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -42,9 +42,7 @@ public:
         DGVector<DGstress>& e22 = strain[I22];
 
         const VPParameters& vpParams = reinterpret_cast<const VPParameters&>(params);
-        const double sqrDeltaMin = SQR(vpParams.getDeltaMin());
-        const double pStar = vpParams.getPStar();
-        const double compactionParam = vpParams.getCompactionParam();
+        const double sqrDeltaMin = SQR(vpParams.deltaMin);
         // Number of Gauss points
         const size_t nGauss = (((DGstress == 8) || (DGstress == 6)) ? 3 : (DGstress == 3 ? 2 : -1));
         //! Stress Update
@@ -75,9 +73,9 @@ public:
 
             //   //! Ice strength
             //   double P = vpparameters.pStar * H(i, 0) * exp(-20.0 * (1.0 - A(i, 0)));
-            const LocalEdgeVector<nGauss * nGauss> P
-                = (pStar * h_gauss.array() * (compactionParam * (1.0 - a_gauss.array())).exp())
-                      .matrix();
+            const LocalEdgeVector<nGauss * nGauss> P = (vpParams.pStar * h_gauss.array()
+                * (vpParams.compactionParam * (1.0 - a_gauss.array())).exp())
+                                                           .matrix();
 
             //   // S = S_old + 1/alpha (S(u)-S_old) = (1-1/alpha) S_old + 1/alpha S(u)
             s11.row(i) *= (1.0 - 1.0 / alpha);

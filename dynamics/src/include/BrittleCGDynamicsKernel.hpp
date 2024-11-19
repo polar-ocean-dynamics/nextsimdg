@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -79,8 +79,8 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
-        cosOceanAngle = cos(radians * params.getOceanTurningAngle());
-        sinOceanAngle = sin(radians * params.getOceanTurningAngle());
+        cosOceanAngle = cos(radians * params.oceanTurningAngle);
+        sinOceanAngle = sin(radians * params.oceanTurningAngle);
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP
@@ -111,7 +111,7 @@ public:
         avgU.zero();
         avgV.zero();
 
-        for (size_t subStep = 0; subStep < params.getNSteps(); ++subStep) {
+        for (size_t subStep = 0; subStep < params.nSteps; ++subStep) {
 
             projectVelocityToStrain();
 
@@ -177,15 +177,13 @@ protected:
     // Common brittle parts of the momentum solver.
     void updateMomentum(const TimestepTime& tst) override
     {
-        const double rhoIce = params.getRhoIce();
-        const double FAtm = params.getFAtm();
-        const double FOcean = params.getFOcean();
-        const double fc = params.getFC();
+        const double FOcean = params.COcean * params.rhoOcean;
+        const double FAtm = params.CAtm * params.rhoAtm;
 
 #pragma omp parallel for
         for (size_t i = 0; i < u.rows(); ++i) {
             // FIXME dte_over_mass should include snow in the total mass
-            const double dteOverMass = deltaT / (rhoIce * cgH(i));
+            const double dteOverMass = deltaT / (params.rhoIce * cgH(i));
             // Memoized initial velocity values
             const double uIce = u(i);
             const double vIce = v(i);
@@ -199,7 +197,7 @@ protected:
              * const double beta = deltaT * fc +
              * dteOverMass * cPrime * std::copysign(sinOceanAngle, lat[i]);
              */
-            const double beta = deltaT * fc + dteOverMass * cPrime * sinOceanAngle;
+            const double beta = deltaT * params.fc + dteOverMass * cPrime * sinOceanAngle;
             const double rDenom = 1 / (SQR(alpha) + SQR(beta));
 
             // Atmospheric drag
