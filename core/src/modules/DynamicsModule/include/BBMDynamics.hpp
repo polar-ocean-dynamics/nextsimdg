@@ -1,7 +1,7 @@
 /*!
  * @file BBMDynamics.hpp
  *
- * @date 11 Nov 2024
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -42,7 +42,14 @@ public:
         MU_KEY,
         NMAX_KEY,
         CLAB_KEY,
-        NSTEPS_KEY
+        NSTEPS_KEY,
+        RHOI_KEY,
+        RHOA_KEY,
+        RHOO_KEY,
+        CATM_KEY,
+        COCEAN_KEY,
+        FC_KEY,
+        ANGLE_KEY,
     };
 
     static HelpMap& getHelpText(HelpMap& map, bool getAll);

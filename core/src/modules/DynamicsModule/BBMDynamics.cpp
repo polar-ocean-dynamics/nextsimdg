@@ -31,6 +31,13 @@ static const std::map<int, std::string> keyMap = {
     { BBMDynamics::NMAX_KEY, prefix + ".namx" },
     { BBMDynamics::CLAB_KEY, prefix + ".clab" },
     { BBMDynamics::NSTEPS_KEY, prefix + ".nsteps" },
+    { BBMDynamics::RHOI_KEY, prefix + ".rho_ice" },
+    { BBMDynamics::RHOA_KEY, prefix + ".rho_atm" },
+    { BBMDynamics::RHOO_KEY, prefix + ".rho_ocean" },
+    { BBMDynamics::CATM_KEY, prefix + ".drag_atm" },
+    { BBMDynamics::COCEAN_KEY, prefix + ".drag_ocean" },
+    { BBMDynamics::FC_KEY, prefix + ".Coriolis_parameter" },
+    { BBMDynamics::ANGLE_KEY, prefix + ".ocean_turning_angle" },
 };
 
 void BBMDynamics::configure()
@@ -46,6 +53,14 @@ void BBMDynamics::configure()
     params.comprCap = Configured::getConfiguration(keyMap.at(NMAX_KEY), comprCapDefault);
     params.cLab = Configured::getConfiguration(keyMap.at(CLAB_KEY), cLabDefault);
     params.nSteps = Configured::getConfiguration(keyMap.at(NSTEPS_KEY), nStepsDefault);
+    params.rhoIce = Configured::getConfiguration(keyMap.at(RHOI_KEY), rhoIceDefault);
+    params.rhoAtm = Configured::getConfiguration(keyMap.at(RHOA_KEY), rhoAtmDefault);
+    params.rhoOcean = Configured::getConfiguration(keyMap.at(RHOO_KEY), rhoOceanDefault);
+    params.CAtm = Configured::getConfiguration(keyMap.at(CATM_KEY), CAtmDefault);
+    params.COcean = Configured::getConfiguration(keyMap.at(COCEAN_KEY), COceanDefault);
+    params.fc = Configured::getConfiguration(keyMap.at(FC_KEY), fcDefault);
+    params.oceanTurningAngle
+        = Configured::getConfiguration(keyMap.at(ANGLE_KEY), oceanTurningAngleDefault);
 }
 
 BBMDynamics::BBMDynamics()
@@ -184,6 +199,20 @@ BBMDynamics::HelpMap& BBMDynamics::getHelpText(HelpMap& map, bool getAll)
             "Cohesion (at the lab scale)" },
         { keyMap.at(NSTEPS_KEY), ConfigType::NUMERIC, { "0", "0.5" }, std::to_string(nStepsDefault),
             "[No unit]", "The number of sub-cycling steps" },
+        { keyMap.at(RHOI_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoIceDefault),
+            "kg/m^3", "Density of sea ice" },
+        { keyMap.at(RHOA_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoAtmDefault),
+            "kg/m^3", "Density of air" },
+        { keyMap.at(RHOO_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoOceanDefault),
+            "kg/m^3", "Density of ocean" },
+        { keyMap.at(CATM_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(CAtmDefault),
+            "[No unit]", "Ice-atmosphere drag coefficient" },
+        { keyMap.at(COCEAN_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(COceanDefault),
+            "[No unit]", "Ice-ocean drag coefficient" },
+        { keyMap.at(FC_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(fcDefault),
+            "[No unit]", "Coriolis parameter (constant across the domain)" },
+        { keyMap.at(ANGLE_KEY), ConfigType::NUMERIC, { "0", "90" },
+            std::to_string(oceanTurningAngleDefault), "degrees", "Oceanic turning angle" },
     };
     return map;
 }
