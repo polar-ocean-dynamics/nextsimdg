@@ -516,13 +516,6 @@ TEST_CASE("Indexing behaviour")
 
     // default start
     // stop < -dim
-//    SliceIter defm16m1({{{{}, -16, -1}}}, {12});
-//    while (!defm16m1.isEnd()) {
-//        std::cout << defm16m1.index() << " ";
-//        ++defm16m1;
-//    }
-//    std::cout << std::endl;
-//    REQUIRE(matchIndices(defm16m1, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}, true));
     REQUIRE(match12({{{{}, -16, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}));
     // stop = -dim
     REQUIRE(match12({{{{}, -12, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}));
@@ -551,6 +544,25 @@ bool makeZeroStep()
 TEST_CASE("Zero step")
 {
     REQUIRE_THROWS(makeZeroStep());
+}
+
+TEST_CASE("SliceIter equality")
+{
+    MultiDim dims = {17, 19};
+    SliceIter a({{{2, -2}, {3, -3}}}, dims);
+    // Different number of dimensions
+    REQUIRE_FALSE(a == SliceIter({{{2, -2}, {3, -3}, {}}}, {17, 19, 23}));
+    // Different dimensions
+    REQUIRE_FALSE(a == SliceIter({{{2, -2}, {3, -3}}}, {17, 18}));
+    // Different limits
+    REQUIRE_FALSE(a == SliceIter({{{2, -2}, {3, -2}}}, dims));
+    // Different position
+    SliceIter b({{{2, -2}, {3, -3}}}, dims);
+    ++a;
+    REQUIRE_FALSE(a == b);
+    ++b;
+    REQUIRE(a == b);
+
 }
 
 TEST_SUITE_END();

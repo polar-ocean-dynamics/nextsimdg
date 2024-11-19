@@ -6,6 +6,8 @@
 
 #include "include/indexer.hpp"
 
+#include <iostream> // FIXME remove me
+
 // A macro definition of the two-argument ceiling function
 #define ceil(num, denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 namespace ArraySlicer {
@@ -100,6 +102,24 @@ public:
                 "SliceIter: mismatch in number of dimensions between Slice ("
                 + std::to_string(slice.n()) + ") and extent (" + std::to_string(dimensions.size())
                 + ").");
+    }
+
+    bool operator==(const SliceIter& other) const
+    {
+        // Number of dimensions must match
+        if (m_slice.n() != other.m_slice.n()) return false;
+        const size_t ndim = m_slice.n();
+        for (size_t dim = 0; dim < ndim; ++dim) {
+            // Dimension length must match
+            if (m_dimensions[dim] != other.m_dimensions[dim]) return false;
+            // Dimension limits must match
+            if (m_slice.bounds[dim].start != other.m_slice.bounds[dim].start) return false;
+            if (m_slice.bounds[dim].stop != other.m_slice.bounds[dim].stop) return false;
+            if (m_slice.bounds[dim].step != other.m_slice.bounds[dim].step) return false;
+            // Position must match
+            if (current[dim] != other.current[dim]) return false;
+        }
+        return true;
     }
 
     SliceIter& operator++() { return incrementDim(0); }
