@@ -5,8 +5,6 @@
 
 #include "include/indexer.hpp"
 
-#include <iostream> // FIXME remove me
-
 // A macro definition of the two-argument ceiling function
 #define ceil(num , denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 namespace ArraySlicer {
@@ -128,14 +126,6 @@ public:
      * Returns the one-dimensional index equivalent to the current state of the iterator
      */
     Int index() const {
-        // TODO deal with negative positions
-        if (false) {
-            std::cout << "current=(";
-            for (auto pos : current) {
-                std::cout << pos << ",";
-            }
-            std::cout << ")" << std::endl;
-        }
         return Indexer::indexer(m_dimensions, current);
     }
     /*!
@@ -143,7 +133,6 @@ public:
      */
     SliceIter& toBegin()
     {
-        // TODO deal with reverseStart == true
         for (size_t dim = 0; dim < m_slice.n(); ++dim) {
             current[dim] = m_slice.bounds[dim].start;
         }
@@ -154,8 +143,6 @@ public:
      */
     SliceIter& toEnd()
     {
-        // TODO deal with negative indices
-        // TODO deal with non-unit steps
         size_t lastDim = m_slice.n() - 1;
         for (size_t dim = 0; dim < lastDim - 1; ++dim) {
             current[dim] = 0;
@@ -179,7 +166,6 @@ public:
      */
     bool isEnd() const
     {
-        // TODO handle reversed starts, stops, steps
         size_t lastDim = m_slice.n() - 1;
         return stopTest(current, lastDim);
     }
@@ -290,14 +276,21 @@ private:
             const Slice::Bounds::Index indexDim = static_cast<Slice::Bounds::Index>(signedDim);
             const Int int0 = static_cast<Int>(0);
             // start
-            if (in[i].start < 0) {
-                out[i].start = std::max(signedDim + in[i].start, int0);
+            if (in[i].start.isAll()) {
+                out[i].start = (in[i].step < 0) ? dims[i] - 1 : 0;
+            } else if (in[i].start < 0) {
+                out[i].start = (in[i].step < 0) ? std::min(signedDim + in[i].start, signedDim) : std::max(signedDim + in[i].start, int0);
             } else {
                 out[i].start = in[i].start;
             }
             // stop
             if (in[i].stop < 0) {
-                out[i].stop = std::max(signedDim + in[i].stop, int0);
+                if ((signedDim + in[i].stop < 0) && in[i].step < 0) {
+                    // Set isAll() = true
+                    out[i].stop = Slice::Bounds::Index();
+                } else {
+                    out[i].stop = std::max(signedDim + in[i].stop, int0);
+                }
             } else {
                 out[i].stop = (in[i].stop > signedDim) ? indexDim : in[i].stop;
             }

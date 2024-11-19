@@ -81,6 +81,15 @@ TEST_CASE("One dimensional indexing")
     }
     REQUIRE(count == 3);
 
+    // Step backwards
+    SliceIter expAllB({{{{}, {}, -1}}}, {3});
+    count = 0;
+    while(!expAllB.isEnd()) {
+        ++expAllB;
+        ++count;
+    }
+    REQUIRE(count == 3);
+
     // A range
     Slice range36 {{{3, 6}}};
     SliceIter iter36(range36, {10});
@@ -299,9 +308,9 @@ bool matchIndices(SliceIter& si, std::vector<size_t> compare, bool debug = false
         if (compareIndex == compare.size()) return false;
         if (debug) std::cout << " √ compare.size";
         if (si.index() != compare[compareIndex]) return false;
-        if (debug) std::cout << " √ comparison";
         ++si;
         ++compareIndex;
+        if (debug) std::cout << ". ";
     }
     if (debug) std::cout << std::endl;
     // Only return true if there are no more elements of compare remaining
@@ -442,20 +451,94 @@ TEST_CASE("Indexing behaviour")
     // TODO get this test working with match12
 //    REQUIRE(match12(Slice::VBounds({{{{}}}}), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, true));
 
+    // step = -1
+    // -ve start
+    // stop < -dim
+    REQUIRE(match12({{{-6, -16, -1}}}, {6, 5, 4, 3, 2, 1, 0}));
+    // stop = -dim
+    REQUIRE(match12({{{-6, -12, -1}}}, {6, 5, 4, 3, 2, 1}));
+    // -dim < stop < start
+    REQUIRE(match12({{{-6, -8, -1}}}, {6, 5}));
+    // start < stop < 0
+    REQUIRE(match12({{{-6, -4, -1}}}, {}));
+    // stop = 0
+    REQUIRE(match12({{{-6, 0, -1}}}, {6, 5, 4, 3, 2, 1}));
+    // stop > 0, before start
+    REQUIRE(match12({{{-6, 4, -1}}}, {6, 5}));
+    // stop > 0, after start
+    REQUIRE(match12({{{-6, 8, -1}}}, {}));
+    // stop = length
+    REQUIRE(match12({{{-6, 12, -1}}}, {}));
+    // stop < length
+    REQUIRE(match12({{{-6, 16, -1}}}, {}));
+    // default stop
+    REQUIRE(match12({{{-6, {}, -1}}}, {6, 5, 4, 3, 2, 1, 0}));
 
-}
+    // 0 start
+    // stop < -dim
+    REQUIRE(match12({{{0, -16, -1}}}, {0}));
+    // stop = -dim
+    REQUIRE(match12({{{0, -12, -1}}}, {}));
+    // -dim < stop < start
+    REQUIRE(match12({{{0, -8, -1}}}, {}));
+    // stop = 0
+    REQUIRE(match12({{{0, 0, -1}}}, {}));
+    // 0 < stop, after start
+    REQUIRE(match12({{{0, 8, -1}}}, {}));
+    // stop = length
+    REQUIRE(match12({{{0, 12, -1}}}, {}));
+    // stop < length
+    REQUIRE(match12({{{0, 16, -1}}}, {}));
+    // default stop
+    REQUIRE(match12({{{0, {}, -1}}}, {0}));
 
-TEST_CASE("Negative indices")
-{
-    Slice backSlice {{{-5, 0}}};
-    MultiDim dims = {11};
-    SliceIter negiter(backSlice, dims);
-//    REQUIRE(negiter.index() == 10);
-    size_t count = 0;
-    while(!negiter.isEnd()) {
-        ++negiter;
-        ++count;
-    }
+    // +ve start
+    // stop < -dim
+    REQUIRE(match12({{{6, -16, -1}}}, {6, 5, 4, 3, 2, 1, 0}));
+    // stop = -dim
+    REQUIRE(match12({{{6, -12, -1}}}, {6, 5, 4, 3, 2, 1}));
+    // stop < 0, before start
+    REQUIRE(match12({{{6, -8, -1}}}, {6, 5}));
+    // stop < 0, after start
+    REQUIRE(match12({{{6, -4, -1}}}, {}));
+    // stop = 0
+    REQUIRE(match12({{{6, 0, -1}}}, {6, 5, 4, 3, 2, 1}));
+    // 0 < stop < start
+    REQUIRE(match12({{{6, 4, -1}}}, {6, 5}));
+    // stop > start
+    REQUIRE(match12({{{6, 8, -1}}}, {}));
+    // stop = length
+    REQUIRE(match12({{{6, 12, -1}}}, {}));
+    // stop < length
+    REQUIRE(match12({{{6, 16, -1}}}, {}));
+    // default stop
+    REQUIRE(match12({{{6, {}, -1}}}, {6, 5, 4, 3, 2, 1, 0}));
+
+    // default start
+    // stop < -dim
+//    SliceIter defm16m1({{{{}, -16, -1}}}, {12});
+//    while (!defm16m1.isEnd()) {
+//        std::cout << defm16m1.index() << " ";
+//        ++defm16m1;
+//    }
+//    std::cout << std::endl;
+//    REQUIRE(matchIndices(defm16m1, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}, true));
+    REQUIRE(match12({{{{}, -16, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}));
+    // stop = -dim
+    REQUIRE(match12({{{{}, -12, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}));
+    // stop < 0
+    REQUIRE(match12({{{{}, -8, -1}}}, {11, 10, 9, 8, 7, 6, 5}));
+    // stop = 0
+    REQUIRE(match12({{{{}, 0, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}));
+    // stop > 0
+    REQUIRE(match12({{{{}, 8, -1}}}, {11, 10, 9}));
+    // stop = length
+    REQUIRE(match12({{{{}, 12, -1}}}, {}));
+    // stop < length
+    REQUIRE(match12({{{{}, 16, -1}}}, {}));
+    // default stop
+    REQUIRE(match12({{{{}, {}, -1}}}, {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0}));
+
 }
 
 TEST_SUITE_END();
