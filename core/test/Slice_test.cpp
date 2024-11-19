@@ -289,4 +289,173 @@ TEST_CASE("Negative steps")
     REQUIRE(count == itereti.shape()[0] * itereti.shape()[1]);
 }
 
+bool matchIndices(SliceIter& si, std::vector<size_t> compare, bool debug = false)
+{
+    si.toBegin();
+    size_t compareIndex = 0;
+    while(!si.isEnd())
+    {
+        if (debug) std::cout << si.index() << "?="<< compare[compareIndex] << " ";
+        if (compareIndex == compare.size()) return false;
+        if (debug) std::cout << " √ compare.size";
+        if (si.index() != compare[compareIndex]) return false;
+        if (debug) std::cout << " √ comparison";
+        ++si;
+        ++compareIndex;
+    }
+    if (debug) std::cout << std::endl;
+    // Only return true if there are no more elements of compare remaining
+    return (compareIndex == compare.size());
+}
+
+TEST_CASE("Test matchIndices")
+{
+    SliceIter allTen({{{{}, {}}}}, {10});
+    REQUIRE(matchIndices(allTen, {0,1,2,3,4,5,6,7,8,9}));
+    // Mismatched index
+    REQUIRE_FALSE(matchIndices(allTen, {0,1,2,3,4,5,6000,7,8,9}));
+    // Too few elements in compare
+    REQUIRE_FALSE(matchIndices(allTen, {0,1,2,3,4,5,6,7,8}));
+    // Too many elements in compare
+    REQUIRE_FALSE(matchIndices(allTen, {0,1,2,3,4,5,6,7,8,9,9}));
+
+    // Test backwards and a sub set
+    SliceIter back({{{8, 3, -1}}}, {10});
+    REQUIRE(matchIndices(back, {8, 7, 6, 5, 4}));
+    // Multidimensional
+    SliceIter twod({{{},{}}}, {2,2});
+    SliceIter::MultiDim shape2 = twod.shape();
+    REQUIRE(matchIndices(twod, {0,1,2,3}));
+    SliceIter twodSlice({{{2, 4}, {3, 5}}}, {5, 6});
+    REQUIRE(matchIndices(twodSlice, {17,18,22,23}));
+
+    // Test an empty slice and an empty comparison vector
+    SliceIter none({{{6, 3}}}, {10});
+    REQUIRE(matchIndices(none, {}));
+}
+
+// Wrap the comparison boilerplate code
+bool match12(const Slice::VBounds& b, std::vector<size_t> compare, bool debug = false)
+{
+    SliceIter a(b, {12});
+    return matchIndices(a, compare, debug);
+}
+
+TEST_CASE("Indexing behaviour")
+{
+    // Compares the behaviour of the indexing to that of the numpy Python library.
+
+    // step = 1
+    // -ve start
+    // stop < -dim
+    REQUIRE(match12({{{-6, -16}}}, {}));
+    // stop = -dim
+    REQUIRE(match12({{{-6, -12}}}, {}));
+    // -dim < stop < start
+    REQUIRE(match12({{{-6, -8}}}, {}));
+    // start < stop < 0
+    REQUIRE(match12({{{-6, -4}}}, {6, 7}));
+    // stop = 0
+    REQUIRE(match12({{{-6, 0}}}, {}));
+    // stop > 0, before start
+    REQUIRE(match12({{{-6, 4}}}, {}));
+    // stop > 0, after start
+    REQUIRE(match12({{{-6, 8}}}, {6, 7}));
+    // stop = length
+    REQUIRE(match12({{{-6, 12}}}, {6, 7, 8, 9, 10, 11}));
+    // stop < length
+    REQUIRE(match12({{{-6, 16}}}, {6, 7, 8, 9, 10, 11}));
+    // default stop
+    REQUIRE(match12({{{-6, {}}}}, {6, 7, 8, 9, 10, 11}));
+    // stop not set
+    REQUIRE(match12({{{-6}}}, {6}));
+
+    // 0 start
+    // stop < -dim
+    REQUIRE(match12({{{0, -16}}}, {}));
+    // stop = -dim
+    REQUIRE(match12({{{0, -12}}}, {}));
+    // -dim < stop < start
+    REQUIRE(match12({{{0, -8}}}, {0, 1, 2, 3}));
+    // stop = 0
+    REQUIRE(match12({{{0, 0}}}, {}));
+    // 0 < stop, after start
+    REQUIRE(match12({{{0, 8}}}, {0, 1, 2, 3, 4, 5, 6, 7}));
+    // stop = length
+    REQUIRE(match12({{{0, 12}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // stop < length
+    REQUIRE(match12({{{0, 16}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // default stop
+    REQUIRE(match12({{{0, {}}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // stop not set
+    REQUIRE(match12({{{0}}}, {0}));
+
+    // +ve start
+    // stop < -dim
+    REQUIRE(match12({{{6, -16}}}, {}));
+    // stop = -dim
+    REQUIRE(match12({{{6, -12}}}, {}));
+    // stop < 0, before start
+    REQUIRE(match12({{{6, -8}}}, {}));
+    // stop < 0, after start
+    REQUIRE(match12({{{6, -4}}}, {6, 7}));
+    // stop = 0
+    REQUIRE(match12({{{6, 0}}}, {}));
+    // 0 < stop < start
+    REQUIRE(match12({{{6, 4}}}, {}));
+    // stop > start
+    REQUIRE(match12({{{6, 8}}}, {6, 7}));
+    // stop = length
+    REQUIRE(match12({{{6, 12}}}, {6, 7, 8, 9, 10, 11}));
+    // stop < length
+    REQUIRE(match12({{{6, 16}}}, {6, 7, 8, 9, 10, 11}));
+    // default stop
+    REQUIRE(match12({{{6, {}}}}, {6, 7, 8, 9, 10, 11}));
+    // stop not set
+    REQUIRE(match12({{{6}}}, {6}));
+
+    // default start
+    // stop < -dim
+    REQUIRE(match12({{{{}, -16}}}, {}));
+    // stop = -dim
+    REQUIRE(match12({{{{}, -12}}}, {}));
+    // stop < 0
+    REQUIRE(match12({{{{}, -8}}}, {0, 1, 2, 3}));
+    // stop = 0
+    REQUIRE(match12({{{{}, 0}}}, {}));
+    // stop > 0
+    REQUIRE(match12({{{{}, 8}}}, {0, 1, 2, 3, 4, 5, 6, 7}));
+    // stop = length
+    REQUIRE(match12({{{{}, 12}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // stop < length
+    REQUIRE(match12({{{{}, 16}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // default stop
+    REQUIRE(match12({{{{}, {}}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // stop not set
+    SliceIter def({{{{}}}}, {12});
+//    while (!def.isEnd()) {
+//        std::cout << def.index() << " ";
+//        ++def;
+//    }
+//    std::cout << std::endl;
+    REQUIRE(matchIndices(def, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    // TODO get this test working with match12
+//    REQUIRE(match12(Slice::VBounds({{{{}}}}), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, true));
+
+
+}
+
+TEST_CASE("Negative indices")
+{
+    Slice backSlice {{{-5, 0}}};
+    MultiDim dims = {11};
+    SliceIter negiter(backSlice, dims);
+//    REQUIRE(negiter.index() == 10);
+    size_t count = 0;
+    while(!negiter.isEnd()) {
+        ++negiter;
+        ++count;
+    }
+}
+
 TEST_SUITE_END();

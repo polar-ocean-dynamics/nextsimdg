@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstddef>
 #include <limits>
 #include <vector>
@@ -9,6 +10,7 @@
 // A macro definition of the two-argument ceiling function
 #define ceil(num , denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 namespace ArraySlicer {
+class SliceIter;
 // Generic n-dimensional slice
 class Slice {
     public:
@@ -60,6 +62,7 @@ class Slice {
             , step(step_in)
         {
         }
+        friend SliceIter;
     };
 public:
     using VBounds = std::vector<Bounds>;
@@ -70,7 +73,7 @@ public:
         : Slice({Bounds()})
     {
     }
-    Slice(std::vector<Bounds> allBounds)
+    Slice(VBounds allBounds)
         : bounds(allBounds)
     {
     }
@@ -84,11 +87,8 @@ class SliceIter
 public:
     using MultiDim = std::vector<size_t>;
     using Int = Slice::Int;
-    SliceIter(const Slice& slice)
-    : m_slice(slice)
-    {}
     SliceIter(const Slice& slice, const MultiDim& dimensions)
-    : m_slice(slice)
+    : m_slice(realiseIndices(slice.bounds, dimensions))
     , m_dimensions(dimensions)
     , current(dimensions.size(), 0)
     {
@@ -278,6 +278,34 @@ private:
         return (step(dim) < 0) ? subject <= dimEnd(dim) : subject >= dimEnd(dim);
     }
     bool stopTest(const MultiDim& loc, size_t dim) const { return stopTest(loc[dim], dim); }
+
+    static Slice::VBounds realiseIndices(const Slice::VBounds& in, const MultiDim& dims)
+    {
+
+        Slice::VBounds out;
+        out.resize(in.size());
+        // Iterate over the bounds, replacing isAll with the actual bounds
+        for (size_t i = 0; i < in.size(); ++i) {
+            const Int signedDim = static_cast<Int>(dims[i]);
+            const Slice::Bounds::Index indexDim = static_cast<Slice::Bounds::Index>(signedDim);
+            const Int int0 = static_cast<Int>(0);
+            // start
+            if (in[i].start < 0) {
+                out[i].start = std::max(signedDim + in[i].start, int0);
+            } else {
+                out[i].start = in[i].start;
+            }
+            // stop
+            if (in[i].stop < 0) {
+                out[i].stop = std::max(signedDim + in[i].stop, int0);
+            } else {
+                out[i].stop = (in[i].stop > signedDim) ? indexDim : in[i].stop;
+            }
+            // step
+            out[i].step = in[i].step;
+        }
+        return out;
+    }
 
     const MultiDim m_dimensions;
     MultiDim current;
