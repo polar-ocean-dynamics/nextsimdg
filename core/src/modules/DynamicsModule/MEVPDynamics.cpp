@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.cpp
  *
- * @date 19 Nov 2024
+ * @date 20 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -127,28 +127,34 @@ ModelState MEVPDynamics::getStateRecursive(const OutputSpec& os) const
 MEVPDynamics::HelpMap& MEVPDynamics::getHelpText(HelpMap& map, bool getAll)
 {
     map["MEVPDynamics"] = {
-        { keyMap.at(PSTAR_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(pStarDefault),
-            "Pa", "The sea-ice strength parameter P*" },
-        { keyMap.at(DELTA_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(deltaMinDefault),
-            "1/s", "Capping value of the 𝛥 variable" },
+        { keyMap.at(PSTAR_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(pStarDefault), "Pa", "The sea-ice strength parameter P*" },
+        { keyMap.at(DELTA_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(deltaMinDefault), "1/s",
+            "Capping value of the 𝛥 variable" },
         { keyMap.at(C_KEY), ConfigType::NUMERIC, { "-∞", "0" },
-            std::to_string(compactionParamDefault), "[None]", "The compaction parameter C" },
-        { keyMap.at(NSTEPS_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(nStepsDefault),
-            "[No unit]", "The number of sub-cycling steps" },
-        { keyMap.at(RHOI_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoIceDefault),
-            "kg/m^3", "Density of sea ice" },
-        { keyMap.at(RHOA_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoAtmDefault),
-            "kg/m^3", "Density of air" },
-        { keyMap.at(RHOO_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(rhoOceanDefault),
-            "kg/m^3", "Density of ocean" },
-        { keyMap.at(CATM_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(CAtmDefault),
-            "[No unit]", "Ice-atmosphere drag coefficient" },
-        { keyMap.at(COCEAN_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(COceanDefault),
-            "[No unit]", "Ice-ocean drag coefficient" },
-        { keyMap.at(FC_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(fcDefault),
-            "[No unit]", "Coriolis parameter (constant across the domain)" },
+            ConfigurationHelp::toString(compactionParamDefault), "[None]",
+            "The compaction parameter C" },
+        { keyMap.at(NSTEPS_KEY), ConfigType::NUMERIC, { "1", "∞" },
+            ConfigurationHelp::toString(nStepsDefault), "[No unit]",
+            "The number of sub-cycling steps" },
+        { keyMap.at(RHOI_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(rhoIceDefault), "kg/m^3", "Density of sea ice" },
+        { keyMap.at(RHOA_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(rhoAtmDefault), "kg/m^3", "Density of air" },
+        { keyMap.at(RHOO_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(rhoOceanDefault), "kg/m^3", "Density of ocean" },
+        { keyMap.at(CATM_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(CAtmDefault), "[No unit]",
+            "Ice-atmosphere drag coefficient" },
+        { keyMap.at(COCEAN_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(COceanDefault), "[No unit]", "Ice-ocean drag coefficient" },
+        { keyMap.at(FC_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(fcDefault), "[No unit]",
+            "Coriolis parameter (constant across the domain)" },
         { keyMap.at(ANGLE_KEY), ConfigType::NUMERIC, { "0", "90" },
-            std::to_string(oceanTurningAngleDefault), "degrees", "Oceanic turning angle" },
+            ConfigurationHelp::toString(oceanTurningAngleDefault), "degrees",
+            "Oceanic turning angle" },
     };
     return map;
 }

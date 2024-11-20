@@ -1,7 +1,7 @@
 /*!
  * @file ConstantHealing.hpp
  *
- * @date 24 Sep 2024
+ * @date 20 Nov 2024
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
@@ -29,9 +29,9 @@ ModelState ConstantHealing::getStateRecursive(const Nextsim::OutputSpec& os) con
 
 ConstantHealing::HelpMap& ConstantHealing::getHelpText(HelpMap& map, bool getAll)
 {
-    map["ConstantHealing"]
-        = { { keyMap.at(TD_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(tDDefault),
-            "days", "The healing time scale (t_d) for brittle rheologies" } };
+    map["ConstantHealing"] = { { keyMap.at(TD_KEY), ConfigType::NUMERIC, { "0", "∞" },
+        ConfigurationHelp::toString(tDDefault), "days",
+        "The healing time scale (t_d) for brittle rheologies" } };
     return map;
 }
 
