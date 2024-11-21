@@ -26,14 +26,7 @@ public:
     ModelState getStateRecursive(const OutputSpec& os) const override { return ModelState(); };
 
     // Do nothing when update is called.
-    void update(const TimestepTime& tstep) override
-    {
-        overElements(std::bind(&NoHealing::updateElement, this, std::placeholders::_1,
-                         std::placeholders::_2),
-            tstep);
-    };
-
-    void updateElement(size_t i, const TimestepTime& tstep) { damage[i] = oldDamage[i]; };
+    void update(const TimestepTime& tstep) override { damage.data() = oldDamage.data(); }
 };
 
 }
