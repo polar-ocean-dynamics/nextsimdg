@@ -3,7 +3,7 @@
  *
  * This class has no corresponding implementation, just this header file
  *
- * @date 24 Sep 2024
+ * @date 21 Nov 2024
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
@@ -26,7 +26,14 @@ public:
     ModelState getStateRecursive(const OutputSpec& os) const override { return ModelState(); };
 
     // Do nothing when update is called.
-    void update(const TimestepTime& tstep) override {};
+    void update(const TimestepTime& tstep) override
+    {
+        overElements(std::bind(&NoHealing::updateElement, this, std::placeholders::_1,
+                         std::placeholders::_2),
+            tstep);
+    };
+
+    void updateElement(size_t i, const TimestepTime& tstep) { damage[i] = oldDamage[i]; };
 };
 
 }

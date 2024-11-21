@@ -82,9 +82,6 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
 
 void PrognosticData::update(const TimestepTime& tst)
 {
-    ModelArrayRef<Shared::DAMAGE, RW> damageUpd(getStore());
-    damageUpd.data().setData(m_damage);
-
     pOcnBdy->updateBefore(tst);
     pAtmBdy->update(tst);
 
