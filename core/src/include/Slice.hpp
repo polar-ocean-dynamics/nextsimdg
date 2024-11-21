@@ -110,6 +110,9 @@ public:
         if (m_slice.n() != other.m_slice.n())
             return false;
         const size_t ndim = m_slice.n();
+        // if only one isEnd, then the iterators cannot be equal
+        if (isEnd() != other.isEnd())
+            return false;
         for (size_t dim = 0; dim < ndim; ++dim) {
             // Dimension length must match
             if (m_dimensions[dim] != other.m_dimensions[dim])
@@ -121,9 +124,11 @@ public:
                 return false;
             if (m_slice.bounds[dim].step != other.m_slice.bounds[dim].step)
                 return false;
-            // Position must match
-            if (current[dim] != other.current[dim])
-                return false;
+            // Position must match, if we are not at the end
+            if (!isEnd()) {
+                if (current[dim] != other.current[dim])
+                    return false;
+            }
         }
         return true;
     }
