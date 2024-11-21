@@ -1,7 +1,7 @@
 /*!
  * @file PrognosticData.cpp
  *
- * @date 1 Jul 2024
+ * @date 21 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -82,7 +82,8 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
 
 void PrognosticData::update(const TimestepTime& tst)
 {
-    ModelArrayRef<Shared::T_ICE, RW> ticeUpd(getStore());
+    ModelArrayRef<Shared::DAMAGE, RW> damageUpd(getStore());
+    damageUpd.data().setData(m_damage);
 
     pOcnBdy->updateBefore(tst);
     pAtmBdy->update(tst);
