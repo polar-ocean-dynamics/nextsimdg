@@ -1,7 +1,7 @@
 /*!
  * @file DamageHealing_test.cpp
  *
- * @date 21 Nov 2024
+ * @date 22 Nov 2024
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
@@ -9,7 +9,6 @@
 #include <doctest/doctest.h>
 
 #include "include/IDamageHealing.hpp"
-#include "include/Module.hpp"
 #include "include/NextsimModule.hpp"
 
 extern template class Module::Module<Nextsim::IDamageHealing>;
@@ -45,7 +44,7 @@ TEST_CASE("Thermodynamic healing")
             getStore().registerArray(Shared::DELTA_CICE, &deltaCi, RO);
             getStore().registerArray(Shared::C_ICE, &cice, RO);
             getStore().registerArray(Shared::DAMAGE, &damage, RW);
-            getStore().registerArray(Protected::DAMAGE, &oldDamage, RW);
+            getStore().registerArray(Protected::DAMAGE, &oldDamage, RO);
         }
         std::string getName() const override { return "PrognosticData"; }
 
@@ -111,7 +110,7 @@ TEST_CASE("New ice formation")
             getStore().registerArray(Shared::DELTA_CICE, &deltaCi, RO);
             getStore().registerArray(Shared::C_ICE, &cice, RO);
             getStore().registerArray(Shared::DAMAGE, &damage, RW);
-            getStore().registerArray(Protected::DAMAGE, &oldDamage, RW);
+            getStore().registerArray(Protected::DAMAGE, &oldDamage, RO);
         }
         std::string getName() const override { return "PrognosticData"; }
 
