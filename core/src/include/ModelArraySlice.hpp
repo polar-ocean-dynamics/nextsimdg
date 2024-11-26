@@ -68,6 +68,8 @@ public:
         return buffer;
     }
 
+    ModelArray::DataType& copyToDataSlice(ModelArray::DataType& target, SliceIter& targetIter) const;
+    ModelArraySlice& copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter);
     Slice slice;
 
 private:
@@ -75,6 +77,9 @@ private:
         ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
     static void copySliceWithIters(
         ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
+    static void copySliceWithItersData(
+        const ModelArray::DataType& source, SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter);
+
     ModelArray& data;
 };
 

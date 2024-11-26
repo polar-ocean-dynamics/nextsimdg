@@ -55,6 +55,22 @@ ModelArray& ModelArraySlice::copyToModelArray(ModelArray& target) const
     return target;
 }
 
+ModelArray::DataType& ModelArraySlice::copyToDataSlice(ModelArray::DataType& target, SliceIter& targetIter) const
+{
+    SliceIter iter(slice, data.dimensions());
+
+    copySliceWithItersData(data.m_data, iter, target, targetIter);
+    return target;
+}
+
+ModelArraySlice& ModelArraySlice::copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter)
+{
+    SliceIter iter(slice, data.dimensions());
+
+    copySliceWithItersData(source, sourceIter, data.m_data, iter);
+    return *this;
+}
+
 void ModelArraySlice::copyBetweenMAandMASlice(
     ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName)
 {
@@ -104,16 +120,24 @@ void ModelArraySlice::copyBetweenMAandMASlice(
 void ModelArraySlice::copySliceWithIters(
     ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter)
 {
+    copySliceWithItersData(source.m_data, sourceIter, target.m_data, targetIter);
+}
+
+void ModelArraySlice::copySliceWithItersData(
+    const ModelArray::DataType& source, SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter)
+{
     const size_t targetNEl = targetIter.nElements(0);
     const size_t sourceNEl = sourceIter.nElements(0);
 
     while (!targetIter.isEnd() && !sourceIter.isEnd()) {
         const size_t targetIndex = targetIter.index();
         const size_t sourceIndex = sourceIter.index();
-        target.m_data(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all)
-            = source.m_data(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
+        target(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all)
+            = source(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
         targetIter.incrementDim(1);
         sourceIter.incrementDim(1);
     }
+
 }
+
 } // namespace Nextsim
