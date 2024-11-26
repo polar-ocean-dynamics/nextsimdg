@@ -254,6 +254,20 @@ end8d:
     REQUIRE(Indexer::deIndexer(ni, i1)[1] == Indexer::deIndexer(ni, i2)[1] + 1);
     i2 = iter8d.incrementDim(7).index();
     REQUIRE(Indexer::deIndexer(ni, i2)[7] == Indexer::deIndexer(ni, i1)[7] + 1);
+
+    // Extract a single row of a 2d array
+    const size_t nx1 = 12;
+    const size_t ny1 = 15;
+    SliceIter::MultiDim dims1 = {12, 15};
+    Slice singleColumn {{{}, {0}}};
+    count = 0;
+    for (SliceIter iter(singleColumn, {nx1, ny1}); !iter.isEnd(); ++iter) {
+        REQUIRE(Indexer::deIndexer(dims1, iter.index())[0] == count);
+        std::cout << to_string(Indexer::deIndexer(dims1, iter.index())) << std::endl;
+        ++count;
+        REQUIRE(Indexer::deIndexer(dims1, iter.index())[1] == 0);
+    }
+
 }
 
 TEST_CASE("Negative steps")
