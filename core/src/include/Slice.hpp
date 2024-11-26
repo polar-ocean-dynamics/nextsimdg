@@ -37,6 +37,10 @@ public:
             bool isAll() const { return m_isAll; }
             operator std::ptrdiff_t() const { return i; }
 
+            std::ostream& print(std::ostream& os) const {
+                return os << (m_isAll ? "all" : std::to_string(i));
+            }
+
         private:
             bool m_isAll;
             Int i;
@@ -67,6 +71,10 @@ public:
                 throw std::invalid_argument(
                     "Slice::Bounds::Bounds(Index, Index, Int): slice step cannot be zero");
         }
+        std::ostream& print(std::ostream& os) const
+        {
+            return os << start << ":" << stop << ":" << step;
+        }
         friend SliceIter;
     };
 
@@ -86,6 +94,25 @@ public:
 
     const size_t n() const { return bounds.size(); }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Slice::Bounds& bounds)
+{
+    return bounds.print(os);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Slice::VBounds& vBounds)
+{
+    os << "{";
+    for (size_t i = 0; i < vBounds.size(); ++i) {
+        os << vBounds[i] << ((i != vBounds.size() - 1) ? "," : "");
+    }
+    return os << "}";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Slice& slice)
+{
+    return os << slice.bounds;
+}
 
 class SliceIter {
 public:
@@ -288,20 +315,11 @@ public:
     std::ostream& print(std::ostream& os) const
     {
         size_t ndims = m_slice.n();
-        size_t lastComma = ndims - 2;
+        size_t noComma = ndims - 1;
         // Print the bounds
-        os << "{";
+        os << m_slice << "[";
         for (size_t i = 0; i < ndims; ++i) {
-            os << m_slice.bounds[i].start << ":" << m_slice.bounds[i].stop << ":"
-               << m_slice.bounds[i].step;
-            if (i <= lastComma)
-                os << ",";
-        }
-        os << "}[";
-        for (size_t i = 0; i < ndims; ++i) {
-            os << current[i];
-            if (i <= lastComma)
-                os << ",";
+            os << current[i] << ((i < noComma) ? "," : "");
         }
         os << "]";
         return os;

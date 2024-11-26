@@ -349,5 +349,106 @@ TEST_CASE("General slice creation")
     }
 }
 
+TEST_CASE("Iterators")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    // Equality
+    TwoDField a(ModelArray::Type::TWOD);
+    ModelArraySlice aSlice(a, {{{3, 7}, {8, 12}}});
+    ModelArraySlice::iterator aIter(aSlice);
+    ModelArraySlice::iterator aIter2(aSlice);
+    REQUIRE(aIter == aIter2);
+    ++aIter;
+    REQUIRE_FALSE(aIter == aIter2);
+    ++aIter2;
+    // Begin & end functions
+    TwoDField b(ModelArray::Type::TWOD);
+    // Fill b
+    for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+            b(i, j) = j * 100 + i;
+        }
+    }
+
+    ModelArraySlice bSlice = b[{{{1, 7}, {9, 11}}}];
+    ModelArraySlice::iterator bIter(bSlice);
+    REQUIRE(bIter == bSlice.begin());
+    REQUIRE(*bIter == 901);
+    size_t count = 0;
+    while (bIter != bSlice.end()) {
+        ++bIter;
+        ++count;
+    }
+    REQUIRE(count == 6 * 2);
+
+    // For loop and non-unit step
+    ModelArraySlice bSlice2 = b[{{{2, 9, 2}, {0, 11, 3}}}];
+    count = 0;
+    for (auto it = bSlice2.begin(); it != bSlice2.end(); ++it) {
+        ++count;
+    }
+    REQUIRE(count == 4 * 4);
+
+    OneDField c(ModelArray::Type::ONED);
+    for (size_t i = 0; i < c.size(); ++i) {
+        c[i] = i + 100;
+    }
+    auto cSlice = c[{{{4, 9, 2}}}];
+    REQUIRE(*cSlice.begin() == 104);
+
+    std::cout << "Iterate through slice" << std::endl;
+//    for (ModelArraySlice::iterator it = cSlice.begin(); it != cSlice.end(); ++it) {
+    {
+        auto it = cSlice.begin();
+        std::cout << "it=" << it << std::endl;
+        while (true) {
+            auto endIter = cSlice.end();
+            std::cout << "it=" << it << " end=" << endIter << std::endl;
+            if (true || it == endIter) break;
+        std::cout << it << std::endl;
+        *it = 0.;
+        ++it;
+    }
+    }
+//    for (auto it = cSlice.begin(); it != cSlice.end(); ++it) {
+//        std::cout << it << std::endl;
+//        *it = 0.;
+//    }
+    // Check that earlier values have not been set to 0
+    for (size_t i = 0; i < 4; ++i) {
+        REQUIRE_FALSE(c[i] == 0);
+    }
+    // Check the zero values using a for loop over indices
+    for (size_t i = 4; i < 9; i += 2) {
+        REQUIRE(c[i] == 0.);
+    }
+    // Check the interleaved values are still non-zero
+    for (size_t i = 5; i < 9; i += 2) {
+        REQUIRE_FALSE(c[i] == 0);
+    }
+    // Check the values after the slice are still non-zero
+    for (size_t i = 9; i < c.size(); ++i) {
+        REQUIRE_FALSE(c[i] == 0);
+    }
+
+
+    count = 0;
+    // Check the zero values using the slice iterator
+    for (auto& v : cSlice)
+    {
+        std::cout << count << ":" << v << std::endl;
+        ++count;
+//        REQUIRE(v == 0.);
+//        // Watchdog break
+//        if (count > nx)
+//            break;
+    }
+    /*
+    REQUIRE(count == 3);
+    */
+}
+
 TEST_SUITE_END();
 } // namespace Nextsim

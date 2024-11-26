@@ -11,12 +11,74 @@
 #include "include/ModelArray.hpp"
 #include "include/Slice.hpp"
 
-namespace Nextsim {
+#include <iterator>
+#include <iostream>
 
+namespace Nextsim {
+class MASIter;
+class ModelArraySlice;
+std::ostream& operator<<(std::ostream& os, const MASIter& it);
+
+// Inheriting from std::iterator is deprecated after C++17
+class MASIter
+{
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = double;
+    using difference_type = std::ptrdiff_t;
+    using pointer = double*;
+    using reference = double&;
+    using Slice = ArraySlicer::Slice;
+    using SliceIter = ArraySlicer::SliceIter;
+
+    MASIter(ModelArraySlice& mas);
+    double& operator*() const { return data[iter.index()]; }
+    MASIter& operator++()
+    {
+        ++iter;
+        return *this;
+    }
+    bool operator!=(const MASIter& other) const
+    {
+//        std::cout << this->iter << "!=" << other.iter << "?" << std::endl;
+        // Account for different end iters possibly not equating
+        bool iterEquality = (iter == other.iter) || (iter.isEnd() && other.iter.isEnd());
+        return (&data != &other.data) || !iterEquality;
+    }
+    bool operator==(const MASIter& other) const
+    {
+        return !(*this != other);
+    }
+    double* operator->() const
+    {
+        return &data[iter.index()];
+    }
+    MASIter operator++(int)
+    {
+        MASIter copy = *this;
+        ++(*this);
+        return copy;
+    }
+
+    std::ostream& print(std::ostream& os) const
+    {
+        return os << "{" << &data << ":" << iter << "}";
+    }
+    friend ModelArraySlice;
+private:
+    ModelArray& data;
+    SliceIter iter;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const MASIter& it)
+{
+    return it.print(os);
+}
 class ModelArraySlice {
 public:
     using Slice = ArraySlicer::Slice;
     using SliceIter = ArraySlicer::SliceIter;
+    using iterator = MASIter;
     ModelArraySlice() = delete;
     ModelArraySlice(ModelArray& ma, const Slice& sl)
         : data(ma)
@@ -70,7 +132,13 @@ public:
 
     ModelArray::DataType& copyToDataSlice(ModelArray::DataType& target, SliceIter& targetIter) const;
     ModelArraySlice& copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter);
+
+    iterator begin();
+    iterator end();
+
     Slice slice;
+
+    friend MASIter;
 
 private:
     static void copyBetweenMAandMASlice(

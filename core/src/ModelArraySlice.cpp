@@ -71,6 +71,18 @@ ModelArraySlice& ModelArraySlice::copyFromDataSlice(const ModelArray::DataType& 
     return *this;
 }
 
+ModelArraySlice::iterator ModelArraySlice::begin() {
+    iterator iter(*this);
+    iter.iter.toBegin(); // To ensure we are at the beginning, in case SliceIter is ever modified.
+    return iter;
+}
+
+ModelArraySlice::iterator ModelArraySlice::end() {
+    iterator iter(*this);
+    iter.iter.toEnd();
+    return iter;
+}
+
 void ModelArraySlice::copyBetweenMAandMASlice(
     ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName)
 {
@@ -140,4 +152,9 @@ void ModelArraySlice::copySliceWithItersData(
 
 }
 
+MASIter::MASIter(ModelArraySlice& mas)
+    : data(mas.data)
+    , iter(mas.slice, mas.data.dimensions())
+    {
+    }
 } // namespace Nextsim
