@@ -320,5 +320,34 @@ TEST_CASE("Test buffers")
 
 }
 
+TEST_CASE("General slice creation")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    size_t x0 = 4;
+    size_t x1 = 9;
+    size_t y0 = 6;
+    size_t y1 = 14;
+
+    TwoDField data(ModelArray::Type::TWOD);
+    data.resize();
+    for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+            data(i, j) = 100 * j + i;
+        }
+    }
+
+    // TODO: Make it possible to use a implicit whole-array initalizer here.
+    // auto slice = data[{{{},{0}}}];
+    auto slice = data[{{{{}}, {0}}}];
+    // receiving buffer
+    std::vector<double> buff(nx);
+    slice.copyToBuffer(buff);
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(buff[i] == i);
+    }
+}
+
 TEST_SUITE_END();
 } // namespace Nextsim
