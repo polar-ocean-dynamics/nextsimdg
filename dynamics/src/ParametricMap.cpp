@@ -1,3 +1,9 @@
+/*!
+ * @file ParametricMap.hpp
+ * @date 26 Nov 2024
+ * @author Thomas Ricther <thomas.richter@ovgu.de>
+ */
+
 #include "ParametricMap.hpp"
 #include "ParametricTools.hpp"
 #include "VectorManipulations.hpp"
@@ -266,11 +272,12 @@ template <int CG, int DG> void ParametricMomentumMap<CG, DG>::InitializeDivSMatr
             iMgradY[eid] = imass * divS2[eid].transpose();
             iMM[eid] = imass * divM[eid].transpose();
 
-	    // same as in Cartesian but using spherical mass matrix and adding cosine
-	    // for proper scale of the integral
-            iMJwPSI[eid] = imass 
+            // same as in Cartesian but using spherical mass matrix and adding cosine
+            // for proper scale of the integral
+            iMJwPSI[eid] = imass
                 * (PSI<CG2DGSTRESS(CG), GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array().rowwise()
-		   * (GAUSSWEIGHTS<GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array() * J.array() * cos_lat.array()))
+                    * (GAUSSWEIGHTS<GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array() * J.array()
+                        * cos_lat.array()))
                       .matrix();
 
             // smae for DG advection (damage)
@@ -278,7 +285,8 @@ template <int CG, int DG> void ParametricMomentumMap<CG, DG>::InitializeDivSMatr
                 = SphericalTools::massMatrix<DG>(smesh, eid).inverse();
             iMJwPSI_dam[eid] = imass_dam
                 * (PSI<DG, GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array().rowwise()
-		   * (GAUSSWEIGHTS<GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array() * J.array() * cos_lat.array()))
+                    * (GAUSSWEIGHTS<GAUSSPOINTS1D(CG2DGSTRESS(CG))>.array() * J.array()
+                        * cos_lat.array()))
                       .matrix();
 
         } else
