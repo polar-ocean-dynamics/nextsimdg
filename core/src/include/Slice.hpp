@@ -6,13 +6,66 @@
 
 #include "include/indexer.hpp"
 
-#include <iostream> // FIXME remove me
-
 // A macro definition of the two-argument ceiling function
 #define ceil(num, denom) (((num) + (denom) - (((denom) < 0) ? -1 : 1)) / (denom))
 namespace ArraySlicer {
 class SliceIter;
-// Generic n-dimensional slice
+
+/*!
+ * @brief A class to hold the bounds of a general slice, not tied to any
+ * particular array.
+ *
+ * @details The Slice class allows the definition of a slice of an array. The
+ * format used mirrors that of the Python numpy library as far as possible. The
+ * slicing admits single element indexing with the syntax {{{i}}}. This defines
+ * a slice that accesses only a single element of a one dimensional array. The
+ * index can also be absent, as {{{}}}, which is used to designate the entire
+ * one-dimensional array. This can also be explicitly defined using an empty
+ * initializer list, as {{{{}}}}.
+ *
+ * Beyond indexing a single element the slice syntax can specify a range. This
+ * consists of a start index, an optional stop index and an optional step
+ * index. If both stop and step are absent, then the slice reverts to single
+ * element addressing. The stop index is the index of the element one past the
+ * end of the desired slice. The number of elements in the slice is given by
+ * stop - start if the step is 1 (its default value). This means that a slice
+ * with a start of 2 and a stop of 7 will have five elements at indices
+ * 2, 3, 4, 5 & 6. The syntax for a slice with both a start and a stop is
+ * {{{start, stop}}}. Either can also be replaced by an empty initializer list,
+ *  as {{{{}, stop}}}, {{{start, {}}}} and {{{{}, {}}}}. A default start runs
+ *  from the start of the array and a default stop runs to the end of the
+ *  array. If both are default empty initializer lists, then the slice spans
+ *  the entire array.
+ *
+ *  A step value can also be present. When traversing the slice, the index of
+ *  the location in the array will increase by the step value. Accessing the
+ *  start=2 and stop=7 slice described above with a step of 2 would be written
+ *  as {{{2, 7, 2}}} and access the elements at indices 2, 4 & 6. The syntax
+ *  for a slice with a start, stop and step is {{{start, stop, step}}}. Both
+ *  start and stop must be present to define a step using the default
+ *  initializer list syntax to give {{{{}, {}, step}}}. The step value can be
+ *  negative. This requires the start value to be greater than the stop value
+ *  to avoid an empty slice. The slice written as {{{2, 7, -2}} defines an
+ *  empty slice. The slice written as {{{7, 2, -2}}} would access the indices
+ *  7, 5 & 3.
+ *
+ *  The start and stop indices can also be negative, which are interpreted as
+ *  counting backwards from the end of the array. The element -1 is the last
+ *  element in the array, -2 is the second last all the way to -n, the first
+ *  element of an array of length n.
+ *
+ *  The above description details how indexing works on a one dimensional
+ *  array. A slice can also be defined over a multidimensional array of
+ *  arbitrarily high dimension. This is done by adding additional bounds
+ *  initializers to the second set of braces. If the suffix _n is applied to
+ *  the start, stop and step indices in dimension n, then a fully specified
+ *  multidimensional slice is written as
+ *  {{{start_0, stop_0, step_0}, {start_1, stop_1, step_1}…}}. The bounds term
+ *  for each dimensional can be specified in the same way as for the one
+ *  dimensional bounds described above, including default initializer list
+ *  values, negative indices and negative step values.
+ *
+ */
 class Slice {
 public:
     using Int = std::ptrdiff_t;
