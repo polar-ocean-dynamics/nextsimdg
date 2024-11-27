@@ -37,7 +37,8 @@ public:
             bool isAll() const { return m_isAll; }
             operator std::ptrdiff_t() const { return i; }
 
-            std::ostream& print(std::ostream& os) const {
+            std::ostream& print(std::ostream& os) const
+            {
                 return os << (m_isAll ? "all" : std::to_string(i));
             }
 
@@ -109,10 +110,7 @@ inline std::ostream& operator<<(std::ostream& os, const Slice::VBounds& vBounds)
     return os << "}";
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Slice& slice)
-{
-    return os << slice.bounds;
-}
+inline std::ostream& operator<<(std::ostream& os, const Slice& slice) { return os << slice.bounds; }
 
 class SliceIter {
 public:

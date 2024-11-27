@@ -55,7 +55,8 @@ ModelArray& ModelArraySlice::copyToModelArray(ModelArray& target) const
     return target;
 }
 
-ModelArray::DataType& ModelArraySlice::copyToDataSlice(ModelArray::DataType& target, SliceIter& targetIter) const
+ModelArray::DataType& ModelArraySlice::copyToDataSlice(
+    ModelArray::DataType& target, SliceIter& targetIter) const
 {
     SliceIter iter(slice, data.dimensions());
 
@@ -63,7 +64,8 @@ ModelArray::DataType& ModelArraySlice::copyToDataSlice(ModelArray::DataType& tar
     return target;
 }
 
-ModelArraySlice& ModelArraySlice::copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter)
+ModelArraySlice& ModelArraySlice::copyFromDataSlice(
+    const ModelArray::DataType& source, SliceIter& sourceIter)
 {
     SliceIter iter(slice, data.dimensions());
 
@@ -71,13 +73,15 @@ ModelArraySlice& ModelArraySlice::copyFromDataSlice(const ModelArray::DataType& 
     return *this;
 }
 
-ModelArraySlice::iterator ModelArraySlice::begin() {
+ModelArraySlice::iterator ModelArraySlice::begin()
+{
     iterator iter(*this);
     iter.iter.toBegin(); // To ensure we are at the beginning, in case SliceIter is ever modified.
     return iter;
 }
 
-ModelArraySlice::iterator ModelArraySlice::end() {
+ModelArraySlice::iterator ModelArraySlice::end()
+{
     iterator iter(*this);
     iter.iter.toEnd();
     return iter;
@@ -135,8 +139,8 @@ void ModelArraySlice::copySliceWithIters(
     copySliceWithItersData(source.m_data, sourceIter, target.m_data, targetIter);
 }
 
-void ModelArraySlice::copySliceWithItersData(
-    const ModelArray::DataType& source, SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter)
+void ModelArraySlice::copySliceWithItersData(const ModelArray::DataType& source,
+    SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter)
 {
     const size_t targetNEl = targetIter.nElements(0);
     const size_t sourceNEl = sourceIter.nElements(0);
@@ -149,12 +153,11 @@ void ModelArraySlice::copySliceWithItersData(
         targetIter.incrementDim(1);
         sourceIter.incrementDim(1);
     }
-
 }
 
 MASIter::MASIter(ModelArraySlice& mas)
     : data(mas.data)
     , iter(mas.slice, mas.data.dimensions())
-    {
-    }
+{
+}
 } // namespace Nextsim

@@ -11,8 +11,8 @@
 #include "include/ModelArray.hpp"
 #include "include/Slice.hpp"
 
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 namespace Nextsim {
 class MASIter;
@@ -20,8 +20,7 @@ class ModelArraySlice;
 std::ostream& operator<<(std::ostream& os, const MASIter& it);
 
 // Inheriting from std::iterator is deprecated after C++17
-class MASIter
-{
+class MASIter {
 public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = double;
@@ -40,19 +39,13 @@ public:
     }
     bool operator!=(const MASIter& other) const
     {
-//        std::cout << this->iter << "!=" << other.iter << "?" << std::endl;
+        //        std::cout << this->iter << "!=" << other.iter << "?" << std::endl;
         // Account for different end iters possibly not equating
         bool iterEquality = (iter == other.iter) || (iter.isEnd() && other.iter.isEnd());
         return (&data != &other.data) || !iterEquality;
     }
-    bool operator==(const MASIter& other) const
-    {
-        return !(*this != other);
-    }
-    double* operator->() const
-    {
-        return &data[iter.index()];
-    }
+    bool operator==(const MASIter& other) const { return !(*this != other); }
+    double* operator->() const { return &data[iter.index()]; }
     MASIter operator++(int)
     {
         MASIter copy = *this;
@@ -60,20 +53,15 @@ public:
         return copy;
     }
 
-    std::ostream& print(std::ostream& os) const
-    {
-        return os << "{" << &data << ":" << iter << "}";
-    }
+    std::ostream& print(std::ostream& os) const { return os << "{" << &data << ":" << iter << "}"; }
     friend ModelArraySlice;
+
 private:
     ModelArray& data;
     SliceIter iter;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const MASIter& it)
-{
-    return it.print(os);
-}
+inline std::ostream& operator<<(std::ostream& os, const MASIter& it) { return it.print(os); }
 class ModelArraySlice {
 public:
     using Slice = ArraySlicer::Slice;
@@ -130,7 +118,8 @@ public:
         return buffer;
     }
 
-    ModelArray::DataType& copyToDataSlice(ModelArray::DataType& target, SliceIter& targetIter) const;
+    ModelArray::DataType& copyToDataSlice(
+        ModelArray::DataType& target, SliceIter& targetIter) const;
     ModelArraySlice& copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter);
 
     iterator begin();
@@ -145,8 +134,8 @@ private:
         ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
     static void copySliceWithIters(
         ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
-    static void copySliceWithItersData(
-        const ModelArray::DataType& source, SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter);
+    static void copySliceWithItersData(const ModelArray::DataType& source, SliceIter& sourceIter,
+        ModelArray::DataType& target, SliceIter targetIter);
 
     ModelArray& data;
 };
