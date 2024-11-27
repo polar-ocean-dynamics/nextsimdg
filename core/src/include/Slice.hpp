@@ -207,7 +207,7 @@ public:
     SliceIter& toEnd()
     {
         size_t lastDim = m_slice.n() - 1;
-        for (size_t dim = 0; dim < lastDim - 1; ++dim) {
+        for (size_t dim = 0; dim < lastDim; ++dim) {
             current[dim] = 0;
         }
         current[lastDim] = dimEnd(lastDim);
