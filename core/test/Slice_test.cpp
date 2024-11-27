@@ -62,6 +62,7 @@ TEST_CASE("One dimensional indexing")
     Slice element3 {{{3U}}};
     SliceIter iter3(element3, {10});
     REQUIRE(iter3.index() == 3);
+    REQUIRE(iter3.size() == 1);
 
     // All the elements of an array
     // Implicitly
@@ -116,6 +117,7 @@ TEST_CASE("One dimensional indexing")
         REQUIRE(count < 10);
     }
     REQUIRE(iter3_.isEnd());
+    REQUIRE(iter3_.size() == 7);
     REQUIRE(count == 7);
 
     // Non-unit stride, also full length of the array.
@@ -124,6 +126,7 @@ TEST_CASE("One dimensional indexing")
     REQUIRE(iter__2.index() == 0);
     count = 0;
     size_t expt = 10 / 2;
+    REQUIRE(iter__2.size() == expt);
     while (!iter__2.isEnd()) {
         REQUIRE(iter__2.index() % 2 == 0);
         ++iter__2;
@@ -174,15 +177,19 @@ TEST_CASE("Multidimensional indexing")
         bool yStep = deltaIndex == (Indexer::indexer({nx, ny}, {3, 5}) - Indexer::indexer({nx, ny}, {6, 4}));
         bool allowedStep = xStep || yStep;
         REQUIRE_MESSAGE(allowedStep, "Forbidden step value Δi=", deltaIndex);
-        REQUIRE(index % nx >= 3);
-        REQUIRE(index % nx < 7);
-        REQUIRE(index / nx >= 4);
-        REQUIRE(index / nx < 8);
+
+        REQUIRE(iter3748.position().size() == 2);
+        REQUIRE(iter3748.position()[0] >= 3);
+        REQUIRE(iter3748.position()[0] < 7);
+        REQUIRE(iter3748.position()[1] >= 4);
+        REQUIRE(iter3748.position()[1] < 8);
+
         REQUIRE(count <= 16);
         indexLast = index;
         ++iter3748;
         ++count;
     }
+    REQUIRE(iter3748.size() == 16);
 
     // 8 dimensional array slicing
     Slice elements8d {{{2, 6}, {4, 9}, {6, 12}, {8, 15}, {10, 18}, {12, 21}, {14, 24}, {16, 27}}};
@@ -190,6 +197,7 @@ TEST_CASE("Multidimensional indexing")
     SliceIter iter8d(elements8d, ni);
     count = 0;
     const size_t expt = 11 * 10 * 9 * 8 * 7 * 6 * 5 * 4;
+    REQUIRE(iter8d.size() == expt);
     std::string message = "";
     while (!iter8d.isEnd()) {
         auto loc = Indexer::deIndexer(ni, iter8d.index());
@@ -263,7 +271,6 @@ end8d:
     count = 0;
     for (SliceIter iter(singleColumn, {nx1, ny1}); !iter.isEnd(); ++iter) {
         REQUIRE(Indexer::deIndexer(dims1, iter.index())[0] == count);
-        std::cout << to_string(Indexer::deIndexer(dims1, iter.index())) << std::endl;
         ++count;
         REQUIRE(Indexer::deIndexer(dims1, iter.index())[1] == 0);
     }
@@ -292,6 +299,7 @@ TEST_CASE("Negative steps")
         ++count;
     }
     REQUIRE(count == 3);
+    REQUIRE(reti2.size() == 3);
 
     // Forwards in one dimension, backwards in another
     Slice to_fro {{{0, 8}, {7, {}, -1}}};
@@ -310,6 +318,7 @@ TEST_CASE("Negative steps")
         ++count;
     }
     REQUIRE(count == itereti.shape()[0] * itereti.shape()[1]);
+    REQUIRE(itereti.size() == count);
 }
 
 bool matchIndices(SliceIter& si, std::vector<size_t> compare, bool debug = false)
@@ -456,11 +465,6 @@ TEST_CASE("Indexing behaviour")
     REQUIRE(match12({{{{}, {}}}}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
     // stop not set
     SliceIter def({{{{}}}}, {12});
-//    while (!def.isEnd()) {
-//        std::cout << def.index() << " ";
-//        ++def;
-//    }
-//    std::cout << std::endl;
     REQUIRE(matchIndices(def, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
     // TODO get this test working with match12
 //    REQUIRE(match12(Slice::VBounds({{{{}}}}), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, true));

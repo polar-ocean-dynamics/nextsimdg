@@ -302,6 +302,8 @@ public:
      */
     Int index() const { return Indexer::indexer(m_dimensions, current); }
 
+    //! Get the current position of the iterator as a vector over dimensions.
+    const MultiDim position() const { return MultiDim(current); }
     /*!
      * Sets the position to the beginning of the slice. This is the same state as
      * when the iterator is initially constructed.
@@ -348,7 +350,7 @@ public:
     /*!
      * Returns the overall shape of the Slice, constrained by the given dimensions.
      */
-    MultiDim shape()
+    MultiDim shape() const
     {
         MultiDim shapey;
 
@@ -361,6 +363,17 @@ public:
         return shapey;
     }
 
+    /*!
+     * Returns the total number of elements in the slice.
+     */
+    size_t size() const
+    {
+        size_t sizey = 1;
+        for (size_t dim = 0; dim < m_slice.n(); ++dim) {
+            sizey *= nElements(dim);
+        }
+        return sizey;
+    }
     /*!
      * Translates the default and negative bounds into an actual start index
      * for a given dimension.
@@ -390,7 +403,6 @@ public:
      */
     Int nElements(size_t dim) const
     {
-        // TODO handle negative indices
         Int stop = (m_slice.bounds[dim].stop.isAll())
             ? ((step(dim) < 0) ? -1 : m_dimensions[dim])
             : static_cast<size_t>(m_slice.bounds[dim].stop);
