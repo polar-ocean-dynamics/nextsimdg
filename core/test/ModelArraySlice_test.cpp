@@ -398,24 +398,9 @@ TEST_CASE("Iterators")
     auto cSlice = c[{{{4, 9, 2}}}];
     REQUIRE(*cSlice.begin() == 104);
 
-    std::cout << "Iterate through slice" << std::endl;
-//    for (ModelArraySlice::iterator it = cSlice.begin(); it != cSlice.end(); ++it) {
-    {
-        auto it = cSlice.begin();
-        std::cout << "it=" << it << std::endl;
-        while (true) {
-            auto endIter = cSlice.end();
-            std::cout << "it=" << it << " end=" << endIter << std::endl;
-            if (true || it == endIter) break;
-        std::cout << it << std::endl;
+    for (auto it = cSlice.begin(); it != cSlice.end(); ++it) {
         *it = 0.;
-        ++it;
     }
-    }
-//    for (auto it = cSlice.begin(); it != cSlice.end(); ++it) {
-//        std::cout << it << std::endl;
-//        *it = 0.;
-//    }
     // Check that earlier values have not been set to 0
     for (size_t i = 0; i < 4; ++i) {
         REQUIRE_FALSE(c[i] == 0);
@@ -433,21 +418,14 @@ TEST_CASE("Iterators")
         REQUIRE_FALSE(c[i] == 0);
     }
 
-
     count = 0;
     // Check the zero values using the slice iterator
     for (auto& v : cSlice)
     {
-        std::cout << count << ":" << v << std::endl;
+        REQUIRE(v == 0.);
         ++count;
-//        REQUIRE(v == 0.);
-//        // Watchdog break
-//        if (count > nx)
-//            break;
     }
-    /*
     REQUIRE(count == 3);
-    */
 }
 
 TEST_SUITE_END();
