@@ -146,6 +146,7 @@ public:
     {
     }
 
+    //! Returns the number of dimensions defined for this slice.
     const size_t n() const { return bounds.size(); }
 };
 
@@ -165,10 +166,32 @@ inline std::ostream& operator<<(std::ostream& os, const Slice::VBounds& vBounds)
 
 inline std::ostream& operator<<(std::ostream& os, const Slice& slice) { return os << slice.bounds; }
 
+/*!
+ * @brief A class for iterating through a Slice, realized by actual dimensional
+ * bounds.
+ *
+ * @details Given a Slice, either as a literal of a instantiated object, and a
+ * set of dimension lengths, this class can be used to iterate through the
+ * elements of the slice, returning the current position of the iterator in the
+ * bounds of the supplied dimensions. The poistion is return as a one
+ * dimensional index to the current position of the iterator in the flattened,
+ * contiguous representation of the array. The class can also set the iterator
+ * to the beginning or end of the slice and can return the shape of the slice
+ * as instantiated on the given dimensions. This involves internally
+ * translating negative from-end-of-array indices into the corresponding
+ * positive index. Internally, the iterator tracks its position in each index
+ * as it traverses a multidimensional slice.
+ */
 class SliceIter {
 public:
     using MultiDim = std::vector<size_t>;
     using Int = Slice::Int;
+    /*!
+     * Initializes a SliceIter from a SLice and a set of dimensions. The two
+     * must have the same cardinality otherwise an invalid argument exception
+     * will be thrown. The iterator is initialized at its beginning position,
+     * that is the member function atBegin() will return true.
+     */
     SliceIter(const Slice& slice, const MultiDim& dimensions)
         : m_slice(realiseIndices(slice.bounds, dimensions))
         , m_dimensions(dimensions)
@@ -182,6 +205,17 @@ public:
                 + ").");
     }
 
+    /*!
+     * @brief Checks iterator equality.
+     *
+     * @details Equal SliceIter iterators must have the same dimensionality,
+     * the equal dimension lengths for each dimension and equal position in
+     * each dimension. All other iterators will compare unequal. An exception
+     * to the equal position requirement is that all iterators with the same
+     * slice and dimensions will compare equal if the are both at an end
+     * position, that is that for both iterators the member function atEnd()
+     * returns true.
+     */
     bool operator==(const SliceIter& other) const
     {
         // Number of dimensions must match
@@ -211,7 +245,16 @@ public:
         return true;
     }
 
+    /*!
+     * @brief Increments the iterator position through the slice.
+     * @returns a reference to the incremented iterator.
+     */
+
     SliceIter& operator++() { return incrementDim(0); }
+    /*!
+     * @brief Increments the iterator position through the slice.
+     * @returns A copy of the iterator before it was incremented.
+     */
     SliceIter operator++(int)
     {
         SliceIter copy(*this);
@@ -219,6 +262,18 @@ public:
         return copy;
     }
 
+    /*!
+     * @brief Increments the iterator position along a given axis.
+     *
+     * @details Increments the iterator through the slice along a given axis.
+     * Calling this function with argument 0 is equivalent to calling the
+     * operator++() member function. If the increment takes the position in an
+     * axis past the end of the slice in that axis, then the position is reset
+     * in that axis and the next axis incremented by one, unless the increment
+     * would take the iterator past the end of the entire slice, in which case
+     * the final value of the iterator is equal to if the function toEnd() had
+     * been called.
+     */
     SliceIter& incrementDim(size_t dim)
     {
         for (;;) {
@@ -236,14 +291,20 @@ public:
         return *this;
     }
 
+    //! Reverse iteration is not currently implemented.
     SliceIter& operator--();
+    //! Reverse iteration is not currently implemented.
     SliceIter operator--(int);
     /*!
-     * Returns the one-dimensional index equivalent to the current state of the iterator
+     * Returns the one-dimensional index equivalent to the current position of
+     * the iterator in the flattened equivalent of the array dimensions the
+     * iterator is based on.
      */
     Int index() const { return Indexer::indexer(m_dimensions, current); }
+
     /*!
-     * Sets the state to the beginning of the slice
+     * Sets the position to the beginning of the slice. This is the same state as
+     * when the iterator is initially constructed.
      */
     SliceIter& toBegin()
     {
@@ -253,7 +314,7 @@ public:
         return *this;
     }
     /*!
-     * Sets the state to the end of the slice.
+     * Sets the position to the end of the slice.
      */
     SliceIter& toEnd()
     {
@@ -265,7 +326,7 @@ public:
         return *this;
     }
     /*!
-     * Is the iterator at its 'begin'?
+     * Returns whether the iterator at its 'begin' position.
      */
     bool isBegin() const
     {
@@ -276,18 +337,12 @@ public:
         return true;
     }
     /*!
-     * Is the iterator at its 'end'?
+     * Returns whether the iterator at an 'end' position.
      */
     bool isEnd() const
     {
         size_t lastDim = m_slice.n() - 1;
         return stopTest(current, lastDim);
-    }
-
-    bool& doDetailedOutput()
-    {
-        static bool ddo = false;
-        return ddo;
     }
 
     /*!
@@ -307,12 +362,12 @@ public:
     }
 
     /*!
-     * Translates the default and negative bounds into an actual start index.
+     * Translates the default and negative bounds into an actual start index
+     * for a given dimension.
      * @param dim the dimension for which the start value is requested.
      */
     Int start(size_t dim) const
     {
-        // TODO handle negative indices
         return (m_slice.bounds[dim].start.isAll()) ? ((step(dim) < 0) ? m_dimensions[dim] - 1 : 0)
                                                    : static_cast<size_t>(m_slice.bounds[dim].start);
     }
@@ -353,7 +408,11 @@ public:
         return nElements(0);
     }
 
+    /*!
+     * Returns the step value for a given dimension.
+     */
     Int step(size_t dim) const { return m_slice.bounds[dim].step; }
+    //! Returns the step value for the first dimension.
     Int step() const
     {
         if (m_slice.n() != 1) {
@@ -363,6 +422,7 @@ public:
         return step(0);
     }
 
+    //! Prints the details of the bounds and current position of the iterator.
     std::ostream& print(std::ostream& os) const
     {
         size_t ndims = m_slice.n();
