@@ -391,8 +391,7 @@ private:
     template <typename T = size_t, typename C, typename I, typename... Args>
     static inline T indexr(C dims, I first, Args... args)
     {
-        std::initializer_list<I> loc { first, args... };
-        return indexer(dims, loc);
+        return indexer(dims, { static_cast<size_t>(first), static_cast<size_t>(args)... });
     }
 
     // Indices as a Dimensions object
