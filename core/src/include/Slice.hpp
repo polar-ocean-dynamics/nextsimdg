@@ -97,6 +97,11 @@ public:
                 , i(ii)
             {
             }
+            template <typename I>
+            Index(I ii)
+                : Index(static_cast<Int>(ii))
+            {
+            }
             bool isAll() const { return m_isAll; }
             operator std::ptrdiff_t() const { return i; }
 
