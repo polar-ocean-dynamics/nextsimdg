@@ -119,9 +119,9 @@ public:
     }
 
 private:
-    template <typename S, typename T=S>
-    static void copySliceWithIters(const S& source, SliceIter& sourceIter,
-        T& target, SliceIter targetIter)
+    template <typename S, typename T = S>
+    static void copySliceWithIters(
+        const S& source, SliceIter& sourceIter, T& target, SliceIter targetIter)
     {
         const size_t targetNEl = targetIter.nElements(0);
         const size_t sourceNEl = sourceIter.nElements(0);
