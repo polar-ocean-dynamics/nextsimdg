@@ -118,9 +118,42 @@ public:
         return buffer;
     }
 
-    ModelArray::DataType& copyToDataSlice(
-        ModelArray::DataType& target, SliceIter& targetIter) const;
-    ModelArraySlice& copyFromDataSlice(const ModelArray::DataType& source, SliceIter& sourceIter);
+private:
+    template <typename S, typename T=S>
+    static void copySliceWithIters(const S& source, SliceIter& sourceIter,
+        T& target, SliceIter targetIter)
+    {
+        const size_t targetNEl = targetIter.nElements(0);
+        const size_t sourceNEl = sourceIter.nElements(0);
+
+        while (!targetIter.isEnd() && !sourceIter.isEnd()) {
+            const size_t targetIndex = targetIter.index();
+            const size_t sourceIndex = sourceIter.index();
+            target(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all)
+                = source(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
+            targetIter.incrementDim(1);
+            sourceIter.incrementDim(1);
+        }
+    }
+
+public:
+    template <typename T>
+    ModelArray::DataType& copyToSlicedBuffer(T& target, SliceIter& targetIter) const
+    {
+        SliceIter iter(slice, data.dimensions());
+
+        copySliceWithIters(data.m_data, iter, target, targetIter);
+        return target;
+    }
+
+    template <typename S>
+    ModelArraySlice& copyFromSlicedBuffer(const S& source, SliceIter& sourceIter)
+    {
+        SliceIter iter(slice, data.dimensions());
+
+        copySliceWithIters(source, sourceIter, data.m_data, iter);
+        return *this;
+    }
 
     iterator begin();
     iterator end();
@@ -132,10 +165,6 @@ public:
 private:
     static void copyBetweenMAandMASlice(
         ModelArray& ma, const ModelArraySlice& mas, bool toSlice, const std::string& functionName);
-    static void copySliceWithIters(
-        ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter);
-    static void copySliceWithItersData(const ModelArray::DataType& source, SliceIter& sourceIter,
-        ModelArray::DataType& target, SliceIter targetIter);
 
     ModelArray& data;
 };

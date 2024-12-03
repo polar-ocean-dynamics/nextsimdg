@@ -39,7 +39,7 @@ ModelArraySlice& ModelArraySlice::operator=(ModelArraySlice& other)
             throw std::out_of_range("ModelArraySlice shape mismatch");
     }
 
-    copySliceWithIters(other.data, otherIter, data, thisIter);
+    copySliceWithIters(other.data.m_data, otherIter, data.m_data, thisIter);
     return *this;
 }
 
@@ -53,24 +53,6 @@ ModelArray& ModelArraySlice::copyToModelArray(ModelArray& target) const
 {
     copyBetweenMAandMASlice(target, *this, false, "ModelArraySlice::copyToModelArray(ModelArray)");
     return target;
-}
-
-ModelArray::DataType& ModelArraySlice::copyToDataSlice(
-    ModelArray::DataType& target, SliceIter& targetIter) const
-{
-    SliceIter iter(slice, data.dimensions());
-
-    copySliceWithItersData(data.m_data, iter, target, targetIter);
-    return target;
-}
-
-ModelArraySlice& ModelArraySlice::copyFromDataSlice(
-    const ModelArray::DataType& source, SliceIter& sourceIter)
-{
-    SliceIter iter(slice, data.dimensions());
-
-    copySliceWithItersData(source, sourceIter, data.m_data, iter);
-    return *this;
 }
 
 ModelArraySlice::iterator ModelArraySlice::begin()
@@ -127,31 +109,9 @@ void ModelArraySlice::copyBetweenMAandMASlice(
 
     // Copy the data in the correct direction
     if (toSlice) {
-        copySliceWithIters(ma, maIter, mas.data, masIter);
+        copySliceWithIters(ma.m_data, maIter, mas.data.m_data, masIter);
     } else {
-        copySliceWithIters(mas.data, masIter, ma, maIter);
-    }
-}
-
-void ModelArraySlice::copySliceWithIters(
-    ModelArray& source, SliceIter& sourceIter, ModelArray& target, SliceIter targetIter)
-{
-    copySliceWithItersData(source.m_data, sourceIter, target.m_data, targetIter);
-}
-
-void ModelArraySlice::copySliceWithItersData(const ModelArray::DataType& source,
-    SliceIter& sourceIter, ModelArray::DataType& target, SliceIter targetIter)
-{
-    const size_t targetNEl = targetIter.nElements(0);
-    const size_t sourceNEl = sourceIter.nElements(0);
-
-    while (!targetIter.isEnd() && !sourceIter.isEnd()) {
-        const size_t targetIndex = targetIter.index();
-        const size_t sourceIndex = sourceIter.index();
-        target(Eigen::seqN(targetIndex, targetNEl, targetIter.step(0)), Eigen::all)
-            = source(Eigen::seqN(sourceIndex, sourceNEl, sourceIter.step(0)), Eigen::all);
-        targetIter.incrementDim(1);
-        sourceIter.incrementDim(1);
+        copySliceWithIters(mas.data.m_data, masIter, ma.m_data, maIter);
     }
 }
 
