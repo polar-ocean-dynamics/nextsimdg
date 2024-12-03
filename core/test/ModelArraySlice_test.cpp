@@ -428,5 +428,50 @@ TEST_CASE("Iterators")
     REQUIRE(count == 3);
 }
 
+TEST_CASE("Eigen copying")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    const size_t DG = 6;
+    const size_t nWrap = 2;
+
+    Eigen::Matrix<double, Eigen::Dynamic, DG, Eigen::RowMajor> eig;
+    eig.resize((nx + 2 * nWrap) * ny, DG);
+    SliceIter::MultiDim eigDim = {nx + 2 * nWrap, ny};
+    Slice leftColumn {{{0, nWrap}, {}}};
+    Slice rightColumn {{{-nWrap, {}}, {}}};
+    Slice centreBlock {{{nWrap, -nWrap}, {}}};
+    Slice wholeArray{{{}, {}}};
+    SliceIter eigLeft(leftColumn, eigDim);
+    SliceIter eigRight(rightColumn, eigDim);
+    SliceIter eigCentre(centreBlock, eigDim);
+
+    TwoDField source(ModelArray::Type::TWOD);
+    source.resize();
+    for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+            source(i, j) = i + 100*j;
+        }
+    }
+    TwoDField sink(ModelArray::Type::TWOD);
+    sink.resize();
+    sink = -1;
+
+    auto eig0 = eig.col(0);
+    source[wholeArray].copyToSlicedBuffer(eig0, eigCentre);
+    source[leftColumn].copyToSlicedBuffer(eig0, eigRight);
+    source[rightColumn].copyToSlicedBuffer(eig0, eigLeft);
+
+    size_t testRow = 3 * ny / 4;
+    for (size_t i = 0; i < nx + 2*nWrap; ++i) {
+        REQUIRE(eig(Indexer::indexer(eigDim, {i, testRow}), 0) == source ((i + nx - nWrap) % nx, testRow));
+    }
+    sink[wholeArray].copyFromSlicedBuffer(eig0, eigCentre);
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(sink(i, testRow) == source(i, testRow));
+    }
+
+}
 TEST_SUITE_END();
 } // namespace Nextsim

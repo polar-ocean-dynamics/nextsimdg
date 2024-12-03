@@ -138,12 +138,14 @@ private:
 
 public:
     template <typename T>
-    ModelArray::DataType& copyToSlicedBuffer(T& target, SliceIter& targetIter) const
+    const ModelArraySlice& copyToSlicedBuffer(T& target, SliceIter& targetIter) const
     {
         SliceIter iter(slice, data.dimensions());
 
         copySliceWithIters(data.m_data, iter, target, targetIter);
-        return target;
+        // Return this, even though it is unchanged. The code looks weird if
+        // the return value is the target buffer.
+        return *this;
     }
 
     template <typename S>
