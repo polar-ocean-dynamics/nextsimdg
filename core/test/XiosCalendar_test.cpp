@@ -1,7 +1,7 @@
 /*!
  * @file    XiosCalendar_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    03 Dec 2024
+ * @date    04 Dec 2024
  * @brief   Tests for XIOS calandars
  * @details
  * This test is designed to test calendar functionality of the C++ interface
@@ -48,11 +48,11 @@ MPI_TEST_CASE("TestXiosInitialization", 2)
     REQUIRE(start == xios_handler.getCalendarStart());
     REQUIRE(start.format() == "2023-03-17T17:11:00Z");
     // Timestep
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == doctest::Approx(3600.0)); // Default
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 3600.0); // Default
     Duration timestep("P0-0T01:30:00");
-    REQUIRE(timestep.seconds() == doctest::Approx(5400.0));
+    REQUIRE(timestep.seconds() == 5400.0);
     xios_handler.setCalendarTimestep(timestep);
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == doctest::Approx(5400.0));
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 5400.0);
 
     xios_handler.close_context_definition();
 
