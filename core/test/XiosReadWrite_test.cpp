@@ -1,7 +1,7 @@
 /*!
  * @file    XiosReadWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    03 Dec 2024
+ * @date    04 Dec 2024
  * @brief   Tests for XIOS write method
  * @details
  * This test is designed to test the read and write methods of the C++
@@ -61,7 +61,7 @@ Xios setupXiosHandler(int dim, bool read)
     } else {
         label = "write";
     }
-    Xios xios_handler("P0-0T01:30:00", formatId(label, dim));
+    Xios xios_handler("P0-0T01:30:00", formatId(label, dim), "2023-03-17T17:11:00Z");
     REQUIRE(xios_handler.isInitialized());
     const size_t size = xios_handler.getClientMPISize();
     REQUIRE(size == 2);

@@ -42,8 +42,9 @@ MPI_TEST_CASE("TestXiosInitialization", 2)
     TimePoint origin("2020-01-23T00:08:15Z");
     xios_handler.setCalendarOrigin(origin);
     REQUIRE(origin == xios_handler.getCalendarOrigin());
-    REQUIRE(origin.format() == "1970-01-01T00:00:00Z");
+    REQUIRE(origin.format() == "2020-01-23T00:08:15Z");
     // Calendar start
+    REQUIRE(xios_handler.getCalendarStart().format() == "1970-01-01T00:00:00Z"); // Default
     TimePoint start("2023-03-17T17:11:00Z");
     xios_handler.setCalendarStart(start);
     REQUIRE(start == xios_handler.getCalendarStart());

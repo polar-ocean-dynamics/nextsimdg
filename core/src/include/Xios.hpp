@@ -32,6 +32,7 @@ void enableXios();
 class Xios : public Configured<Xios> {
 public:
     Xios(const std::string dt = "P0-0T01:00:00", const std::string contextid = "nextSIM-DG",
+        const std::string starttime = "1970-01-01T00:00:00Z",
         const std::string calendartype = "Gregorian");
     ~Xios();
 
@@ -150,6 +151,7 @@ private:
     std::string calendarType;
     std::string contextId;
     Duration timestep;
+    TimePoint startTime;
     MPI_Comm clientComm;
     MPI_Fint clientComm_F;
     MPI_Fint nullComm_F;

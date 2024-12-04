@@ -49,13 +49,16 @@ void enableXios()
  *
  * @param dt Timestep to use for the model
  * @param contextid ID for the XIOS context
+ * @param starttime Datetime string for the start of the simulation
  * @param calendartype Type of calendar to use
  */
-Xios::Xios(const std::string dt, const std::string contextid, const std::string calendartype)
+Xios::Xios(const std::string dt, const std::string contextid, const std::string starttime,
+    const std::string calendartype)
 {
-    calendarType = calendartype;
-    contextId = contextid;
     timestep = Duration(dt);
+    startTime = TimePoint(starttime);
+    contextId = contextid;
+    calendarType = calendartype;
     configure();
 }
 
@@ -127,7 +130,7 @@ void Xios::configureServer()
 
     // Set default calendar origin and start
     setCalendarOrigin(TimePoint("1970-01-01T00:00:00Z")); // Unix epoch
-    setCalendarStart(TimePoint("2023-03-17T17:11:00Z")); // TODO: Read from config
+    setCalendarStart(TimePoint(startTime));
 }
 
 /*!
