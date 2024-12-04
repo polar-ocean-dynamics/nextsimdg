@@ -38,10 +38,11 @@ MPI_TEST_CASE("TestXiosInitialization", 2)
     // Calendar type
     REQUIRE(xios_handler.getCalendarType() == "Gregorian");
     // Calendar origin
+    REQUIRE(xios_handler.getCalendarOrigin().format() == "1970-01-01T00:00:00Z"); // Default
     TimePoint origin("2020-01-23T00:08:15Z");
     xios_handler.setCalendarOrigin(origin);
     REQUIRE(origin == xios_handler.getCalendarOrigin());
-    REQUIRE(origin.format() == "2020-01-23T00:08:15Z");
+    REQUIRE(origin.format() == "1970-01-01T00:00:00Z");
     // Calendar start
     TimePoint start("2023-03-17T17:11:00Z");
     xios_handler.setCalendarStart(start);
