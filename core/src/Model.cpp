@@ -147,8 +147,7 @@ Model::HelpMap& Model::getHelpText(HelpMap& map, bool getAll)
             "The file name or file name pattern to be used for the output restart files. A fixed "
             "name can be used, which will be overwritten every time a restart checkpoint is "
             "created. Otherwise the file name may include formatting codes supported by the C/C++ "
-            "time library to create a new file at every restart checkpoint."
-        },
+            "time library to create a new file at every restart checkpoint." },
         { keyMap.at(MISSINGVALUE_KEY), ConfigType::NUMERIC, { "-∞", "∞" }, "-2³⁰⁰", "",
             "Missing data indicator used for input and output." },
 #ifdef USE_MPI
