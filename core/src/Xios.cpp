@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    03 Dec 2024
+ * @date    04 Dec 2024
  * @brief   XIOS interface implementation
  * @details
  *
@@ -47,15 +47,15 @@ void enableXios()
 /*!
  * Constructor: Configure an XIOS server
  *
- * @param timestep Timestep to use for the model
- * @param contextId ID for the XIOS context
- * @param calendarType Type of calendar to use
+ * @param dt Timestep to use for the model
+ * @param contextid ID for the XIOS context
+ * @param calendartype Type of calendar to use
  */
-Xios::Xios(const std::string timestep, const std::string contextId, const std::string calendarType)
+Xios::Xios(const std::string dt, const std::string contextid, const std::string calendartype)
 {
-    _calendarType = calendarType;
-    _contextId = contextId;
-    _timestep = Duration(timestep);
+    calendarType = calendartype;
+    contextId = contextid;
+    timestep = Duration(dt);
     configure();
 }
 
@@ -116,12 +116,12 @@ void Xios::configureServer()
     MPI_Comm_size(clientComm, &mpi_size);
 
     // Initialize 'nextSIM-DG' context
-    cxios_context_initialize(_contextId.c_str(), _contextId.length(), &clientComm_F);
+    cxios_context_initialize(contextId.c_str(), contextId.length(), &clientComm_F);
 
     // Initialize calendar wrapper for 'nextSIM-DG' context
     cxios_get_current_calendar_wrapper(&clientCalendar);
-    cxios_set_calendar_wrapper_type(clientCalendar, _calendarType.c_str(), _calendarType.length());
-    cxios_set_calendar_wrapper_timestep(clientCalendar, convertDurationToXios(_timestep));
+    cxios_set_calendar_wrapper_type(clientCalendar, calendarType.c_str(), calendarType.length());
+    cxios_set_calendar_wrapper_timestep(clientCalendar, convertDurationToXios(timestep));
     cxios_create_calendar(clientCalendar);
     cxios_update_calendar_timestep(clientCalendar);
 
@@ -148,7 +148,7 @@ int Xios::getClientMPIRank() { return mpi_rank; }
 bool Xios::isInitialized()
 {
     bool init = false;
-    cxios_context_is_initialized(_contextId.c_str(), _contextId.length(), &init);
+    cxios_context_is_initialized(contextId.c_str(), contextId.length(), &init);
     return init;
 }
 
