@@ -19,9 +19,6 @@
 
 namespace Nextsim {
 
-// Degrees to radians as a hex float
-static const double deg2rad = 0x1.1df46a2529d39p-6;
-
 // The brittle momentum solver for CG velocity fields
 template <int DGadvection> class BrittleCGDynamicsKernel : public CGDynamicsKernel<DGadvection> {
 protected:
@@ -83,8 +80,8 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
-        cosOceanAngle = std::cos(deg2rad * params.oceanTurningAngle);
-        sinOceanAngle = std::sin(deg2rad * params.oceanTurningAngle);
+        cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
+        sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP

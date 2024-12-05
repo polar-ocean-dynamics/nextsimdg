@@ -8,16 +8,13 @@
  */
 
 #include "include/MEVPDynamics.hpp"
-
+#include "include/constants.hpp"
 #include "include/gridNames.hpp"
 
 #include <string>
 #include <vector>
 
 namespace Nextsim {
-
-// Degrees to radians as a hex float
-static const double deg2rad = 0x1.1df46a2529d39p-6;
 
 // TODO: We should use getName() here, but it isn't static.
 static const std::string prefix = "MEVPDynamics"; // MEVPDynamics::getName();
@@ -70,7 +67,7 @@ void MEVPDynamics::setData(const ModelState::DataMap& ms)
 
     ModelArray coords = ms.at(coordsName);
     if (isSpherical) {
-        coords *= deg2rad;
+        coords *= PhysicalConstants::deg2rad;
     }
     // TODO: Some encoding of the periodic edge boundary conditions
     kernel.initialise(coords, isSpherical, ms.at(maskName));

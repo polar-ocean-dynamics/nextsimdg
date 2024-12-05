@@ -7,7 +7,7 @@
  */
 
 #include "include/BBMDynamics.hpp"
-
+#include "include/constants.hpp"
 #include "include/gridNames.hpp"
 
 namespace Nextsim {
@@ -79,7 +79,7 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
 
     ModelArray coords = ms.at(coordsName);
     if (isSpherical) {
-        coords *= deg2rad;
+        coords *= PhysicalConstants::deg2rad;
     }
     // TODO: Some encoding of the periodic edge boundary conditions
     kernel.initialise(coords, isSpherical, ms.at(maskName));

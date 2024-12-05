@@ -53,8 +53,8 @@ public:
 protected:
     const DynamicsParameters& params;
 
-    const double cosOceanAngle = std::cos(deg2rad * params.oceanTurningAngle);
-    const double sinOceanAngle = std::sin(deg2rad * params.oceanTurningAngle);
+    const double cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
+    const double sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     const double FOcean = params.COcean * params.rhoOcean;
     const double FAtm = params.CAtm * params.rhoAtm;
     const double NansenNumber = std::sqrt(FAtm / FOcean);
