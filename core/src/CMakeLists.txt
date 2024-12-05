@@ -2,7 +2,6 @@
 
 set(BaseSources
     "Logged.cpp"
-    "Timer.cpp"
     "ModelConfig.cpp"
     "Model.cpp"
     "Iterator.cpp"
@@ -14,9 +13,9 @@ set(BaseSources
     "RectGridIO.cpp"
     "ParaGridIO.cpp"
     "FileCallbackCloser.cpp"
+    "Finalizer.cpp"
     "DevStep.cpp"
     "StructureFactory.cpp"
-    "MissingData.cpp"
     "ModelArray.cpp"
     "ModelComponent.cpp"
     "ModelMetadata.cpp"
@@ -27,11 +26,9 @@ set(BaseSources
     "Time.cpp"
     "${ModelArrayStructure}/ModelArrayDetails.cpp"
     "Xios.cpp"
-    )
+)
 
-set(ParallelNetCDFSources
-    "${CMAKE_CURRENT_SOURCE_DIR}/ParallelNetcdfFile.cpp"
-    )
+set(ParallelNetCDFSources "${CMAKE_CURRENT_SOURCE_DIR}/ParallelNetcdfFile.cpp")
 
 list(TRANSFORM BaseSources PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
 
@@ -41,23 +38,18 @@ add_subdirectory("${ModuleDir}")
 
 list(TRANSFORM ModuleSources PREPEND "${ModuleDir}/")
 
-set(NextsimSourcesTemp
-  "${BaseSources}"
-  "${NextsimSources}"
-  "${ModuleSources}"
-  )
+set(NextsimSourcesTemp "${BaseSources}" "${NextsimSources}" "${ModuleSources}")
 
 if(ENABLE_MPI)
-  list(APPEND NextsimSourcesTemp "${ParallelNetCDFSources}")
+    list(APPEND NextsimSourcesTemp "${ParallelNetCDFSources}")
 endif()
 
-set(NextsimSources
-  "${NextsimSourcesTemp}"
-  PARENT_SCOPE)
+set(NextsimSources "${NextsimSourcesTemp}" PARENT_SCOPE)
 
 set(NextsimIncludeDirs
     "${NextsimIncludeDirs}"
     "${ModuleDir}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/${ModelArrayStructure}"
-    PARENT_SCOPE)
+    PARENT_SCOPE
+)

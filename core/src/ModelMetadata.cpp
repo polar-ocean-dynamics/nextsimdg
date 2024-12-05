@@ -1,13 +1,14 @@
 /*!
  * @file ModelMetadata.cpp
  *
- * @date Jun 29, 2022
+ * @date 21 August 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
 #include "include/ModelMetadata.hpp"
 
-#include "include/StructureModule.hpp"
+#include "include/IStructure.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
 
 #ifdef USE_MPI
@@ -49,14 +50,14 @@ void ModelMetadata::getPartitionMetadata(std::string partitionFile)
             + std::to_string(nBoxes) + "\n";
         throw std::runtime_error(errorMsg);
     }
-    globalExtentX = ncFile.getDim("globalX").getSize();
-    globalExtentY = ncFile.getDim("globalY").getSize();
+    globalExtentX = ncFile.getDim("NX").getSize();
+    globalExtentY = ncFile.getDim("NY").getSize();
     netCDF::NcGroup bboxGroup(ncFile.getGroup(bboxName));
     std::vector<size_t> index(1, mpiMyRank);
-    bboxGroup.getVar("global_x").getVar(index, &localCornerX);
-    bboxGroup.getVar("global_y").getVar(index, &localCornerY);
-    bboxGroup.getVar("local_extent_x").getVar(index, &localExtentX);
-    bboxGroup.getVar("local_extent_y").getVar(index, &localExtentY);
+    bboxGroup.getVar("domain_x").getVar(index, &localCornerX);
+    bboxGroup.getVar("domain_y").getVar(index, &localCornerY);
+    bboxGroup.getVar("domain_extent_x").getVar(index, &localExtentX);
+    bboxGroup.getVar("domain_extent_y").getVar(index, &localExtentY);
     ncFile.close();
 }
 

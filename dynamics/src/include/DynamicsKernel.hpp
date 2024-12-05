@@ -25,6 +25,7 @@
 #include "include/gridNames.hpp"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -44,7 +45,8 @@ public:
     virtual void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask)
     {
         //! Define the spatial mesh
-        smesh = new ParametricMesh((isSpherical) ? Nextsim::SPHERICAL : Nextsim::CARTESIAN);
+        smesh = std::make_unique<ParametricMesh>(
+            (isSpherical) ? Nextsim::SPHERICAL : Nextsim::CARTESIAN);
 
         smesh->coordinatesFromModelArray(coords);
         if (isSpherical)
@@ -57,7 +59,7 @@ public:
         }
 
         //! Initialize transport
-        dgtransport = new Nextsim::DGTransport<DGadvection>(*smesh);
+        dgtransport = std::make_unique<Nextsim::DGTransport<DGadvection>>(*smesh);
         dgtransport->settimesteppingscheme("rk2");
 
         // resize DG vectors
@@ -103,6 +105,8 @@ public:
         } else {
             // All other fields get shoved in a (labelled) bucket
             DGModelArray::ma2dg(data, advectedFields[name]);
+            // …and have their type annotated
+            fieldType[name] = data.getType();
         }
     }
 
@@ -144,6 +148,7 @@ public:
             data.resize();
             return DGModelArray::dg2ma(cice, data);
         } else {
+            // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);
             ModelArray data(type);
             data.resize();
@@ -168,7 +173,7 @@ public:
     }
 
 protected:
-    Nextsim::DGTransport<DGadvection>* dgtransport;
+    std::unique_ptr<Nextsim::DGTransport<DGadvection>> dgtransport;
 
     DGVector<DGadvection> hice;
     DGVector<DGadvection> cice;
@@ -186,7 +191,7 @@ protected:
 
     double deltaT;
 
-    Nextsim::ParametricMesh* smesh;
+    std::unique_ptr<Nextsim::ParametricMesh> smesh;
 
     virtual void updateMomentum(const TimestepTime& tst) = 0;
 
@@ -221,7 +226,7 @@ private:
     std::unordered_map<std::string, DGVector<DGadvection>> advectedFields;
 
     // A map from field name to the type of
-    const std::unordered_map<std::string, ModelArray::Type> fieldType;
+    std::unordered_map<std::string, ModelArray::Type> fieldType;
 };
 
 }

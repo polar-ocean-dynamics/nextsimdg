@@ -1,7 +1,7 @@
 /*!
  * @file    XiosGrid_test.cpp
- * @author  Joe Wallwork <jw2423@cam.ac.uk
- * @date    26 July 2024
+ * @author  Joe Wallwork <jw2423@cam.ac.uk>
+ * @date    19 Nov 2024
  * @brief   Tests for XIOS axes
  * @details
  * This test is designed to test axis functionality of the C++ interface
@@ -11,10 +11,7 @@
 #include <doctest/extensions/doctest_mpi.h>
 #undef INFO
 
-#include "include/Configurator.hpp"
 #include "include/Xios.hpp"
-
-#include <iostream>
 
 namespace Nextsim {
 
@@ -29,13 +26,7 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosGrid", 2)
 {
-
-    // Enable XIOS in the 'config'
-    Configurator::clearStreams();
-    std::stringstream config;
-    config << "[xios]" << std::endl << "enable = true" << std::endl;
-    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
-    Configurator::addStream(std::move(pcstream));
+    enableXios();
 
     // Initialize an Xios instance called xios_handler
     Xios xios_handler;
@@ -47,51 +38,41 @@ MPI_TEST_CASE("TestXiosGrid", 2)
     // Set timestep as a minimum
     xios_handler.setCalendarTimestep(Duration("P0-0T01:30:00"));
 
-    // Axis setup
-    xios_handler.createAxis("axis_A");
-    xios_handler.setAxisValues("axis_A", { 0, 1 });
+    // Create a 4x2 horizontal domain with a partition halving the x-extent
+    xios_handler.createDomain("domain_XY");
+    xios_handler.setDomainType("domain_XY", "rectilinear");
+    xios_handler.setDomainGlobalXSize("domain_XY", 4);
+    xios_handler.setDomainGlobalYSize("domain_XY", 2);
+    xios_handler.setDomainLocalXStart("domain_XY", 2 * rank);
+    xios_handler.setDomainLocalYStart("domain_XY", 0);
+    xios_handler.setDomainLocalXValues("domain_XY", { -1.0 + rank, -0.5 + rank });
+    xios_handler.setDomainLocalYValues("domain_XY", { -1.0, 1.0 });
 
-    // Domain setup
-    xios_handler.createDomain("domain_A");
-    xios_handler.setDomainType("domain_A", "rectilinear");
-    const size_t ni_glo = 60;
-    xios_handler.setDomainGlobalXSize("domain_A", ni_glo);
-    const size_t nj_glo = 20;
-    xios_handler.setDomainGlobalYSize("domain_A", nj_glo);
-    const size_t ni = ni_glo / size;
-    xios_handler.setDomainLocalXSize("domain_A", ni);
-    const size_t nj = nj_glo;
-    xios_handler.setDomainLocalYSize("domain_A", nj);
-    xios_handler.setDomainLocalXStart("domain_A", ni * rank);
-    xios_handler.setDomainLocalYStart("domain_A", 0);
-    std::vector<double> vecLon(ni);
-    for (size_t i = 0; i < ni; i++) {
-        vecLon[i] = -180 + (rank * ni * i) * 360 / ni_glo;
-    }
-    xios_handler.setDomainLocalXValues("domain_A", vecLon);
-    std::vector<double> vecLat(nj);
-    for (size_t j = 0; j < nj; j++) {
-        vecLat[j] = -90 + j * 180 / nj_glo;
-    }
-    xios_handler.setDomainLocalYValues("domain_A", vecLat);
+    // Create a vertical axis with 2 points
+    xios_handler.createAxis("axis_Z");
+    xios_handler.setAxisValues("axis_Z", { 0.0, 1.0 });
 
     // --- Tests for grid API
     const std::string gridId = { "grid_2D" };
+    REQUIRE_THROWS_WITH(xios_handler.getGridName(gridId), "Xios: Undefined grid 'grid_2D'");
     xios_handler.createGrid(gridId);
+    REQUIRE_THROWS_WITH(xios_handler.createGrid(gridId), "Xios: Grid 'grid_2D' already exists");
     // Grid name
     const std::string gridName = { "test_grid" };
+    REQUIRE_THROWS_WITH(
+        xios_handler.getGridName(gridId), "Xios: Undefined name for grid 'grid_2D'");
     xios_handler.setGridName(gridId, gridName);
     REQUIRE(xios_handler.getGridName(gridId) == gridName);
     // Add axis
-    xios_handler.gridAddAxis("grid_2D", "axis_A");
+    xios_handler.gridAddAxis("grid_2D", "axis_Z");
     std::vector<std::string> axisIds = xios_handler.gridGetAxisIds(gridId);
     REQUIRE(axisIds.size() == 1);
-    REQUIRE(axisIds[0] == "axis_A");
+    REQUIRE(axisIds[0] == "axis_Z");
     // Add domain
-    xios_handler.gridAddDomain("grid_2D", "domain_A");
+    xios_handler.gridAddDomain("grid_2D", "domain_XY");
     std::vector<std::string> domainIds = xios_handler.gridGetDomainIds(gridId);
     REQUIRE(domainIds.size() == 1);
-    REQUIRE(domainIds[0] == "domain_A");
+    REQUIRE(domainIds[0] == "domain_XY");
 
     xios_handler.close_context_definition();
     xios_handler.context_finalize();
