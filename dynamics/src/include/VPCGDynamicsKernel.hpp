@@ -1,7 +1,7 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -95,14 +95,16 @@ public:
         taux.resizeLike(u);
         tauy.resizeLike(v);
 
+        const double FOcean = params.COcean * params.rhoOcean;
+
 #pragma omp parallel for
         for (int i = 0; i < taux.rows(); ++i) {
             double uOcnRel = u(i) - uOcean(i);
             double vOcnRel = v(i) - vOcean(i);
             double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
 
-            taux(i) = params.F_ocean * absocn * uOcnRel;
-            tauy(i) = params.F_ocean * absocn * vOcnRel;
+            taux(i) = FOcean * absocn * uOcnRel;
+            tauy(i) = FOcean * absocn * vOcnRel;
         }
 
         if (name == uIOStressName) {

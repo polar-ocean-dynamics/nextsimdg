@@ -4,7 +4,7 @@
  * Implementation of "classic free drift", where we ignore all \rho h terms in the momentum
  * equation. This is equivalent to assuming that the ice is very thin.
  *
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -76,11 +76,13 @@ protected:
         taux.resizeLike(u);
         tauy.resizeLike(v);
 
+        const double FOcean = params.COcean * params.rhoOcean;
+
 #pragma omp parallel for
         for (int i = 0; i < taux.rows(); ++i) {
             const double uOceanRel = uOcean(i) - u(i);
             const double vOceanRel = vOcean(i) - v(i);
-            const double cPrime = params.F_ocean * std::hypot(uOceanRel, vOceanRel);
+            const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
 
             taux(i) = cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
             tauy(i) = cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
@@ -91,8 +93,8 @@ protected:
         } else if (name == vIOStressName) {
             return tauy;
         } else {
-            throw std::logic_error(std::string(__func__) + " called with an unknown argument " + name
-                                   + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
+            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
+                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
         }
     }
 };

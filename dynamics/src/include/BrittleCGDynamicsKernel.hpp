@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -169,11 +169,13 @@ public:
         taux.resizeLike(avgU);
         tauy.resizeLike(avgV);
 
+        const double FOcean = params.COcean * params.rhoOcean;
+
 #pragma omp parallel for
         for (int i = 0; i < taux.rows(); ++i) {
             const double uOceanRel = uOcean(i) - avgU(i);
             const double vOceanRel = vOcean(i) - avgV(i);
-            const double cPrime = params.F_ocean * std::hypot(uOceanRel, vOceanRel);
+            const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
 
             taux(i) = cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
             tauy(i) = cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
