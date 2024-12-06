@@ -70,32 +70,20 @@ protected:
         }
     }
 
-    CGVector<CGdegree> getIceOceanStress(const std::string& name) const override
+    double getIceOceanStressElement(const std::string& name, const int i) const override
     {
-        CGVector<CGdegree> taux, tauy;
-        taux.resizeLike(u);
-        tauy.resizeLike(v);
-
         const double FOcean = params.COcean * params.rhoOcean;
 
-#pragma omp parallel for
-        for (int i = 0; i < taux.rows(); ++i) {
-            const double uOceanRel = uOcean(i) - u(i);
-            const double vOceanRel = vOcean(i) - v(i);
-            const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
+        const double uOceanRel = uOcean(i) - u(i);
+        const double vOceanRel = vOcean(i) - v(i);
+        const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
 
-            taux(i) = cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
-            tauy(i) = cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
-        }
-
-        if (name == uIOStressName) {
-            return taux;
-        } else if (name == vIOStressName) {
-            return tauy;
-        } else {
-            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
-                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
-        }
+        if (name == uIOStressName)
+            return cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
+        else if (name == vIOStressName)
+            return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
+        else
+            return std::nan("");
     }
 };
 } /* namespace Nextsim */

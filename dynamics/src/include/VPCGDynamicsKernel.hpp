@@ -89,32 +89,20 @@ public:
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
     }
 
-    CGVector<CGdegree> getIceOceanStress(const std::string& name) const override
+    double getIceOceanStressElement(const std::string& name, const int i) const override
     {
-        CGVector<CGdegree> taux, tauy;
-        taux.resizeLike(u);
-        tauy.resizeLike(v);
-
         const double FOcean = params.COcean * params.rhoOcean;
 
-#pragma omp parallel for
-        for (int i = 0; i < taux.rows(); ++i) {
-            double uOcnRel = u(i) - uOcean(i);
-            double vOcnRel = v(i) - vOcean(i);
-            double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
+        double uOcnRel = u(i) - uOcean(i);
+        double vOcnRel = v(i) - vOcean(i);
+        double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
 
-            taux(i) = FOcean * absocn * uOcnRel;
-            tauy(i) = FOcean * absocn * vOcnRel;
-        }
-
-        if (name == uIOStressName) {
-            return taux;
-        } else if (name == vIOStressName) {
-            return tauy;
-        } else {
-            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
-                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
-        }
+        if (name == uIOStressName)
+            return FOcean * absocn * uOcnRel;
+        else if (name == vIOStressName)
+            return FOcean * absocn * vOcnRel;
+        else
+            return std::nan("");
     }
 
 protected:
