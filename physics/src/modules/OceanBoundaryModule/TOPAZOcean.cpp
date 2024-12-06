@@ -1,15 +1,15 @@
 /*!
  * @file TOPAZOcean.cpp
  *
- * @date 24 Sep 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
 #include "include/TOPAZOcean.hpp"
 
 #include "include/Finalizer.hpp"
-#include "include/IIceOceanHeatFlux.hpp"
 #include "include/IFreezingPoint.hpp"
+#include "include/IIceOceanHeatFlux.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/constants.hpp"
@@ -57,8 +57,7 @@ void TOPAZOcean::configure()
 
 void TOPAZOcean::updateBefore(const TimestepTime& tst)
 {
-    // TODO: Get more authoritative names for the forcings
-    std::set<std::string> forcings = { sstName, sssName, "mld", uName, vName, sshName };
+    std::set<std::string> forcings = { sstName, sssName, mldName, uName, vName, sshName };
 
     ModelState state = ParaGridIO::readForcingTimeStatic(forcings, tst.start, filePath);
     sstExt = state.data.at(sstName);

@@ -1,7 +1,7 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date 05 Dec 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -36,8 +36,8 @@ protected:
 
     using CGDynamicsKernel<DGadvection>::u;
     using CGDynamicsKernel<DGadvection>::v;
-    using CGDynamicsKernel<DGadvection>::uGradSeasurfaceHeight;
-    using CGDynamicsKernel<DGadvection>::vGradSeasurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::xGradSeaSurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::yGradSeaSurfaceHeight;
     using CGDynamicsKernel<DGadvection>::uAtmos;
     using CGDynamicsKernel<DGadvection>::vAtmos;
     using CGDynamicsKernel<DGadvection>::uOcean;
@@ -129,7 +129,7 @@ protected:
                             FOcean * absocn * SC * uOcean(i)) // ocean forcing
                     - params.rhoIce * cgH(i) * params.fc * u(i) // Coriolis
                     - params.rhoIce * cgH(i) * PhysicalConstants::g
-                        * uGradSeasurfaceHeight(i) // sea surface
+                        * xGradSeaSurfaceHeight(i) // sea surface
                     + dStressX(i) / pmap->lumpedcgmass(i)));
             v(i) = (1.0
                 / (params.rhoIce * cgH(i) / deltaT * (1.0 + beta) // implicit parts
@@ -141,7 +141,7 @@ protected:
                     + params.rhoIce * cgH(i) * params.fc
                         * v(i) // Coriolis -  here the reversed sign of uOcnRel is used
                     - params.rhoIce * cgH(i) * PhysicalConstants::g
-                        * vGradSeasurfaceHeight(i) // sea surface
+                        * yGradSeaSurfaceHeight(i) // sea surface
                     + dStressY(i) / pmap->lumpedcgmass(i)));
         }
     }

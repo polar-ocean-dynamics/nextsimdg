@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date Aug 23, 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -36,8 +36,8 @@ void CGDynamicsKernel<DGadvection>::initialise(
     cgH.resize_by_mesh(*smesh);
     cgA.resize_by_mesh(*smesh);
 
-    uGradSeasurfaceHeight.resize_by_mesh(*smesh);
-    vGradSeasurfaceHeight.resize_by_mesh(*smesh);
+    xGradSeaSurfaceHeight.resize_by_mesh(*smesh);
+    yGradSeaSurfaceHeight.resize_by_mesh(*smesh);
 
     dStressX.resize_by_mesh(*smesh);
     dStressY.resize_by_mesh(*smesh);
@@ -193,8 +193,8 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
 
     // Interpolate to CG2 (maybe own function in interpolation?)
     if (CGDEGREE == 1) {
-        uGradSeasurfaceHeight = uGrad;
-        vGradSeasurfaceHeight = vGrad;
+        xGradSeaSurfaceHeight = uGrad;
+        yGradSeaSurfaceHeight = vGrad;
     } else {
         // outer nodes
         size_t icg1 = 0;
@@ -202,8 +202,8 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
         for (size_t iy = 0; iy <= smesh->ny; ++iy) {
             size_t icg2 = (2 * smesh->nx + 1) * 2 * iy;
             for (size_t ix = 0; ix <= smesh->nx; ++ix, ++icg1, icg2 += 2) {
-                uGradSeasurfaceHeight(icg2) = uGrad(icg1);
-                vGradSeasurfaceHeight(icg2) = vGrad(icg1);
+                xGradSeaSurfaceHeight(icg2) = uGrad(icg1);
+                yGradSeaSurfaceHeight(icg2) = vGrad(icg1);
             }
         }
         // along lines
@@ -213,8 +213,8 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
             size_t icg1 = (smesh->nx + 1) * iy;
             size_t icg2 = (2 * smesh->nx + 1) * 2 * iy + 1;
             for (size_t ix = 0; ix < smesh->nx; ++ix, ++icg1, icg2 += 2) {
-                uGradSeasurfaceHeight(icg2) = 0.5 * (uGrad(icg1) + uGrad(icg1 + 1));
-                vGradSeasurfaceHeight(icg2) = 0.5 * (vGrad(icg1) + vGrad(icg1 + 1));
+                xGradSeaSurfaceHeight(icg2) = 0.5 * (uGrad(icg1) + uGrad(icg1 + 1));
+                yGradSeaSurfaceHeight(icg2) = 0.5 * (vGrad(icg1) + vGrad(icg1 + 1));
             }
         }
 #pragma omp parallel for
@@ -223,8 +223,8 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
             size_t icg1 = (smesh->nx + 1) * iy;
             size_t icg2 = (2 * smesh->nx + 1) * (2 * iy + 1);
             for (size_t ix = 0; ix <= smesh->nx; ++ix, ++icg1, icg2 += 2) {
-                uGradSeasurfaceHeight(icg2) = 0.5 * (uGrad(icg1) + uGrad(icg1 + cg1row));
-                vGradSeasurfaceHeight(icg2) = 0.5 * (vGrad(icg1) + vGrad(icg1 + cg1row));
+                xGradSeaSurfaceHeight(icg2) = 0.5 * (uGrad(icg1) + uGrad(icg1 + cg1row));
+                yGradSeaSurfaceHeight(icg2) = 0.5 * (vGrad(icg1) + vGrad(icg1 + cg1row));
             }
         }
 
@@ -235,10 +235,10 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
             size_t icg1 = (smesh->nx + 1) * iy;
             size_t icg2 = (2 * smesh->nx + 1) * (2 * iy + 1) + 1;
             for (size_t ix = 0; ix < smesh->nx; ++ix, ++icg1, icg2 += 2) {
-                uGradSeasurfaceHeight(icg2) = 0.25
+                xGradSeaSurfaceHeight(icg2) = 0.25
                     * (uGrad(icg1) + uGrad(icg1 + 1) + uGrad(icg1 + cg1row)
                         + uGrad(icg1 + cg1row + 1));
-                vGradSeasurfaceHeight(icg2) = 0.25
+                yGradSeaSurfaceHeight(icg2) = 0.25
                     * (vGrad(icg1) + vGrad(icg1 + 1) + vGrad(icg1 + cg1row)
                         + vGrad(icg1 + cg1row + 1));
             }

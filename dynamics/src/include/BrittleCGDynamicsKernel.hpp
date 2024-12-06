@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 05 Dec 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -40,8 +40,8 @@ protected:
 
     using CGDynamicsKernel<DGadvection>::u;
     using CGDynamicsKernel<DGadvection>::v;
-    using CGDynamicsKernel<DGadvection>::uGradSeasurfaceHeight;
-    using CGDynamicsKernel<DGadvection>::vGradSeasurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::xGradSeaSurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::yGradSeaSurfaceHeight;
     using CGDynamicsKernel<DGadvection>::uAtmos;
     using CGDynamicsKernel<DGadvection>::vAtmos;
     using CGDynamicsKernel<DGadvection>::uOcean;
@@ -210,9 +210,9 @@ protected:
 
             // Stress gradient
             const double gradX = dStressX(i) / pmap->lumpedcgmass(i)
-                - params.rhoIce * cgH(i) * PhysicalConstants::g * uGradSeasurfaceHeight(i);
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * xGradSeaSurfaceHeight(i);
             const double gradY = dStressY(i) / pmap->lumpedcgmass(i)
-                - params.rhoIce * cgH(i) * PhysicalConstants::g * vGradSeasurfaceHeight(i);
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * yGradSeaSurfaceHeight(i);
 
             u(i) = alpha * uIce + beta * vIce
                 + dteOverMass * (alpha * (gradX + tauX) + beta * (gradY + tauY));

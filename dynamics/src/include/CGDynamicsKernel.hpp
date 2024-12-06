@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.hpp
  *
- * @date Jan 31, 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -61,8 +61,8 @@ protected:
     CGVector<CGdegree> cgH;
 
     // CG gradient of the seaSurfaceHeight
-    CGVector<CGdegree> uGradSeasurfaceHeight;
-    CGVector<CGdegree> vGradSeasurfaceHeight;
+    CGVector<CGdegree> xGradSeaSurfaceHeight;
+    CGVector<CGdegree> yGradSeaSurfaceHeight;
 
     // divergence of stress
     CGVector<CGdegree> dStressX;
