@@ -176,7 +176,7 @@ public:
         else if (name == vIOStressName)
             return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
         else
-            return std::nan("");
+            return std::numeric_limits<double>::quiet_NaN();
     }
 
 protected:

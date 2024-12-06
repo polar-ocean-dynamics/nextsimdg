@@ -1,7 +1,7 @@
 /*!
  * @file IDynamics.hpp
  *
- * @date 7 Sep 2023
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -36,8 +36,8 @@ public:
         , m_usesDamage(usesDamageIn)
     {
         getStore().registerArray(Shared::DAMAGE, &damage, RW);
-        getStore().registerArray(Protected::IO_STRESS_U, &taux, RO);
-        getStore().registerArray(Protected::IO_STRESS_V, &tauy, RO);
+        getStore().registerArray(Protected::IO_STRESS_X, &taux, RO);
+        getStore().registerArray(Protected::IO_STRESS_Y, &tauy, RO);
     }
     virtual ~IDynamics() = default;
 

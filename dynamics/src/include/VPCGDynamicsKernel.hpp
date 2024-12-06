@@ -102,7 +102,7 @@ public:
         else if (name == vIOStressName)
             return FOcean * absocn * vOcnRel;
         else
-            return std::nan("");
+            return std::numeric_limits<double>::quiet_NaN();
     }
 
 protected:
