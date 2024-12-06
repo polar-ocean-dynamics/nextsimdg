@@ -1,6 +1,6 @@
 /*!
  * @file cgParametricMomentum.hpp
- * @date 09 Nov 2024
+ * @date 06 Dec 2024
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -64,10 +64,10 @@ public:
         : smesh(sm)
         , pmap(sm)
     {
-        std::cerr << "CGParametricMomentum can't be used any more. It is replaced by the different "
-                     "Kernels. Reason is that the ParamwetricMomentumMap requires the DGadvection "
-                     "degree as template but this is not provided. It could be easily changed, but "
-                     "instead one should use the Kernel-infrastructure."
+        std::cerr << "CGParametricMomentum can't be used any more. It is replaced by the various "
+                     "dynamics kernels. ParametricMomentumMap requires the DGadvection degree as "
+                     "template but this is not available in CGParametricMomentum. Please use the "
+                     "Kernel-infrastructure instead."
                   << std::endl;
 
         if (!(smesh.nelements > 0)) {

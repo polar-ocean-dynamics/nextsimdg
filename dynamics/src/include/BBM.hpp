@@ -1,6 +1,6 @@
 /*!
  * @file BBM.hpp
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Einar Olason <Einar.Olason@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  */
@@ -170,16 +170,6 @@ namespace BBM {
             // // INTEGRATION OF STRESS AND DAMAGE
             const Eigen::Matrix<Nextsim::FloatType, 1, NGP * NGP> J
                 = ParametricTools::J<3>(smesh, i);
-            // // get the inverse of the mass matrix scaled with the test-functions in the gauss
-            // // points, with the gauss weights and with J. This is a 8 x 9 matrix
-            // const Eigen::Matrix<Nextsim::FloatType, DGs, NGP * NGP> imass_psi
-            //     = ParametricTools::massMatrix<DGs>(smesh, i).inverse()
-            //     * (PSI<DGs, NGP>.array().rowwise() * (GAUSSWEIGHTS<NGP>.array() * J.array()))
-            //           .matrix();
-
-            // S11.row(i) = imass_psi * s11_gauss.matrix().transpose();
-            // S12.row(i) = imass_psi * s12_gauss.matrix().transpose();
-            // S22.row(i) = imass_psi * s22_gauss.matrix().transpose();
 
             S11.row(i) = pmap.iMJwPSI[i] * s11_gauss.matrix().transpose();
             S12.row(i) = pmap.iMJwPSI[i] * s12_gauss.matrix().transpose();

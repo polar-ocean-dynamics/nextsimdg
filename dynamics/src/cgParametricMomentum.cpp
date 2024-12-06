@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMomentum.cpp
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -216,10 +216,14 @@ void CGParametricMomentum<CG>::mEVPStep(const VPParameters& params, const size_t
 
     // Update the stresses according to the mEVP model
 
-    std::cerr << "Fatal: Stressupdatehigherorder requires ParametricMomnetumMap with proper "
-                 "template parameter. See headerfile and use Kernel-infrastructure"
+    std::cerr << "CGParametricMomentum::mEVPStep(): Fatal: StressUpdateHighOrder requires "
+                 "ParametricMomentumMap with proper template parameter. See header file and use "
+                 "kernel infrastructure."
               << std::endl;
     abort();
+    /* NB! For this function to work, StressUpdateHighOrder must be called with the proper template
+     * parameters. This would require some work, but cgParametricMomentum is depricated and will be
+     * removed in future version. */
     // Nextsim::mEVP::StressUpdateHighOrder(
     //     params, pmap, smesh, S11, S12, S22, E11, E12, E22, H, A, alpha, beta);
 
