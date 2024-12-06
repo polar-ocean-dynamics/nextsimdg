@@ -37,7 +37,7 @@ const double deg2rad = 0x1.1df46a2529d39p-6;
 
 // radians to degrees
 // TODO: Rewrite as a hex float
-const double rad2deg = 1. / deg2rad;
+const double rad2deg = 0x1.ca5dc1a63c1f8p+5;
 }
 
 //! Properties of water ice around 0˚C and 101.3 kPa
