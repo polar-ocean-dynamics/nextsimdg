@@ -5,11 +5,12 @@
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
-#ifndef USE_XIOS
+#ifdef USE_XIOS
 #ifndef PARAGRIDIO_HPP
 #define PARAGRIDIO_HPP
 
 #include "StructureModule/include/ParametricGrid.hpp"
+#include "include/Xios.hpp"
 
 #ifdef USE_MPI
 #include "ParallelNetcdfFile.hpp"
@@ -21,12 +22,13 @@
 namespace Nextsim {
 
 /*!
- * A class to perform input and output for the ParametricGrid class. unlike the
- * other GridIO classes, this will hold non-restart files open to accumulate
- * data until closed using the close function.
+ * A class to perform input and output for the ParametricGrid class using XIOS.
+ * Unlike the other GridIO classes, this will hold non-restart files open to
+ * accumulate data until closed using the close function.
  */
 class ParaGridIO : public ParametricGrid::IParaGridIO {
 public:
+// TODO: This member will likely be dropped in the XIOS implementation
 #ifdef USE_MPI
     using NetCDFFileType = netCDF::NcFilePar;
 #else
@@ -37,7 +39,9 @@ public:
     virtual ~ParaGridIO();
 
     /*!
-     * Retrieves the ModelState from a restart file of the parametric_grid type.
+     * Retrieves the ModelState from a restart file of the parametric_grid type
+     * using XIOS.
+     *
      * @param filePath The file path containing the file to be read.
      */
 #ifdef USE_MPI
@@ -48,7 +52,7 @@ public:
 
     /*!
      * @brief Writes the ModelState to a given file location from the provided
-     * model data and metadata.
+     * model data and metadata using XIOS.
      *
      * @params state The model state and configuration object.
      * @params metadata The model metadata (principally the initial file
@@ -59,7 +63,7 @@ public:
         const ModelState& state, const ModelMetadata& meta, const std::string& filePath) override;
 
     /*!
-     * @brief Reads forcings from a ParameticGrid flavoured file.
+     * @brief Reads forcings from a ParameticGrid flavoured file using XIOS.
      *
      * @param forcings The names of the forcings required.
      * @param time The time for which to get the forcings.
@@ -72,7 +76,7 @@ public:
     }
 
     /*!
-     * @brief Writes diagnostic data to a file.
+     * @brief Writes diagnostic data to a file using XIOS.
      *
      * @param state The state to write to the file.
      * @param time The time of the passed data.
@@ -81,8 +85,9 @@ public:
     void writeDiagnosticTime(
         const ModelState& state, const ModelMetadata& meta, const std::string& filePath) override;
 
+    // TODO: This method will likely be dropped in the XIOS implementation
     /*!
-     * Closes an open diagnostic file. Does nothing when provided with a
+     * Closes an open diagnostic file Does nothing when provided with a
      * restart file name.
      *
      * @param filePath The path to the file to be closed.
@@ -99,20 +104,24 @@ private:
     ParaGridIO(const ParaGridIO& other) = delete;
     ParaGridIO& operator=(const ParaGridIO& other) = delete;
 
+    // TODO: These members will likely be dropped in the XIOS implementation
     const std::map<std::string, ModelArray::Type> dimensionKeys;
-
     const std::map<ModelArray::Dimension, bool> isDG;
     const std::map<ModelArray::Dimension, ModelArray::Type> dimCompMap;
 
     // Ensures that static variables are created in the correct order.
+    // TODO: This method will likely be dropped in the XIOS implementation
     static void makeDimCompMap();
 
     // Closes all still-open NetCDF files
+    // TODO: This method will likely be dropped in the XIOS implementation
     static void closeAllFiles();
 
     // Existing or open files are a property of the computer outside the individual
     // class instance, so they are singletons.
+    // TODO: This member will likely be dropped in the XIOS implementation
     FileAndIndexMap& openFilesAndIndices;
+    // TODO: This method will likely be dropped in the XIOS implementation
     inline static FileAndIndexMap& getOpenFilesAndIndices()
     {
         static FileAndIndexMap fim;
@@ -126,4 +135,4 @@ private:
 } /* namespace Nextsim */
 
 #endif /* PARAGRIDIO_HPP */
-#endif /* not USE_XIOS */
+#endif /* USE_XIOS */
