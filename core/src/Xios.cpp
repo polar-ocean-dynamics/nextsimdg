@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    04 Dec 2024
+ * @date    09 Dec 2024
  * @brief   XIOS interface implementation
  * @details
  *
@@ -290,6 +290,9 @@ std::string Xios::getCalendarType()
  */
 TimePoint Xios::getCalendarOrigin()
 {
+    if (!cxios_is_defined_calendar_wrapper_time_origin(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar origin has not been set");
+    }
     cxios_date calendar_origin;
     cxios_get_calendar_wrapper_date_time_origin(clientCalendar, &calendar_origin);
     return TimePoint(convertXiosDatetimeToString(calendar_origin, true));
@@ -302,6 +305,9 @@ TimePoint Xios::getCalendarOrigin()
  */
 TimePoint Xios::getCalendarStart()
 {
+    if (!cxios_is_defined_calendar_wrapper_start_date(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar start date has not been set");
+    }
     cxios_date calendar_start;
     cxios_get_calendar_wrapper_date_start_date(clientCalendar, &calendar_start);
     return TimePoint(convertXiosDatetimeToString(calendar_start, true));
@@ -314,6 +320,9 @@ TimePoint Xios::getCalendarStart()
  */
 Duration Xios::getCalendarTimestep()
 {
+    if (!cxios_is_defined_calendar_wrapper_timestep(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar timestep has not been set");
+    }
     cxios_duration calendar_timestep;
     cxios_get_calendar_wrapper_timestep(clientCalendar, &calendar_timestep);
     return convertDurationFromXios(calendar_timestep);
