@@ -4,7 +4,7 @@
 #
 # To use this pre-commit hook, you will need to install:
 # * clang-format (see https://clang.llvm.org/docs/ClangFormat.html)
-# * cmake-format (see https://github.com/cheshirekow/cmake_format)
+# * cmake-lint (see https://github.com/cheshirekow/cmake_format)
 #
 # Then copy this file as `.git/hooks/pre-commit` to set the pre-commit hook up.
 #
