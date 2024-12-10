@@ -29,7 +29,8 @@ jobs:
     - name: clang-format
       run: |
         pip install cmakelang
-        cmake-lint $(find . -name CMakeLists.txt) \
-          --disabled {C0103,C0113} --line-width 100 --tab-size 4
+        cmake-lint $(find . -name CMakeLists.txt) -c .cmake-lint-config.py
         # NOTE: We ignore C0103, which would enforce that variables are all-caps
         # NOTE: We ignore C0113, which would enforce that comments are used
+        # NOTE: We set the tab size to 4
+        # NOTE: We set the maximum line length to 100

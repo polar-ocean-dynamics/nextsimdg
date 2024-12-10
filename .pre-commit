@@ -26,7 +26,7 @@ done
 
 # Apply cmake-lint for linting
 for FILE in $(git diff --cached --name-only | grep -i 'CMakeLists.txt'); do
-  cmake-lint ${FILE} --disabled {C0103,C0113} --line-width 100 --tab-size 4
+  cmake-lint ${FILE} -c .cmake-lint-config.py
 done
 
 # Abort commit if formatting was applied
