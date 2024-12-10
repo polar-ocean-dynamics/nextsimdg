@@ -24,6 +24,11 @@ for FILE in $(git diff --cached --name-only | grep -iE '\.(cpp|cc|h|hpp)$'); do
   sed -i~ "s/${LINE}/${NEWLINE}/" ${FILE}
 done
 
+# Apply cmake-lint for linting
+for FILE in $(git diff --cached --name-only | grep -i 'CMakeLists.txt'); do
+  cmake-lint ${FILE} --disabled {C0103,C0113} --line-width 100
+done
+
 # Abort commit if formatting was applied
 AFTER=$(mktemp)
 git diff >${AFTER}
