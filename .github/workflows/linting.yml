@@ -8,14 +8,11 @@ on:
 
 jobs:
   clang-formatter:
-
-    runs-on: ubuntu-24.04
-
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: clang-format
       run: |
-
         sudo apt update
         sudo apt install clang-format
         for component in core dynamics physics
@@ -24,3 +21,12 @@ jobs:
           clang-format --dry-run -Werror *cpp include/*hpp
           cd -
         done
+
+  cmake-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: clang-format
+      run: |
+        pip install cmakelang
+        cmake-lint $(find . -name CMakeLists.txt) --disabled {C0103,C0113}
