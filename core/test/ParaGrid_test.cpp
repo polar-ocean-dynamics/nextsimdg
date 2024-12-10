@@ -1,7 +1,7 @@
 /*!
  * @file ParaGrid_test.cpp
  *
- * @date 09 Dec 2024
+ * @date 10 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -17,14 +17,10 @@
 
 #include "include/Configurator.hpp"
 #include "include/ConfiguredModule.hpp"
-#include "include/NZLevels.hpp"
-#ifdef USE_XIOS
-#include "include/ParaGridIO_Xios.hpp"
-#else
-#include "include/ParaGridIO.hpp"
-#endif
 #include "include/IStructure.hpp"
+#include "include/NZLevels.hpp"
 #include "include/NextsimModule.hpp"
+#include "include/ParaGridIO.hpp"
 #include "include/ParametricGrid.hpp"
 #include "include/gridNames.hpp"
 

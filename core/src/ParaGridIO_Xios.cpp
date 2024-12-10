@@ -1,17 +1,18 @@
 /*!
  * @file ParaGridIO_Xios.cpp
  *
- * @date 09 Dec 2024
+ * @date 10 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Joe Wallwork <jw2423@cam.ac.uk>
  */
 
 #ifdef USE_XIOS
-#include "include/ParaGridIO_Xios.hpp"
+#include "include/ParaGridIO.hpp"
 
 #include "include/CommonRestartMetadata.hpp"
 #include "include/FileCallbackCloser.hpp"
 #include "include/Finalizer.hpp"
+#include "include/Logged.hpp"
 #include "include/MissingData.hpp"
 #include "include/NZLevels.hpp"
 #include "include/gridNames.hpp"

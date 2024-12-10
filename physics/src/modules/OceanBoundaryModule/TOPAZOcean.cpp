@@ -1,7 +1,7 @@
 /*!
  * @file TOPAZOcean.cpp
  *
- * @date 09 Dec 2024
+ * @date 10 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -11,11 +11,7 @@
 #include "include/IFreezingPoint.hpp"
 #include "include/IIceOceanHeatFlux.hpp"
 #include "include/NextsimModule.hpp"
-#ifdef USE_XIOS
-#include "include/ParaGridIO_Xios.hpp"
-#else
 #include "include/ParaGridIO.hpp"
-#endif
 #include "include/constants.hpp"
 
 namespace Nextsim {

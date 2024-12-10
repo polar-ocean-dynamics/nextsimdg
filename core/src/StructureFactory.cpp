@@ -1,7 +1,7 @@
 /*!
  * @file StructureFactory.cpp
  *
- * @date 09 Dec 2024
+ * @date 10 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Kacper Kornet <kk562@cam.ac.uk>
  */
@@ -12,12 +12,8 @@
 #include "include/IStructure.hpp"
 #include "include/NextsimModule.hpp"
 
-#include "include/RectGridIO.hpp"
-#ifdef USE_XIOS
-#include "include/ParaGridIO_Xios.hpp"
-#else
 #include "include/ParaGridIO.hpp"
-#endif
+#include "include/RectGridIO.hpp"
 
 #include <ncFile.h>
 #include <ncGroup.h>
