@@ -38,83 +38,6 @@ if(ENABLE_MPI)
         DEPENDS partition_metadata_3.nc partition_metadata_2.nc
     )
 
-    if(ENABLE_XIOS)
-        file(
-            CREATE_LINK
-                "${CMAKE_SOURCE_DIR}/core/test/iodef.xml"
-                "${CMAKE_CURRENT_BINARY_DIR}/iodef.xml"
-            SYMBOLIC
-        )
-        add_custom_command(
-            OUTPUT xios_test_input.nc
-            COMMAND ncgen -o xios_test_input.nc ${CMAKE_CURRENT_SOURCE_DIR}/xios_test_input.cdl
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/xios_test_input.cdl
-        )
-        add_custom_target(generate_xios_input_file ALL DEPENDS xios_test_input.nc)
-        set(XIOS_INCLUDE_LIST
-            "${xios_INCLUDES}"
-            "${xios_EXTERNS}/blitz/"
-            "${xios_EXTERNS}/rapidxml/include"
-        )
-        set(MODEL_INCLUDE_DIR "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}")
-
-        add_executable(testXiosCalendar_MPI2 "XiosCalendar_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosCalendar_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosCalendar_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosCalendar_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosAxis_MPI2 "XiosAxis_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosAxis_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosAxis_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosAxis_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosDomain_MPI2 "XiosDomain_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosDomain_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosDomain_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosDomain_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosGrid_MPI2 "XiosGrid_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosGrid_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosGrid_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosField_MPI2 "XiosField_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosField_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosField_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosField_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosFile_MPI2 "XiosFile_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosFile_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosFile_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosFile_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-        add_executable(testXiosReadWrite_MPI2 "XiosReadWrite_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosReadWrite_MPI2 PRIVATE USE_XIOS)
-        target_include_directories(
-            testXiosReadWrite_MPI2
-            PRIVATE "${MODEL_INCLUDE_DIR}" "${ModulesRoot}/StructureModule"
-        )
-        target_link_libraries(testXiosReadWrite_MPI2 PRIVATE nextsimlib doctest::doctest)
-    endif()
-
     add_executable(testRectGrid_MPI3 "RectGrid_test.cpp" "MainMPI.cpp")
     target_compile_definitions(
         testRectGrid_MPI3
@@ -147,6 +70,82 @@ if(ENABLE_MPI)
     )
     target_include_directories(testConfigOutput_MPI2 PRIVATE ${MODEL_INCLUDE_DIR})
     target_link_libraries(testConfigOutput_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+    if(ENABLE_XIOS)
+        file(
+            CREATE_LINK
+                "${CMAKE_SOURCE_DIR}/core/test/iodef.xml"
+                "${CMAKE_CURRENT_BINARY_DIR}/iodef.xml"
+            SYMBOLIC
+        )
+        add_custom_command(
+            OUTPUT xios_test_input.nc
+            COMMAND ncgen -o xios_test_input.nc ${CMAKE_CURRENT_SOURCE_DIR}/xios_test_input.cdl
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/xios_test_input.cdl
+        )
+        add_custom_target(generate_xios_input_file ALL DEPENDS xios_test_input.nc)
+        set(XIOS_INCLUDE_LIST
+            "${xios_INCLUDES}"
+            "${xios_EXTERNS}/blitz/"
+            "${xios_EXTERNS}/rapidxml/include"
+        )
+
+        add_executable(testXiosCalendar_MPI2 "XiosCalendar_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosCalendar_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosCalendar_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosCalendar_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosAxis_MPI2 "XiosAxis_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosAxis_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosAxis_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosAxis_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosDomain_MPI2 "XiosDomain_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosDomain_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosDomain_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosDomain_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosGrid_MPI2 "XiosGrid_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosGrid_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosGrid_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosField_MPI2 "XiosField_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosField_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosField_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosField_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosFile_MPI2 "XiosFile_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosFile_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosFile_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosFile_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testXiosReadWrite_MPI2 "XiosReadWrite_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosReadWrite_MPI2 PRIVATE USE_XIOS)
+        target_include_directories(
+            testXiosReadWrite_MPI2
+            PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testXiosReadWrite_MPI2 PRIVATE nextsimlib doctest::doctest)
+    endif()
 else()
     add_executable(testRectGrid "RectGrid_test.cpp")
     target_compile_definitions(testRectGrid PRIVATE TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")

@@ -1,7 +1,7 @@
 /*!
  * @file StructureFactory.cpp
  *
- * @date 10 Dec 2024
+ * @date Jan 18, 2022
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Kacper Kornet <kk562@cam.ac.uk>
  */
@@ -12,8 +12,9 @@
 #include "include/IStructure.hpp"
 #include "include/NextsimModule.hpp"
 
-#include "include/ParaGridIO.hpp"
 #include "include/RectGridIO.hpp"
+
+#include "include/ParaGridIO.hpp"
 
 #include <ncFile.h>
 #include <ncGroup.h>

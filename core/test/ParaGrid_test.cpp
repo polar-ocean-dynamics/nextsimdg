@@ -1,7 +1,7 @@
 /*!
  * @file ParaGrid_test.cpp
  *
- * @date 10 Dec 2024
+ * @date 24 Sep 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -9,7 +9,6 @@
 #include <cstdlib>
 #ifdef USE_MPI
 #include <doctest/extensions/doctest_mpi.h>
-#undef INFO
 #else
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
@@ -17,11 +16,11 @@
 
 #include "include/Configurator.hpp"
 #include "include/ConfiguredModule.hpp"
-#include "include/IStructure.hpp"
 #include "include/NZLevels.hpp"
-#include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/ParametricGrid.hpp"
+#include "include/IStructure.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
 
 #include <cmath>
