@@ -5,6 +5,15 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - '**.cdl'
+      - '**.cfg'
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - '**.sh'
+      - '**.xml'
+      - '**CMakeLists.txt'
 
 jobs:
 
