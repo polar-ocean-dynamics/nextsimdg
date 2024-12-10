@@ -1,6 +1,15 @@
 #!/bin/bash
 
 # An example pre-commit file for nextSIM-DG development
+#
+# To use this pre-commit hook, you will need to install:
+# * clang-format (see https://clang.llvm.org/docs/ClangFormat.html)
+# * cmake-format (see https://github.com/cheshirekow/cmake_format)
+#
+# Then copy this file as `.git/hooks/pre-commit` to set the pre-commit hook up.
+#
+# If changes are made by the pre-commit hook then the commit will abort and you
+# will need to re-run the commit command.
 
 BEFORE=$(mktemp)
 git diff >${BEFORE}
