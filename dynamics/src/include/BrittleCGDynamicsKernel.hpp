@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 19 Nov 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -161,6 +161,22 @@ public:
         } else {
             return CGDynamicsKernel<DGadvection>::getDGData(name);
         }
+    }
+
+    double getIceOceanStressElement(const std::string& name, const int i) const override
+    {
+        const double FOcean = params.COcean * params.rhoOcean;
+
+        const double uOceanRel = uOcean(i) - avgU(i);
+        const double vOceanRel = vOcean(i) - avgV(i);
+        const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
+
+        if (name == uIOStressName)
+            return cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
+        else if (name == vIOStressName)
+            return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
+        else
+            return std::numeric_limits<double>::quiet_NaN();
     }
 
 protected:
