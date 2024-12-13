@@ -5,6 +5,11 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - '.github/workflows/linting.yml'
+      - '**.cpp'
+      - '**.hpp'
+      - '**CMakeLists.txt'
 
 jobs:
   clang-format:
@@ -26,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: clang-format
+    - name: cmake-format
       run: |
         pip install cmakelang
         cmake-lint $(find . -name CMakeLists.txt) -c .cmake-lint-config.py
