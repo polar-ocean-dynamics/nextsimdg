@@ -164,6 +164,22 @@ public:
         }
     }
 
+    double getIceOceanStressElement(const std::string& name, const int i) const override
+    {
+        const double FOcean = params.COcean * params.rhoOcean;
+
+        const double uOceanRel = uOcean(i) - avgU(i);
+        const double vOceanRel = vOcean(i) - avgV(i);
+        const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
+
+        if (name == uIOStressName)
+            return cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
+        else if (name == vIOStressName)
+            return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
+        else
+            return std::numeric_limits<double>::quiet_NaN();
+    }
+
 protected:
     CGVector<CGdegree> avgU;
     CGVector<CGdegree> avgV;

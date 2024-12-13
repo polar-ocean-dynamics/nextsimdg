@@ -49,6 +49,23 @@ public:
     void applyBoundaries() override;
     void prepareAdvection() override;
 
+    virtual inline double getIceOceanStressElement(const std::string& name, const int i) const = 0;
+    CGVector<CGdegree> getIceOceanStress(const std::string& name) const
+    {
+        if (name != uIOStressName && name != vIOStressName)
+            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
+                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
+
+        CGVector<CGdegree> tau;
+        tau.resizeLike(u);
+
+#pragma omp parallel for
+        for (int i = 0; i < tau.rows(); ++i)
+            tau(i) = getIceOceanStressElement(name, i);
+
+        return tau;
+    }
+
 protected:
     void addStressTensorCell(const size_t eid, const size_t cx, const size_t cy);
     void dirichletZero(CGVector<CGdegree>&) const;

@@ -92,6 +92,22 @@ public:
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
     }
 
+    double getIceOceanStressElement(const std::string& name, const int i) const override
+    {
+        const double FOcean = params.COcean * params.rhoOcean;
+
+        double uOcnRel = u(i) - uOcean(i);
+        double vOcnRel = v(i) - vOcean(i);
+        double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
+
+        if (name == uIOStressName)
+            return FOcean * absocn * uOcnRel;
+        else if (name == vIOStressName)
+            return FOcean * absocn * vOcnRel;
+        else
+            return std::numeric_limits<double>::quiet_NaN();
+    }
+
 protected:
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
     const VPParameters& params;
