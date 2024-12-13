@@ -13,6 +13,7 @@
 #define FREEDRIFTDYNAMICSKERNEL_HPP
 
 #include "CGDynamicsKernel.hpp"
+#include <cmath>
 
 namespace Nextsim {
 
@@ -52,11 +53,11 @@ public:
 protected:
     const DynamicsParameters& params;
 
-    const double cosOceanAngle = cos(radians * params.oceanTurningAngle);
-    const double sinOceanAngle = sin(radians * params.oceanTurningAngle);
+    const double cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
+    const double sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     const double FOcean = params.COcean * params.rhoOcean;
     const double FAtm = params.CAtm * params.rhoAtm;
-    const double NansenNumber = sqrt(FAtm / FOcean);
+    const double NansenNumber = std::sqrt(FAtm / FOcean);
 
     void updateMomentum(const TimestepTime& tst) override
     {

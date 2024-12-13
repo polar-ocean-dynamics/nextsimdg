@@ -1,13 +1,13 @@
 /*!
  * @file BBMDynamics.cpp
  *
- * @date 20 Nov 2024
+ * @date 05 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #include "include/BBMDynamics.hpp"
-
+#include "include/constants.hpp"
 #include "include/gridNames.hpp"
 
 namespace Nextsim {
@@ -79,7 +79,7 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
 
     ModelArray coords = ms.at(coordsName);
     if (isSpherical) {
-        coords *= radians;
+        coords *= PhysicalConstants::deg2rad;
     }
     // TODO: Some encoding of the periodic edge boundary conditions
     kernel.initialise(coords, isSpherical, ms.at(maskName));
@@ -127,6 +127,7 @@ void BBMDynamics::update(const TimestepTime& tst)
     kernel.setData(vWindName, vwind.data());
     kernel.setData(uOceanName, uocean.data());
     kernel.setData(vOceanName, vocean.data());
+    kernel.setData(sshName, ssh.data());
 
     /*
      * Ice velocity components are stored in the dynamics, and not changed by the model outside the
