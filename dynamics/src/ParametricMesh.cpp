@@ -1,5 +1,7 @@
 #include "ParametricMesh.hpp"
 
+#include "ParametricTools.hpp"
+
 #include <fstream>
 #include <iostream>
 
@@ -302,6 +304,56 @@ double ParametricMesh::hmin() const
     return hmin;
 }
 
+  /*!
+   * return the area of the mesh element with index eid
+   */
+double ParametricMesh::area(const size_t eid) const
+  {
+    // the element area is computed by transforming the reference element K = [0,1]^2 onto the element T
+    // Hence, Area(T) = \int_T dx = \int_K J(z) dz
+    // The integral is computed with Gauss-Quadrature
+    // Strangely, 1-point Gauss seems to be exact. But I am not sure if this must be the case.
+    // As J = det( nabla A ) I expect that 2 points must be used. A is bi-linear, hence, nabla A
+    // has linear parts and det( nabla A) can be quadratic.
+    // I am using 2 to make it safe :-) 
+    //
+    // In Spherical Coordinates, the cosine of the lat must be added. This increases the error
+    // Machine precision is only achieved for 3 GP. I propose to use only two, which still gives
+    // 10^-9 rel. error. 
+    if (CoordinateSystem == CARTESIAN)
+      {
+	return (ParametricTools::J<2>((*this),eid).array() * GAUSSWEIGHTS<2>.array()).sum();
+      }
+    else if (CoordinateSystem == SPHERICAL)
+      {
+	// In spherical coordinates cosine of the latitude and the square of the radius must be added
+	return (ParametricTools::J<2>((*this),eid).array()
+		* GAUSSWEIGHTS<2>.array()
+		* (ParametricTools::getGaussPointsInElement<2>((*this), eid).row(1).array()).cos()).sum()
+	  * EarthRadius * EarthRadius;
+	
+      }
+    else abort();
+    
+    // const size_t nid = eid2nid(eid);
+    
+    // const double a = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + 1, 0))
+    //   .squaredNorm(); // lower
+    // const double b = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 2, 0))
+    //   .squaredNorm(); // right
+    // const double c
+    //   = (vertices.block<1, 2>(nid + 1 + nx, 0) - vertices.block<1, 2>(nid + 2 + nx, 0))
+    //   .squaredNorm(); // top
+    // const double d = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + nx + 1, 0))
+    //   .squaredNorm(); // left
+    // const double e = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + nx + 2, 0))
+    //   .squaredNorm(); // diag 1
+    // const double f = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 1, 0))
+    //   .squaredNorm(); // diag 2
+    
+    // return 0.25 * sqrt(4.0 * e * f - SQR(b + d - a - c));
+    }
+  
 /*!
  * returns are of domain
  */
