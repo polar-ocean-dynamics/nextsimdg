@@ -309,20 +309,17 @@ double ParametricMesh::hmin() const
    */
 double ParametricMesh::area(const size_t eid) const
   {
-    // the element area is computed by transforming the reference element K = [0,1]^2 onto the element T
+    // The element area is computed by transforming the reference element K = [0,1]^2 onto the element T
     // Hence, Area(T) = \int_T dx = \int_K J(z) dz
     // The integral is computed with Gauss-Quadrature
-    // Strangely, 1-point Gauss seems to be exact. But I am not sure if this must be the case.
-    // As J = det( nabla A ) I expect that 2 points must be used. A is bi-linear, hence, nabla A
-    // has linear parts and det( nabla A) can be quadratic.
-    // I am using 2 to make it safe :-) 
+    // For Cartesian meshes, 1 Gauss point is sufficient as J is a bi-linear function. 
     //
     // In Spherical Coordinates, the cosine of the lat must be added. This increases the error
     // Machine precision is only achieved for 3 GP. I propose to use only two, which still gives
     // 10^-9 rel. error. 
     if (CoordinateSystem == CARTESIAN)
       {
-	return (ParametricTools::J<2>((*this),eid).array() * GAUSSWEIGHTS<2>.array()).sum();
+	return (ParametricTools::J<1>((*this),eid).array() * GAUSSWEIGHTS<1>.array()).sum();
       }
     else if (CoordinateSystem == SPHERICAL)
       {
