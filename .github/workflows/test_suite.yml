@@ -4,7 +4,6 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
     paths:
       - '.github/workflows/test_suite.yml'
       - '**.cdl'
