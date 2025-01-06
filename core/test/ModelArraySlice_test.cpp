@@ -131,7 +131,6 @@ TEST_CASE("Slice to Slice")
     REQUIRE(target(x0t, y1t - ystep) == source(x0s, y1s - 1));
     REQUIRE(target(x1t - xstep, y0t) == source(x1s - 1, y0s));
     REQUIRE(target(x1t - xstep, y1t - ystep) == source(x1s - 1, y1s - 1));
-
 }
 
 TEST_CASE("ModelArray to Slice")
@@ -471,6 +470,28 @@ TEST_CASE("Eigen copying")
     for (size_t i = 0; i < nx; ++i) {
         REQUIRE(sink(i, testRow) == source(i, testRow));
     }
+
+    /*****************************************************************/
+    // Miscellaneous tests
+    const size_t oneWrap = 1;
+    SliceIter::MultiDim eig1Dim = {nx + 2 * nWrap, ny + 2 * nWrap};
+    // The source data is the top row of the source array
+    Slice topRow1 {{{ }, {-1}}};
+    // The data target is the bottom row of the target array, excluding the first and last points in x
+    Slice bottomRowBlock1 {{{1, -1}, {0}}};
+    SliceIter eig1BottomRowBlock(bottomRowBlock1, eig1Dim);
+
+    // The target array
+    Eigen::Matrix<double, Eigen::Dynamic, DG, Eigen::RowMajor> eig1;
+    eig1.resize(eig1Dim[0] * eig1Dim[1], DG);
+    eig1.setConstant(-1.);
+
+    auto eig1_0 = eig1.col(0);
+    source[topRow1].copyToSlicedBuffer(eig1_0, eig1BottomRowBlock);
+    // Check the copied values
+    size_t iTest = 0;
+    REQUIRE(eig1(Indexer::indexer(eig1Dim, {iTest + oneWrap, 0}), 0) == source(iTest, ny-1));
+
 
 }
 TEST_SUITE_END();

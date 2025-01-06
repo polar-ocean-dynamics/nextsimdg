@@ -583,4 +583,14 @@ TEST_CASE("SliceIter equality")
 
 }
 
+TEST_CASE("Two dimensions, slicing the end of the second dimension")
+{
+    MultiDim dims = {11, 13};
+    Slice top {{{},{-1}}};
+    SliceIter topIter(top, dims);
+    topIter.toBegin();
+    REQUIRE(topIter.index() == Indexer::indexer(dims, {0, 12}));
+    ++topIter;
+    REQUIRE(topIter.index() == Indexer::indexer(dims, {1, 12}));
+}
 TEST_SUITE_END();
