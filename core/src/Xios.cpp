@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    01 Nov 2024
+ * @date    09 Dec 2024
  * @brief   XIOS interface implementation
  * @details
  *
@@ -34,12 +34,33 @@ namespace Nextsim {
 
 static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" } };
 
+//! Enable XIOS in the 'config'
+void enableXios()
+{
+    Configurator::clearStreams();
+    std::stringstream config;
+    config << "[xios]" << std::endl << "enable = true" << std::endl;
+    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
+    Configurator::addStream(std::move(pcstream));
+}
+
 /*!
- * Constructor
+ * Constructor: Configure an XIOS server
  *
- * Configure an XIOS server
+ * @param dt Timestep to use for the model
+ * @param contextid ID for the XIOS context
+ * @param starttime Datetime string for the start of the simulation
+ * @param calendartype Type of calendar to use
  */
-Xios::Xios() { configure(); }
+Xios::Xios(const std::string dt, const std::string contextid, const std::string starttime,
+    const std::string calendartype)
+{
+    timestep = Duration(dt);
+    startTime = TimePoint(starttime);
+    contextId = contextid;
+    calendarType = calendartype;
+    configure();
+}
 
 //! Destructor
 Xios::~Xios() { finalize(); }
@@ -60,7 +81,7 @@ void Xios::context_finalize()
     }
 }
 
-//! Close context and finialize server
+//! Finalize XIOS server
 void Xios::finalize()
 {
     if (isEnabled) {
@@ -85,7 +106,7 @@ void Xios::configure()
 }
 
 //! Configure calendar settings
-void Xios::configureServer(const std::string calendarType)
+void Xios::configureServer()
 {
     // Initialize XIOS Server process and store MPI communicator
     clientId = "client";
@@ -98,13 +119,18 @@ void Xios::configureServer(const std::string calendarType)
     MPI_Comm_size(clientComm, &mpi_size);
 
     // Initialize 'nextSIM-DG' context
-    contextId = "nextSIM-DG";
     cxios_context_initialize(contextId.c_str(), contextId.length(), &clientComm_F);
 
     // Initialize calendar wrapper for 'nextSIM-DG' context
     cxios_get_current_calendar_wrapper(&clientCalendar);
     cxios_set_calendar_wrapper_type(clientCalendar, calendarType.c_str(), calendarType.length());
+    cxios_set_calendar_wrapper_timestep(clientCalendar, convertDurationToXios(timestep));
     cxios_create_calendar(clientCalendar);
+    cxios_update_calendar_timestep(clientCalendar);
+
+    // Set default calendar origin and start
+    setCalendarOrigin(TimePoint("1970-01-01T00:00:00Z")); // Unix epoch
+    setCalendarStart(TimePoint(startTime));
 }
 
 /*!
@@ -264,6 +290,9 @@ std::string Xios::getCalendarType()
  */
 TimePoint Xios::getCalendarOrigin()
 {
+    if (!cxios_is_defined_calendar_wrapper_time_origin(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar origin has not been set");
+    }
     cxios_date calendar_origin;
     cxios_get_calendar_wrapper_date_time_origin(clientCalendar, &calendar_origin);
     return TimePoint(convertXiosDatetimeToString(calendar_origin, true));
@@ -276,6 +305,9 @@ TimePoint Xios::getCalendarOrigin()
  */
 TimePoint Xios::getCalendarStart()
 {
+    if (!cxios_is_defined_calendar_wrapper_start_date(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar start date has not been set");
+    }
     cxios_date calendar_start;
     cxios_get_calendar_wrapper_date_start_date(clientCalendar, &calendar_start);
     return TimePoint(convertXiosDatetimeToString(calendar_start, true));
@@ -288,6 +320,9 @@ TimePoint Xios::getCalendarStart()
  */
 Duration Xios::getCalendarTimestep()
 {
+    if (!cxios_is_defined_calendar_wrapper_timestep(clientCalendar)) {
+        throw std::runtime_error("Xios: Calendar timestep has not been set");
+    }
     cxios_duration calendar_timestep;
     cxios_get_calendar_wrapper_timestep(clientCalendar, &calendar_timestep);
     return convertDurationFromXios(calendar_timestep);

@@ -1,7 +1,7 @@
 /*!
  * @file    XiosGrid_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    01 Nov 2024
+ * @date    03 Dec 2024
  * @brief   Tests for XIOS axes
  * @details
  * This test is designed to test axis functionality of the C++ interface
@@ -11,10 +11,7 @@
 #include <doctest/extensions/doctest_mpi.h>
 #undef INFO
 
-#include "include/Configurator.hpp"
 #include "include/Xios.hpp"
-
-#include <iostream>
 
 namespace Nextsim {
 
@@ -29,13 +26,7 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosGrid", 2)
 {
-
-    // Enable XIOS in the 'config'
-    Configurator::clearStreams();
-    std::stringstream config;
-    config << "[xios]" << std::endl << "enable = true" << std::endl;
-    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
-    Configurator::addStream(std::move(pcstream));
+    enableXios();
 
     // Initialize an Xios instance called xios_handler
     Xios xios_handler;
@@ -43,9 +34,6 @@ MPI_TEST_CASE("TestXiosGrid", 2)
     const size_t size = xios_handler.getClientMPISize();
     REQUIRE(size == 2);
     const size_t rank = xios_handler.getClientMPIRank();
-
-    // Set timestep as a minimum
-    xios_handler.setCalendarTimestep(Duration("P0-0T01:30:00"));
 
     // Create a 4x2 horizontal domain with a partition halving the x-extent
     xios_handler.createDomain("domain_XY");
