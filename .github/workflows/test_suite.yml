@@ -8,6 +8,10 @@ on:
   #
   # For more information, please read the GitHub
   # [documentation](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs)
+  #
+  # Note: You will not be able to merge into develop or main without running CI. To run CI either:
+  # - edit the last commit message using `git commit --amend` and remove the tag "[skip ci]" or,
+  # - create a new commit without a "[skip ci]" tag
   push:
     branches: [ main, develop ]
   pull_request:
