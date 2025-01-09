@@ -6,7 +6,6 @@
 #include <iostream>
 
 namespace Nextsim {
-
 void ParametricMesh::readmesh(std::string fname)
 {
     reset();
@@ -292,6 +291,7 @@ void ParametricMesh::sortDirichlet(Edge edge)
 {
     std::sort(dirichlet[edge].begin(), dirichlet[edge].end());
 }
+
 /*!
  * returns minimum mesh size.
  *
@@ -304,36 +304,35 @@ double ParametricMesh::hmin() const
     return hmin;
 }
 
-  /*!
-   * return the area of the mesh element with index eid
-   */
+/*!
+ * return the area of the mesh element with index eid
+ */
 double ParametricMesh::area(const size_t eid) const
-  {
-    // The element area is computed by transforming the reference element K = [0,1]^2 onto the element T
-    // Hence, Area(T) = \int_T dx = \int_K J(z) dz
+{
+    // The element area is computed by transforming the reference element K = [0,1]^2 onto the
+    // element T. Hence, Area(T) = \int_T dx = \int_K J(z) dz
     // The integral is computed with Gauss-Quadrature
-    // For Cartesian meshes, 1 Gauss point is sufficient as J is a bi-linear function. 
+    // For Cartesian meshes, 1 Gauss point is sufficient as J is a bi-linear
+    // function.
     //
     // In Spherical Coordinates, the cosine of the lat must be added. This increases the error
     // Machine precision is only achieved for 3 GP. I propose to use only two, which still gives
-    // 10^-9 rel. error. 
-    if (CoordinateSystem == CARTESIAN)
-      {
-	return (ParametricTools::J<1>((*this),eid).array() * GAUSSWEIGHTS<1>.array()).sum();
-      }
-    else if (CoordinateSystem == SPHERICAL)
-      {
-	// In spherical coordinates cosine of the latitude and the square of the radius must be added
-	return (ParametricTools::J<2>((*this),eid).array()
-		* GAUSSWEIGHTS<2>.array()
-		* (ParametricTools::getGaussPointsInElement<2>((*this), eid).row(1).array()).cos()).sum()
-	  * EarthRadius * EarthRadius;
-	
-      }
-    else abort();
-    
+    // 10^-9 rel. error.
+    if (CoordinateSystem == CARTESIAN) {
+        return (ParametricTools::J<1>((*this), eid).array() * GAUSSWEIGHTS<1>.array()).sum();
+    } else if (CoordinateSystem == SPHERICAL) {
+        // In spherical coordinates cosine of the latitude and the square of the radius must be
+        // added
+        return (ParametricTools::J<2>((*this), eid).array() * GAUSSWEIGHTS<2>.array()
+                   * (ParametricTools::getGaussPointsInElement<2>((*this), eid).row(1).array())
+                         .cos())
+                   .sum()
+            * EarthRadius * EarthRadius;
+    } else
+        abort();
+
     // const size_t nid = eid2nid(eid);
-    
+
     // const double a = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + 1, 0))
     //   .squaredNorm(); // lower
     // const double b = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 2, 0))
@@ -347,10 +346,10 @@ double ParametricMesh::area(const size_t eid) const
     //   .squaredNorm(); // diag 1
     // const double f = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 1, 0))
     //   .squaredNorm(); // diag 2
-    
+
     // return 0.25 * sqrt(4.0 * e * f - SQR(b + d - a - c));
-    }
-  
+}
+
 /*!
  * returns are of domain
  */
@@ -361,5 +360,4 @@ double ParametricMesh::area() const
         a += area(i);
     return a;
 }
-
 }

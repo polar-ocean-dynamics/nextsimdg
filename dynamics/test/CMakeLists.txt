@@ -60,8 +60,6 @@ if(NOT ENABLE_MPI)
     )
     target_link_libraries(testParametricMeshArea LINK_PUBLIC doctest::doctest Eigen3::Eigen)
 
-
-
     add_executable(
         testAdvection
         Advection_test.cpp
