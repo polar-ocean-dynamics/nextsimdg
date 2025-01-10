@@ -589,6 +589,7 @@ TEST_CASE("Two dimensions, slicing the end of the second dimension")
     Slice top {{{},{-1}}};
     SliceIter topIter(top, dims);
     topIter.toBegin();
+    REQUIRE_FALSE(topIter.isEnd());
     REQUIRE(topIter.index() == Indexer::indexer(dims, {0, 12}));
     ++topIter;
     REQUIRE(topIter.index() == Indexer::indexer(dims, {1, 12}));

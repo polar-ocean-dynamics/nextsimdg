@@ -474,9 +474,10 @@ TEST_CASE("Eigen copying")
     /*****************************************************************/
     // Miscellaneous tests
     const size_t oneWrap = 1;
-    SliceIter::MultiDim eig1Dim = {nx + 2 * nWrap, ny + 2 * nWrap};
+    SliceIter::MultiDim eig1Dim = {nx + 2 * oneWrap, ny + 2 * oneWrap};
     // The source data is the top row of the source array
-    Slice topRow1 {{{ }, {-1}}};
+    Slice topRow1 {{{ }, {ny-1}}};
+    Slice topRow2 {{{ }, {-1}}};
     // The data target is the bottom row of the target array, excluding the first and last points in x
     Slice bottomRowBlock1 {{{1, -1}, {0}}};
     SliceIter eig1BottomRowBlock(bottomRowBlock1, eig1Dim);
@@ -492,7 +493,11 @@ TEST_CASE("Eigen copying")
     size_t iTest = 0;
     REQUIRE(eig1(Indexer::indexer(eig1Dim, {iTest + oneWrap, 0}), 0) == source(iTest, ny-1));
 
+    eig1.setConstant(-1.);
 
+    source[topRow2].copyToSlicedBuffer(eig1_0, eig1BottomRowBlock);
+    // Check the copied values
+    REQUIRE(eig1(Indexer::indexer(eig1Dim, {iTest + oneWrap, 0}), 0) == source(iTest, ny-1));
 }
 TEST_SUITE_END();
 } // namespace Nextsim

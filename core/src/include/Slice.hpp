@@ -505,7 +505,12 @@ private:
                     out[i].stop = std::max(signedDim + in[i].stop, int0);
                 }
             } else {
-                out[i].stop = (in[i].stop > signedDim) ? indexDim : in[i].stop;
+                if (in[i].start == -1 && in[i].stop == 0) {
+                    // The general logic fails in the specific case of when Bounds was initialized with only a single argument of -1.
+                    out[i].stop = indexDim;
+                } else {
+                    out[i].stop = (in[i].stop > signedDim) ? indexDim : in[i].stop;
+                }
             }
             // step
             out[i].step = in[i].step;
