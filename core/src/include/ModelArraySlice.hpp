@@ -23,7 +23,7 @@ std::ostream& operator<<(std::ostream& os, const MASIter& it);
  * An iterator class for ModelArraySlices. Conforms to the forward iterator specifications.
  */
 class MASIter {
-// Inheriting from std::iterator is deprecated after C++17
+    // Inheriting from std::iterator is deprecated after C++17
 public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = double;
