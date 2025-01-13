@@ -19,8 +19,11 @@ class MASIter;
 class ModelArraySlice;
 std::ostream& operator<<(std::ostream& os, const MASIter& it);
 
-// Inheriting from std::iterator is deprecated after C++17
+/*!
+ * An iterator class for ModelArraySlices. Conforms to the forward iterator specifications.
+ */
 class MASIter {
+// Inheriting from std::iterator is deprecated after C++17
 public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = double;
@@ -31,21 +34,43 @@ public:
     using SliceIter = ArraySlicer::SliceIter;
 
     MASIter(ModelArraySlice& mas);
+    /*!
+     * Provides read/write access to the data at the current location of the iterator.
+     * @return reference access to the data the iterator refers to.
+     */
     double& operator*() const { return data[iter.index()]; }
+    //! Increments the position of the iterator.
     MASIter& operator++()
     {
         ++iter;
         return *this;
     }
+    /*!
+     * Checks if another iterator is no equal to this.
+     * @param the second iterator to compare.
+     * @return true when the two iterators are different.
+     */
     bool operator!=(const MASIter& other) const
     {
-        //        std::cout << this->iter << "!=" << other.iter << "?" << std::endl;
         // Account for different end iters possibly not equating
         bool iterEquality = (iter == other.iter) || (iter.isEnd() && other.iter.isEnd());
         return (&data != &other.data) || !iterEquality;
     }
+    /*!
+     * Checks if another iterator is equal to this.
+     * @param the second iterator to compare
+     * @return true when the two iterators point to the same point of the same array.
+     */
     bool operator==(const MASIter& other) const { return !(*this != other); }
+    /*!
+     * Provides member access for the data at the current location of the iterator.
+     * @return a pointer to the current data
+     */
     double* operator->() const { return &data[iter.index()]; }
+    /*!
+     * Post-increments the iterator.
+     * @return The state of the iterator before it was incremented.
+     */
     MASIter operator++(int)
     {
         MASIter copy = *this;
@@ -53,6 +78,9 @@ public:
         return copy;
     }
 
+    /*!
+     * Pretty-prints the current state of the iterator, including the address of the data array.
+     */
     std::ostream& print(std::ostream& os) const { return os << "{" << &data << ":" << iter << "}"; }
     friend ModelArraySlice;
 
@@ -61,7 +89,13 @@ private:
     SliceIter iter;
 };
 
+/*!
+ * Inserts a printed representation of the iterator into a stream.
+ */
 inline std::ostream& operator<<(std::ostream& os, const MASIter& it) { return it.print(os); }
+/*!
+ * A class to provide slicing of ModelArray data arrays.
+ */
 class ModelArraySlice {
 public:
     using Slice = ArraySlicer::Slice;
@@ -74,13 +108,31 @@ public:
     {
     }
 
-    // Assign data to this slice from a ModelArray
+    /*!
+     * Assigns data to this slice from a ModelArray.
+     * @param ma The ModelArray object to read the data from
+     * @return A reference to the updated ModelArraySlice object
+     */
     ModelArraySlice& operator=(ModelArray& ma);
-    // Copy data from another ModelArraySlice
+    /*!
+     * Copies data from another ModelArraySlice.
+     * @param other The ModelArraySlice object to read the data from
+     * @return A reference to the updated ModelArraySlice object.
+     */
     ModelArraySlice& operator=(ModelArraySlice& other);
-    // Assign a scalar to the entire slice
+    /*!
+     * Assigns a value to the entire slice, based on the given scalar value.
+     * @param v The value to which to set the slice.
+     * @return A reference to the updated ModelArraySlice.
+     */
     ModelArraySlice& operator=(double v);
-    // Assign the contents of a buffer to a slice
+    /*!
+     * Assigns the contents of a buffer to the slice. This function copies the entire buffer.
+     * @param buffer The buffer to copy the data from. Can be of any type which provides a forward
+     *               iterator. The provided object must have the same number of elements as the
+     *               slice.
+     * @return A reference to the updated ModelArraySlice object.
+     */
     template <typename T> ModelArraySlice& operator=(const T& buffer)
     {
         // make no especial attempt at efficiency here
@@ -99,7 +151,19 @@ public:
         return *this;
     }
 
+    /*!
+     * Copies the contents of a slice to a ModelArray with an equal number of elements.
+     * @param target The ModelArray object to copy the contents of the slice to.
+     * @return A reference to the updated ModelArray object.
+     */
     ModelArray& copyToModelArray(ModelArray& target) const;
+    /*!
+     * Copies the contents of the slice to a buffer.
+     * @param buffer The target of the copying. The buffer type must provide a forward operator.
+     *               The buffer object must provide at least as many elements as exist in the
+     *               slice.
+     * @return A reference to the updated buffer object.
+     */
     template <typename T> T& copyToBuffer(T& buffer)
     {
         // make no especial attempt at efficiency here
@@ -119,6 +183,8 @@ public:
     }
 
 private:
+    // Copies data between any two objects which accept indexing by the Eigen seqN function. This
+    // includes the array underlying ModelArray and the nextSIM dynamics array types.
     template <typename S, typename T = S>
     static void copySliceWithIters(
         const S& source, SliceIter& sourceIter, T& target, SliceIter targetIter)
@@ -137,6 +203,14 @@ private:
     }
 
 public:
+    /*!
+     * Copies data from the slice to a slice of a buffer.
+     * @param target The target buffer. The buffer type must be one that can be indexed by the
+     *               Eigen::seqN function.
+     * @param targetIter An instance of SliceIter created from the desired slice of the buffer and
+     *                   the dimensions of the target object.
+     * @return A reference to this ModelArraySlice (not the updated buffer).
+     */
     template <typename T>
     const ModelArraySlice& copyToSlicedBuffer(T& target, SliceIter& targetIter) const
     {
@@ -148,6 +222,14 @@ public:
         return *this;
     }
 
+    /*!
+     * Copies data to the slice from a slice of a buffer.
+     * @param source The source buffer.The buffer type must be one that can be indexed by the
+     *               Eigen::seqN function.
+     * @param sourceIter An instance of SliceIter created from the desired slice of the buffer and
+     *                   the dimensions of the source object.
+     * @return A reference to the updated ModelArraySlice object.
+     */
     template <typename S>
     ModelArraySlice& copyFromSlicedBuffer(const S& source, SliceIter& sourceIter)
     {
@@ -157,9 +239,18 @@ public:
         return *this;
     }
 
+    /*!
+     * Returns a forward iterator pointing to the start of the slice.
+     */
     iterator begin();
+    /*!
+     * Returns a forward iterator pointing to one past the end of the slice.
+     */
     iterator end();
 
+    /*!
+     * The slice this object represents. Updating this invalidates all current iterators.
+     */
     Slice slice;
 
     friend MASIter;

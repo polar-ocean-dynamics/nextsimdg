@@ -85,6 +85,8 @@ public:
         static const size_t max = std::numeric_limits<size_t>::max();
 
     private:
+        // A class which can either represent a concrete integer or the concept of all valid
+        // values ('isAll')
         class Index {
         public:
             Index()
@@ -152,10 +154,16 @@ public:
     const VBounds bounds;
 
 public:
+    /*!
+     * Default constructor. Constructs a one dimensional slice consisting of all possible values.
+     */
     Slice()
         : Slice({ Bounds() })
     {
     }
+    /*!
+     * Constructs a Slice from a vector of bounds.
+     */
     Slice(VBounds allBounds)
         : bounds(allBounds)
     {
@@ -165,11 +173,13 @@ public:
     const size_t n() const { return bounds.size(); }
 };
 
+//! Inserts a textual representation of a Bounds object into a stream.
 inline std::ostream& operator<<(std::ostream& os, const Slice::Bounds& bounds)
 {
     return bounds.print(os);
 }
 
+//! Inserts a textual representation of a VBounds object into a stream.
 inline std::ostream& operator<<(std::ostream& os, const Slice::VBounds& vBounds)
 {
     os << "{";
@@ -179,6 +189,7 @@ inline std::ostream& operator<<(std::ostream& os, const Slice::VBounds& vBounds)
     return os << "}";
 }
 
+//! Inserts a textual representation of a Slice object into a stream.
 inline std::ostream& operator<<(std::ostream& os, const Slice& slice) { return os << slice.bounds; }
 
 /*!
@@ -264,8 +275,8 @@ public:
      * @brief Increments the iterator position through the slice.
      * @returns a reference to the incremented iterator.
      */
-
     SliceIter& operator++() { return incrementDim(0); }
+
     /*!
      * @brief Increments the iterator position through the slice.
      * @returns A copy of the iterator before it was incremented.
@@ -317,7 +328,7 @@ public:
      */
     Int index() const { return Indexer::indexer(m_dimensions, current); }
 
-    //! Get the current position of the iterator as a vector over dimensions.
+    //! Gets the current position of the iterator as a vector over dimensions.
     const MultiDim position() const { return MultiDim(current); }
     /*!
      * Sets the position to the beginning of the slice. This is the same state as
@@ -464,6 +475,7 @@ public:
     }
 
 private:
+    // Utility function for calculating the end limit of the given dimension.
     Int dimEnd(size_t dim) const
     {
         return (m_slice.bounds[dim].stop.isAll())
@@ -477,6 +489,7 @@ private:
     }
     bool stopTest(const MultiDim& loc, size_t dim) const { return stopTest(loc[dim], dim); }
 
+    // Returns true limits in each dimension, given a bounds vector and a set of dimension sizes.
     static Slice::VBounds realiseIndices(const Slice::VBounds& in, const MultiDim& dims)
     {
 
@@ -524,6 +537,7 @@ private:
     const Slice m_slice;
 };
 
+// Inserts the textual representation of a SliceIter into a stream.
 inline std::ostream& operator<<(std::ostream& os, const SliceIter& si) { return si.print(os); }
 } // namespace ArraySlicer
 
