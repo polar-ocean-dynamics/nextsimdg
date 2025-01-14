@@ -1,3 +1,9 @@
+/*!
+ * @file ParametricMesh.hpp
+ * @date 14 Jan 2025
+ * @author Thomas Richter <thomas.richter@ovgu.de>
+ */
+
 #include "ParametricMesh.hpp"
 
 #include "ParametricTools.hpp"
@@ -330,24 +336,6 @@ double ParametricMesh::area(const size_t eid) const
             * EarthRadius * EarthRadius;
     } else
         abort();
-
-    // const size_t nid = eid2nid(eid);
-
-    // const double a = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + 1, 0))
-    //   .squaredNorm(); // lower
-    // const double b = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 2, 0))
-    //   .squaredNorm(); // right
-    // const double c
-    //   = (vertices.block<1, 2>(nid + 1 + nx, 0) - vertices.block<1, 2>(nid + 2 + nx, 0))
-    //   .squaredNorm(); // top
-    // const double d = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + nx + 1, 0))
-    //   .squaredNorm(); // left
-    // const double e = (vertices.block<1, 2>(nid, 0) - vertices.block<1, 2>(nid + nx + 2, 0))
-    //   .squaredNorm(); // diag 1
-    // const double f = (vertices.block<1, 2>(nid + 1, 0) - vertices.block<1, 2>(nid + nx + 1, 0))
-    //   .squaredNorm(); // diag 2
-
-    // return 0.25 * sqrt(4.0 * e * f - SQR(b + d - a - c));
 }
 
 /*!
