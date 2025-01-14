@@ -48,6 +48,19 @@ if(NOT ENABLE_MPI)
     target_link_libraries(testParametricMesh LINK_PUBLIC doctest::doctest Eigen3::Eigen)
 
     add_executable(
+        testParametricMeshArea
+        "ParametricMeshArea_test.cpp"
+        "${SRC_DIR}/ParametricMesh.cpp"
+        "${CoreDir}/ModelArray.cpp"
+        "${CoreDir}/${ModelArrayStructure}/ModelArrayDetails.cpp"
+    )
+    target_include_directories(
+        testParametricMeshArea
+        PRIVATE "${CoreDir}" "${SRC_DIR}" "${CoreDir}/${ModelArrayStructure}"
+    )
+    target_link_libraries(testParametricMeshArea LINK_PUBLIC doctest::doctest Eigen3::Eigen)
+
+    add_executable(
         testAdvection
         Advection_test.cpp
         "${SRC_DIR}/Interpolations.cpp"
