@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 06 Dec 2024
+ * @date 14 Jan 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -268,10 +268,14 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::prepareIteration(
     // DataMap as seaSurfaceHeight is always dG(0)
     ComputeGradientOfSeaSurfaceHeight(DynamicsKernel<DGadvection, DGstressComp>::seaSurfaceHeight);
 
-    // limit A to [0,1] and H to [0, ...)
+    /* limit A to [0,1] and H to [5 cm, ...)
+     * This limit on H is equivalent to assuming that ice thinner than 5 cm is always in free drift,
+     * which is reasonable. We need a limit of the order of cm here, so that the solver remains
+     * stable. With a limit of the order of mm, we need a much smaller time step to remain stable.
+     */
     cgA = cgA.cwiseMin(1.0);
-    cgA = cgA.cwiseMax(1.e-4);
-    cgH = cgH.cwiseMax(1.e-4);
+    cgA = cgA.cwiseMax(0.0);
+    cgH = cgH.cwiseMax(0.05);
 }
 
 template <int CG>
