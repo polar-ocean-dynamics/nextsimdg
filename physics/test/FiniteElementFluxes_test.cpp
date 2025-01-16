@@ -1,7 +1,7 @@
 /*!
  * @file FiniteElementFluxes_test.cpp
  *
- * @date 24 Sep 2024
+ * @date 16 Jan 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -136,6 +136,14 @@ TEST_CASE("Melting conditions")
     HField penSW;
     penSW.resize();
     ModelComponent::getStore().registerArray(Shared::Q_PEN_SW, &penSW, RW);
+
+    HField qsw_ow;
+    qsw_ow.resize();
+    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &qsw_ow, RW);
+
+    HField qsw_base;
+    qsw_base.resize();
+    ModelComponent::getStore().registerArray(Shared::Q_SW_BASE, &qsw_base, RW);
 
     HField dqia_dt;
     dqia_dt.resize();
