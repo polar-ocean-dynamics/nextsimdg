@@ -1,7 +1,7 @@
 /*!
  * @file IOceanBoundary.hpp
  *
- * @date 24 Sep 2024
+ * @date 05 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -19,6 +19,7 @@ namespace CouplingFields {
     constexpr TextTag MLD = "MLD"; // Mixed layer or slab ocean depth m
     constexpr TextTag OCEAN_U = "U"; // x(east)-ward ocean current m s⁻¹
     constexpr TextTag OCEAN_V = "V"; // y(north)-ward ocean current m s⁻¹
+    constexpr TextTag SSH = "SSH"; // sea surface height, m
 }
 //! An interface class for the oceanic inputs into the ice physics.
 class IOceanBoundary : public ModelComponent {
@@ -46,6 +47,7 @@ public:
         getStore().registerArray(Protected::TF, &tf, RO);
         getStore().registerArray(Protected::OCEAN_U, &u, RO);
         getStore().registerArray(Protected::OCEAN_V, &v, RO);
+        getStore().registerArray(Protected::SSH, &ssh, RO);
         getStore().registerArray(Protected::FWFLUX, &fwFlux, RO);
         getStore().registerArray(Protected::SFLUX, &sFlux, RO);
     }
@@ -65,6 +67,7 @@ public:
         tf.resize();
         u.resize();
         v.resize();
+        ssh.resize();
         qNoSun.resize();
         qswNet.resize();
         fwFlux.resize();
@@ -127,6 +130,7 @@ protected:
     HField cpml; // Heat capacity of the mixed layer, J K⁻¹ m²
     UField u; // x(east)-ward ocean current, m s⁻¹
     VField v; // y(north)-ward ocean current, m s⁻¹
+    HField ssh; // sea surface height, m
     HField qNoSun; // Net surface ocean heat flux, except short wave, W m⁻²
     HField qswNet; // Net surface ocean shortwave flux, W m⁻²
     HField fwFlux; // Net surface ocean fresh-water flux, kg m⁻²
