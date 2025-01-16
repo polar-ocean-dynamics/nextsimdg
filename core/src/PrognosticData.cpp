@@ -53,22 +53,32 @@ void PrognosticData::configure()
     tryConfigure(iceGrowth);
 }
 
+// Copies an HField from a source ModelArray that is either an HField or a DGField.
+void copyFiniteDifference(const ModelArray& source, ModelArray& sink)
+{
+    if (source.nComponents() > 1) {
+        sink.setData(source.data().col(0));
+    } else {
+        sink = source;
+    }
+}
+
 void PrognosticData::setData(const ModelState::DataMap& ms)
 {
 
-    if (ms.count("mask")) {
-        setOceanMask(ms.at("mask"));
+    if (ms.count(maskName)) {
+        setOceanMask(ms.at(maskName));
     } else {
         noLandMask();
     }
 
-    m_thick = ms.at("hice");
-    m_conc = ms.at("cice");
-    m_tice = ms.at("tice");
-    m_snow = ms.at("hsnow");
+    copyFiniteDifference(ms.at(hiceName), m_thick);
+    copyFiniteDifference(ms.at(ciceName), m_conc);
+    copyFiniteDifference(ms.at(ticeName), m_tice);
+    copyFiniteDifference(ms.at(hsnowName), m_snow);
     // Damage is an optional field, and defaults to 1, if absent
     if (ms.count(damageName) > 0) {
-        m_damage = ms.at(damageName);
+        copyFiniteDifference(ms.at(damageName), m_damage);
     } else {
         m_damage.resize();
         m_damage = 1.;
