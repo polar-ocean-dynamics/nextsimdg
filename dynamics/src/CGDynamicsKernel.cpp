@@ -52,7 +52,17 @@ void CGDynamicsKernel<DGadvection>::initialise(
 template <int DGadvection>
 void CGDynamicsKernel<DGadvection>::setData(const std::string& name, const ModelArray& data)
 {
-    if (name == uName) {
+    const std::map<std::string, CGVector<CGdegree>*> targetMap = {
+            {uName, &u},
+            {vName, &v},
+            {uWindName, &uAtmos},
+            {vWindName, &vAtmos},
+            {uOceanName, &uOcean},
+            {vOceanName, &vOcean},
+    };
+    if (targetMap.count(name)) {
+        ma2cg(data, *targetMap.at(name));
+/*    if (name == uName) {
         // FIXME take into account possibility to restart form CG
         // CGModelArray::ma2cg(data, u);
         DGVector<DGadvection> utmp(*smesh);
@@ -82,7 +92,7 @@ void CGDynamicsKernel<DGadvection>::setData(const std::string& name, const Model
         DGVector<DGadvection> vtmp(*smesh);
         vtmp.zero();
         DGModelArray::ma2dg(data, vtmp);
-        Nextsim::Interpolations::DG2CG(*smesh, vOcean, vtmp);
+        Nextsim::Interpolations::DG2CG(*smesh, vOcean, vtmp);*/
     } else {
         DynamicsKernel<DGadvection, DGstressComp>::setData(name, data);
     }
