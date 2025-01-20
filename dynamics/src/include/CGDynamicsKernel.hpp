@@ -95,7 +95,8 @@ protected:
 
     std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
 
-    CGVector<CGdegree>& ma2cg(const ModelArray& maData, CGVector<CGdegree>& cgData) {
+    CGVector<CGdegree>& ma2cg(const ModelArray& maData, CGVector<CGdegree>& cgData)
+    {
         DGVector<DGadvection> dgtmp(*smesh);
         dgtmp.zero();
         DGModelArray::ma2dg(maData, dgtmp);
