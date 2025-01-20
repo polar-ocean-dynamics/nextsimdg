@@ -62,37 +62,6 @@ void CGDynamicsKernel<DGadvection>::setData(const std::string& name, const Model
     };
     if (targetMap.count(name)) {
         ma2cg(data, *targetMap.at(name));
-        /*    if (name == uName) {
-                // FIXME take into account possibility to restart form CG
-                // CGModelArray::ma2cg(data, u);
-                DGVector<DGadvection> utmp(*smesh);
-                DGModelArray::ma2dg(data, utmp);
-                Nextsim::Interpolations::DG2CG(*smesh, u, utmp);
-            } else if (name == vName) {
-                // CGModelArray::ma2cg(data, v);
-                DGVector<DGadvection> vtmp(*smesh);
-                DGModelArray::ma2dg(data, vtmp);
-                Nextsim::Interpolations::DG2CG(*smesh, v, vtmp);
-            } else if (name == uWindName) {
-                DGVector<DGadvection> utmp(*smesh);
-                utmp.zero();
-                DGModelArray::ma2dg(data, utmp);
-                Nextsim::Interpolations::DG2CG(*smesh, uAtmos, utmp);
-            } else if (name == vWindName) {
-                DGVector<DGadvection> vtmp(*smesh);
-                vtmp.zero();
-                DGModelArray::ma2dg(data, vtmp);
-                Nextsim::Interpolations::DG2CG(*smesh, vAtmos, vtmp);
-            } else if (name == uOceanName) {
-                DGVector<DGadvection> utmp(*smesh);
-                utmp.zero();
-                DGModelArray::ma2dg(data, utmp);
-                Nextsim::Interpolations::DG2CG(*smesh, uOcean, utmp);
-            } else if (name == vOceanName) {
-                DGVector<DGadvection> vtmp(*smesh);
-                vtmp.zero();
-                DGModelArray::ma2dg(data, vtmp);
-                Nextsim::Interpolations::DG2CG(*smesh, vOcean, vtmp);*/
     } else {
         DynamicsKernel<DGadvection, DGstressComp>::setData(name, data);
     }
