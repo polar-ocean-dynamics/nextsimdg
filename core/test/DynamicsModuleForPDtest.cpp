@@ -33,6 +33,11 @@ Module<Nextsim::IDynamics>::Fn& Module<Nextsim::IDynamics>::getGenerationFunctio
 
 template <> std::string Module<Nextsim::IDynamics>::moduleName() { return "Nextsim::IDynamics"; }
 
+template <> Nextsim::IDynamics& getImplementation<Nextsim::IDynamics>()
+{
+    return Module<Nextsim::IDynamics>::getImplementation();
+}
+
 template <> HelpMap& getHelpRecursive<Nextsim::IDynamics>(HelpMap& map, bool getAll) { return map; }
 
 } /* namespace Module */
