@@ -170,21 +170,6 @@ public:
     template <int DG>
     void prepareIteration(const DGVector<DG>& H, const DGVector<DG>& A, const DGVector<DG>& D);
 
-    //! performs one complete mEVP cycle with NT_evp subiterations
-    template <int DG>
-    void mEVPStep(const VPParameters& vpparameters, size_t NT_evp, double alpha, double beta,
-        double dt_adv, const DGVector<DG>& H, const DGVector<DG>& A);
-
-    //! performs one complete MEB timestep with NT_meb subiterations
-    template <int DG>
-    void MEBStep(const BBMParameters& vpparameters, size_t NT_meb, double dt_adv,
-        const DGVector<DG>& H, const DGVector<DG>& A, DGVector<DG>& D);
-
-    //! performs one complete BBMStep timestep with NT_meb subiterations
-    template <int DG>
-    void BBMStep(const BBMParameters& vpparameters, size_t NT_meb, double dt_adv,
-        const DGVector<DG>& H, const DGVector<DG>& A, DGVector<DG>& D);
-
     /*!
      * The following functions take care of the interpolation and projection
      * between CG and DG functions
