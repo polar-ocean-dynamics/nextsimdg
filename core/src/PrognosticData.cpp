@@ -54,7 +54,7 @@ void PrognosticData::configure()
 }
 
 // Copies an HField from a source ModelArray that is either an HField or a DGField.
-void copyFiniteDifference(const ModelArray& source, ModelArray& sink)
+void copyMeanComponent(const ModelArray& source, ModelArray& sink)
 {
     if (source.nComponents() > 1) {
         sink.setData(source.data().col(0));
@@ -72,13 +72,13 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
         noLandMask();
     }
 
-    copyFiniteDifference(ms.at(hiceName), m_thick);
-    copyFiniteDifference(ms.at(ciceName), m_conc);
-    copyFiniteDifference(ms.at(ticeName), m_tice);
-    copyFiniteDifference(ms.at(hsnowName), m_snow);
+    copyMeanComponent(ms.at(hiceName), m_thick);
+    copyMeanComponent(ms.at(ciceName), m_conc);
+    copyMeanComponent(ms.at(ticeName), m_tice);
+    copyMeanComponent(ms.at(hsnowName), m_snow);
     // Damage is an optional field, and defaults to 1, if absent
     if (ms.count(damageName) > 0) {
-        copyFiniteDifference(ms.at(damageName), m_damage);
+        copyMeanComponent(ms.at(damageName), m_damage);
     } else {
         m_damage.resize();
         m_damage = 1.;
