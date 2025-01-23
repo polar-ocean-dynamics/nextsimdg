@@ -74,6 +74,16 @@ public:
         s11.resize_by_mesh(*smesh);
         s12.resize_by_mesh(*smesh);
         s22.resize_by_mesh(*smesh);
+
+        // Set initial values to zero. Prognostic fields will be filled from the restart file.
+        hice.zero();
+        cice.zero();
+        e11.zero();
+        e12.zero();
+        e22.zero();
+        s11.zero();
+        s12.zero();
+        s22.zero();
     }
 
     /*!
