@@ -121,44 +121,6 @@ public:
         pmap.InitializeDivSMatrices();
     }
 
-    // Access to members
-    const CGVector<CG>& GetVx() const { return vx; }
-    const CGVector<CG>& GetVy() const { return vy; }
-    CGVector<CG>& GetVx() { return vx; }
-    CGVector<CG>& GetVy() { return vy; }
-
-    const CGVector<CG>& GetAvgSubiterVx() const { return avg_vx; }
-    const CGVector<CG>& GetAvgSubiterVy() const { return avg_vy; }
-    CGVector<CG>& GetAvgSubiterVx() { return avg_vx; }
-    CGVector<CG>& GetAvgSubiterVy() { return avg_vy; }
-
-    const CGVector<CG>& GetOceanx() const { return ox; }
-    const CGVector<CG>& GetOceany() const { return oy; }
-    CGVector<CG>& GetOceanx() { return ox; }
-    CGVector<CG>& GetOceany() { return oy; }
-    const CGVector<CG>& GetAtmx() const { return ax; }
-    const CGVector<CG>& GetAtmy() const { return ay; }
-    CGVector<CG>& GetAtmx() { return ax; }
-    CGVector<CG>& GetAtmy() { return ay; }
-
-    const DGVector<CG2DGSTRESS(CG)>& GetE11() const { return E11; }
-    const DGVector<CG2DGSTRESS(CG)>& GetE12() const { return E12; }
-    const DGVector<CG2DGSTRESS(CG)>& GetE22() const { return E22; }
-
-    const DGVector<CG2DGSTRESS(CG)>& GetS11() const { return S11; }
-    const DGVector<CG2DGSTRESS(CG)>& GetS12() const { return S12; }
-    const DGVector<CG2DGSTRESS(CG)>& GetS22() const { return S22; }
-    DGVector<CG2DGSTRESS(CG)>& GetS11() { return S11; }
-    DGVector<CG2DGSTRESS(CG)>& GetS12() { return S12; }
-    DGVector<CG2DGSTRESS(CG)>& GetS22() { return S22; }
-
-    const CGVector<CG>& GetcgH() const { return cg_H; }
-    const CGVector<CG>& GetcgA() const { return cg_A; }
-    const CGVector<CG>& GetcgD() const { return cg_D; }
-    CGVector<CG>& GetcgH() { return cg_H; }
-    CGVector<CG>& GetcgA() { return cg_A; }
-    CGVector<CG>& GetcgD() { return cg_D; }
-
     // High level Functions
 
     /*!
