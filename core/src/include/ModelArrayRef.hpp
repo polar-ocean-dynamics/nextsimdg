@@ -102,6 +102,8 @@ public:
     const ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
     operator const ModelArray&() const { return data(); }
+    //! Returns the size of the referenced ModelArray
+    size_t size() const { return dataReference->size(); }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
@@ -210,6 +212,8 @@ public:
     ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
     operator ModelArray&() const { return data(); }
+    //! Returns the size of the referenced ModelArray
+    size_t size() const { return dataReference->size(); }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
