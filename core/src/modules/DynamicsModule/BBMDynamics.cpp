@@ -118,16 +118,16 @@ void BBMDynamics::update(const TimestepTime& tst)
     damage = damage0.data();
 
     // set the updated ice thickness, concentration and damage
-    kernel.setData(hiceName, hice.data());
-    kernel.setData(ciceName, cice.data());
+    kernel.setData(hiceName, hice);
+    kernel.setData(ciceName, cice);
     kernel.setData(damageName, damage);
 
     // set the forcing velocities
-    kernel.setData(uWindName, uwind.data());
-    kernel.setData(vWindName, vwind.data());
-    kernel.setData(uOceanName, uocean.data());
-    kernel.setData(vOceanName, vocean.data());
-    kernel.setData(sshName, ssh.data());
+    kernel.setData(uWindName, uwind);
+    kernel.setData(vWindName, vwind);
+    kernel.setData(uOceanName, uocean);
+    kernel.setData(vOceanName, vocean);
+    kernel.setData(sshName, ssh);
 
     /*
      * Ice velocity components are stored in the dynamics, and not changed by the model outside the

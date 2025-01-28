@@ -86,15 +86,15 @@ void MEVPDynamics::update(const TimestepTime& tst)
     std::cout << tst.start << std::endl;
 
     // set the updated ice thickness and concentration
-    kernel.setData(hiceName, hice.data());
-    kernel.setData(ciceName, cice.data());
+    kernel.setData(hiceName, hice);
+    kernel.setData(ciceName, cice);
 
     // set the forcing velocities
-    kernel.setData(uWindName, uwind.data());
-    kernel.setData(vWindName, vwind.data());
-    kernel.setData(uOceanName, uocean.data());
-    kernel.setData(vOceanName, vocean.data());
-    kernel.setData(sshName, ssh.data());
+    kernel.setData(uWindName, uwind);
+    kernel.setData(vWindName, vwind);
+    kernel.setData(uOceanName, uocean);
+    kernel.setData(vOceanName, vocean);
+    kernel.setData(sshName, ssh);
 
     // kernel.setData(uName, uice);
     // kernel.setData(vName, vice);

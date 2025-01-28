@@ -41,12 +41,12 @@ public:
         std::cout << tst.start << std::endl;
 
         // set the updated ice thickness and concentration
-        kernel.setData(hiceName, hice.data());
-        kernel.setData(ciceName, cice.data());
+        kernel.setData(hiceName, hice);
+        kernel.setData(ciceName, cice);
 
         // set the forcing velocities
-        kernel.setData(uOceanName, uocean.data());
-        kernel.setData(vOceanName, vocean.data());
+        kernel.setData(uOceanName, uocean);
+        kernel.setData(vOceanName, vocean);
 
         kernel.update(tst);
 

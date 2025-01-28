@@ -82,8 +82,8 @@ void TOPAZOcean::updateBefore(const TimestepTime& tst)
 void TOPAZOcean::updateAfter(const TimestepTime& tst)
 {
     slabOcean.update(tst);
-    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
-    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();
+    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore());
+    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore());
 }
 
 void TOPAZOcean::setFilePath(const std::string& filePathIn) { filePath = filePathIn; }

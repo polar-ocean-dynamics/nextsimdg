@@ -101,7 +101,7 @@ public:
     //! Direct access top the underlying data array.
     const ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
-    operator const ModelArray&() const { return data(); }
+    operator const ModelArray&() const { return *dataReference; }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }
 
@@ -211,7 +211,7 @@ public:
     //! Direct access top the underlying data array.
     ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
-    operator ModelArray&() const { return data(); }
+    operator ModelArray&() const { return *dataReference; }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }
 

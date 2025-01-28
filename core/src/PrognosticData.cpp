@@ -141,8 +141,8 @@ ModelState PrognosticData::getState() const
                  { "cice", mask(m_conc) },
                  { "hsnow", mask(m_snow) },
                  { "tice", mask(m_tice) },
-                 { "sst", mask(sst.data()) },
-                 { "sss", mask(sss.data()) },
+                 { "sst", mask(sst) },
+                 { "sss", mask(sss) },
              },
         {} };
     // clang-format on

@@ -113,7 +113,7 @@ void ConfiguredOcean::updateBefore(const TimestepTime& tst)
 void ConfiguredOcean::updateAfter(const TimestepTime& tst)
 {
     slabOcean.update(tst);
-    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
-    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();
+    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore());
+    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore());
 }
 } /* namespace Nextsim */
