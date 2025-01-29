@@ -1,8 +1,9 @@
 /*!
  * @file CommandLineParser.cpp
  *
- * @date Oct 8, 2021
+ * @date Jan 29, 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Tim Williams <timothy.williams@nersc.no>
  */
 
 #include "include/CommandLineParser.hpp"
@@ -64,9 +65,9 @@ CommandLineParser::CommandLineParser(int argc, char* argv[])
         std::cout << "    nextsim --config-file=CONFIG_FILE\n";
         std::cout << "\nRun model with multiple config files:\n";
         std::cout << "    nextsim --config-files=CONFIG_FILE1 CONFIG_FILE2 ...\n";
-        std::cout << "\nGet help on all config options\n";
+        std::cout << "\nGet help on all config options:\n";
         std::cout << "    nextsim --help-config\n";
-        std::cout << "\nGet help on options for section SECTION\n";
+        std::cout << "\nGet help on options for section SECTION:\n";
         std::cout << "    nextsim --help-config SECTION\n\n";
         std::exit(EXIT_SUCCESS);
     }
