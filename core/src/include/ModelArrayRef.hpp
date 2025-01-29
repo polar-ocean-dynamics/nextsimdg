@@ -158,6 +158,14 @@ public:
     }
     ~ModelArrayRef() { store.removeReference(fieldName.text, dataReference); }
     /*!
+     * Copies the data from the assigned ModelArray
+     */
+    ModelArrayRef& operator=(const ModelArray& src)
+    {
+        *dataReference = src;
+        return *this;
+    }
+    /*!
      * @brief Returns the data at the indices.
      *
      * @details The argument is a list of dimension indices (actually a

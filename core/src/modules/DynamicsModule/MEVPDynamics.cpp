@@ -101,8 +101,8 @@ void MEVPDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-    hice.data() = kernel.getDG0Data(hiceName);
-    cice.data() = kernel.getDG0Data(ciceName);
+    hice = kernel.getDG0Data(hiceName);
+    cice = kernel.getDG0Data(ciceName);
 
     uice = kernel.getDG0Data(uName);
     vice = kernel.getDG0Data(vName);

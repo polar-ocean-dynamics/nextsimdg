@@ -115,7 +115,7 @@ void BBMDynamics::update(const TimestepTime& tst)
     std::cout << tst.start << std::endl;
 
     // Fill the updated damage array with the initial value
-    damage = damage0.data();
+    damage = damage0;
 
     // set the updated ice thickness, concentration and damage
     kernel.setData(hiceName, hice);
@@ -136,8 +136,8 @@ void BBMDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-    hice.data() = kernel.getDG0Data(hiceName);
-    cice.data() = kernel.getDG0Data(ciceName);
+    hice = kernel.getDG0Data(hiceName);
+    cice = kernel.getDG0Data(ciceName);
     damage = kernel.getDG0Data(damageName);
 
     uice = kernel.getDG0Data(uName);
