@@ -59,6 +59,15 @@ CommandLineParser::CommandLineParser(int argc, char* argv[])
 
     // Print help and exit
     if (m_arguments.count("help") || m_arguments.empty()) {
+        std::cout << "\nUsage:\n";
+        std::cout << "\nRun model with one config file only:\n";
+        std::cout << "    nextsim --config-file=CONFIG_FILE\n";
+        std::cout << "\nRun model with multiple config files:\n";
+        std::cout << "    nextsim --config-files=CONFIG_FILE1 CONFIG_FILE2 ...\n";
+        std::cout << "\nGet help on all config options\n";
+        std::cout << "    nextsim --help-config\n";
+        std::cout << "\nGet help on options for section SECTION\n";
+        std::cout << "    nextsim --help-config SECTION\n\n";
         std::exit(EXIT_SUCCESS);
     }
 
