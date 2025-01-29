@@ -98,8 +98,6 @@ public:
         return dataReference->zIndexAndLayer(hIndex, layer);
     }
 
-    //! Direct access top the underlying data array.
-    const ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
     operator const ModelArray&() const { return *dataReference; }
     //! Returns the size of the referenced ModelArray
@@ -107,29 +105,29 @@ public:
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(const ModelArray& addend) const { return data() + addend; }
+    ModelArray operator+(const ModelArray& addend) const { return *dataReference + addend; }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(const ModelArray& subtrahend) const { return data() - subtrahend; }
+    ModelArray operator-(const ModelArray& subtrahend) const { return *dataReference - subtrahend; }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(const ModelArray& multiplier) const { return data() * multiplier; }
+    ModelArray operator*(const ModelArray& multiplier) const { return *dataReference * multiplier; }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(const ModelArray& divisor) const { return data() / divisor; }
+    ModelArray operator/(const ModelArray& divisor) const { return *dataReference / divisor; }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(double addend) const { return data() + addend; }
+    ModelArray operator+(double addend) const { return *dataReference + addend; }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(double subtrahend) const { return data() - subtrahend; }
+    ModelArray operator-(double subtrahend) const { return *dataReference - subtrahend; }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(double multiplier) const { return data() * multiplier; }
+    ModelArray operator*(double multiplier) const { return *dataReference * multiplier; }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(double divisor) const { return data() / divisor; }
+    ModelArray operator/(double divisor) const { return *dataReference / divisor; }
 
 private:
     ModelArrayConstReference dataReference;
@@ -157,6 +155,14 @@ public:
         store.getFieldAddr(fieldName.text, dataReference);
     }
     ~ModelArrayRef() { store.removeReference(fieldName.text, dataReference); }
+    /*!
+     * Copies the data from one data reference to the other
+     */
+    ModelArrayRef& operator=(const ModelArrayRef& src)
+    {
+        *dataReference = *(src.dataReference);
+        return *this;
+    }
     /*!
      * Copies the data from the assigned ModelArray
      */
@@ -216,8 +222,6 @@ public:
         return dataReference->zIndexAndLayer(hIndex, layer);
     }
 
-    //! Direct access top the underlying data array.
-    ModelArray& data() const { return *dataReference; }
     //! Cast the reference class to a real reference to the referenced ModelArray.
     operator ModelArray&() const { return *dataReference; }
     //! Returns the size of the referenced ModelArray
@@ -225,29 +229,29 @@ public:
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(const ModelArray& addend) const { return data() + addend; }
+    ModelArray operator+(const ModelArray& addend) const { return *dataReference + addend; }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(const ModelArray& subtrahend) const { return data() - subtrahend; }
+    ModelArray operator-(const ModelArray& subtrahend) const { return *dataReference - subtrahend; }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(const ModelArray& multiplier) const { return data() * multiplier; }
+    ModelArray operator*(const ModelArray& multiplier) const { return *dataReference * multiplier; }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(const ModelArray& divisor) const { return data() / divisor; }
+    ModelArray operator/(const ModelArray& divisor) const { return *dataReference / divisor; }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(double addend) const { return data() + addend; }
+    ModelArray operator+(double addend) const { return *dataReference + addend; }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(double subtrahend) const { return data() - subtrahend; }
+    ModelArray operator-(double subtrahend) const { return *dataReference - subtrahend; }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(double multiplier) const { return data() * multiplier; }
+    ModelArray operator*(double multiplier) const { return *dataReference * multiplier; }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(double divisor) const { return data() / divisor; }
+    ModelArray operator/(double divisor) const { return *dataReference / divisor; }
 
 private:
     ModelArrayReference dataReference;
