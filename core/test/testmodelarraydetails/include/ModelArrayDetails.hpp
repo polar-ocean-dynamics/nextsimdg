@@ -8,7 +8,7 @@
 #ifndef MODELARRAYDETAILS_HPP
 #define MODELARRAYDETAILS_HPP
 
-enum class Dimension { X, Y, Z, U, COUNT };
+enum class Dimension { X, Y, Z, U, COMP, COUNT };
 
 enum class Type {
     ONED,
@@ -16,6 +16,7 @@ enum class Type {
     ZUFIELD,
     THREED,
     FOURD,
+    TWOCOMP,
 };
 
 static ModelArray OneDField() { return ModelArray(Type::ONED); }
