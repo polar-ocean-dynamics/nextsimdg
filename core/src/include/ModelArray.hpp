@@ -143,6 +143,15 @@ public:
     ModelArray& operator=(const ModelArraySlice&);
 
     /*!
+     * @brief Assign a DataType to an existing ModelArray.
+     *
+     * @param src The DataType object to be assigned.
+     */
+    ModelArray& operator=(const DataType& src) {
+        m_data = src;
+        return *this;
+    }
+    /*!
      * Creates a ModelArraySlice.
      */
     ModelArraySlice operator[](const Slice&);

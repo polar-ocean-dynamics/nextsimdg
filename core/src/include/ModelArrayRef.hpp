@@ -105,29 +105,61 @@ public:
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(const ModelArray& addend) const { return *dataReference + addend; }
+    ModelArray operator+(const ModelArray& addend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) + addend.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(const ModelArray& subtrahend) const { return *dataReference - subtrahend; }
+    ModelArray operator-(const ModelArray& subtrahend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) - subtrahend.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(const ModelArray& multiplier) const { return *dataReference * multiplier; }
+    ModelArray operator*(const ModelArray& multiplier) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) * multiplier.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(const ModelArray& divisor) const { return *dataReference / divisor; }
+    ModelArray operator/(const ModelArray& divisor) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) / divisor.component(0);
+        return outArr;
+    }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(double addend) const { return *dataReference + addend; }
+    ModelArray operator+(double addend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) + addend;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(double subtrahend) const { return *dataReference - subtrahend; }
+    ModelArray operator-(double subtrahend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) - subtrahend;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(double multiplier) const { return *dataReference * multiplier; }
+    ModelArray operator*(double multiplier) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) * multiplier;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(double divisor) const { return *dataReference / divisor; }
+    ModelArray operator/(double divisor) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) / divisor;
+        return outArr;
+    }
 
 private:
     ModelArrayConstReference dataReference;
@@ -229,29 +261,61 @@ public:
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(const ModelArray& addend) const { return *dataReference + addend; }
+    ModelArray operator+(const ModelArray& addend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) + addend.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(const ModelArray& subtrahend) const { return *dataReference - subtrahend; }
+    ModelArray operator-(const ModelArray& subtrahend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) - subtrahend.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(const ModelArray& multiplier) const { return *dataReference * multiplier; }
+    ModelArray operator*(const ModelArray& multiplier) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) * multiplier.component(0);
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(const ModelArray& divisor) const { return *dataReference / divisor; }
+    ModelArray operator/(const ModelArray& divisor) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) / divisor.component(0);
+        return outArr;
+    }
 
     //! Returns a ModelArray containing the per-element sum of the
     //! object and the provided ModelArray.
-    ModelArray operator+(double addend) const { return *dataReference + addend; }
+    ModelArray operator+(double addend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) + addend;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element difference between the
     //! object and the provided ModelArray.
-    ModelArray operator-(double subtrahend) const { return *dataReference - subtrahend; }
+    ModelArray operator-(double subtrahend) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) - subtrahend;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element product of the
     //! object and the provided ModelArray.
-    ModelArray operator*(double multiplier) const { return *dataReference * multiplier; }
+    ModelArray operator*(double multiplier) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) * multiplier;
+        return outArr;
+    }
     //! Returns a ModelArray containing the per-element ratio between the
     //! object and the provided ModelArray.
-    ModelArray operator/(double divisor) const { return *dataReference / divisor; }
+    ModelArray operator/(double divisor) const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0) / divisor;
+        return outArr;
+    }
 
 private:
     ModelArrayReference dataReference;
