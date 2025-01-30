@@ -98,8 +98,12 @@ public:
         return dataReference->zIndexAndLayer(hIndex, layer);
     }
 
-    //! Cast the reference class to a real reference to the referenced ModelArray.
-    operator const ModelArray&() const { return *dataReference; }
+    //! Copies component 0 to an appropriate ModelArray type.
+    operator ModelArray() const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0);
+        return outArr;
+    }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }
 
@@ -254,8 +258,12 @@ public:
         return dataReference->zIndexAndLayer(hIndex, layer);
     }
 
-    //! Cast the reference class to a real reference to the referenced ModelArray.
-    operator ModelArray&() const { return *dataReference; }
+    //! Copies component 0 to an appropriate ModelArray type.
+    operator ModelArray() const {
+        ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
+        outArr = dataReference->component(0);
+        return outArr;
+    }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }
 
