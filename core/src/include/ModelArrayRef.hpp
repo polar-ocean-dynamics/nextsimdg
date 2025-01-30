@@ -160,7 +160,7 @@ public:
      */
     ModelArrayRef& operator=(const ModelArrayRef& src)
     {
-        *dataReference = *(src.dataReference);
+        dataReference->component() = src.dataReference->component();
         return *this;
     }
     /*!
@@ -168,7 +168,7 @@ public:
      */
     ModelArrayRef& operator=(const ModelArray& src)
     {
-        *dataReference = src;
+        dataReference->component() = src.component();
         return *this;
     }
     /*!

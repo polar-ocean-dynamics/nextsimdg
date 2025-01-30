@@ -294,6 +294,48 @@ TEST_CASE("zIndexAndLayer")
     size_t ind = ModelArray::indexFromLocation(ModelArray::Type::TWOD, { x, y });
     REQUIRE(threeD.zIndexAndLayer(ind, z) == threeD(x, y, z));
 }
+
+TEST_CASE("Components")
+{
+    const size_t nx = 3;
+    const size_t ny = 5;
+    const size_t nComp = 2;
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+    ModelArray::setDimension(ModelArray::Dimension::COMP, nComp);
+
+    REQUIRE(ModelArray::nComponents(ModelArray::Type::TWOCOMP) == nComp);
+
+    ModelArray src(ModelArray::Type::TWOCOMP);
+    src.resize();
+    REQUIRE(src.nComponents() == nComp);
+    // Fill src with ones
+    src = 1.;
+    // Set all of component 0 to two
+    src.component(0) = 2;
+    // Check the values of the components at index 0
+    REQUIRE(src.components(0)[0] == 2.);
+    REQUIRE(src.components(0)[1] == 1.);
+    ModelArray sink(ModelArray::Type::TWOD);
+    sink.resize();
+    ModelArray::Type origType = sink.getType();
+    sink = 3.;
+    REQUIRE(sink[0] == 3.);
+    // Copy from a component to a full ModelArray
+    sink = src.component(0);
+    REQUIRE(sink[0] == 2.);
+    sink = 3.;
+    // Copy component to component (sink.component() is all of sink here)
+    src.component(0) = sink.component();
+    REQUIRE(src.components(0)[0] == 3.);
+    REQUIRE(src.components(0)[1] == 1.);
+    // Copy ModelArray to component
+    sink = 4.;
+    src.component(1) = sink;
+    REQUIRE(src.components(0)[0] == 3.);
+    REQUIRE(src.components(0)[1] == 4.);
+
+}
 TEST_SUITE_END();
 
 } /* namespace Nextsim */

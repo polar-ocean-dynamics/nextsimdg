@@ -94,4 +94,6 @@ const std::map<ModelArray::Type, ModelArray::Dimension> ModelArray::componentMap
     { Type::VERTEX, Dimension::NCOORDS },
 };
 
+const ModelArray::TypeMap ModelArray::definedComp0Map = { };
+
 }

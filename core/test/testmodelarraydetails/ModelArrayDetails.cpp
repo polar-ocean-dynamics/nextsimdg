@@ -95,4 +95,7 @@ const std::map<ModelArray::Type, ModelArray::Dimension> ModelArray::componentMap
         { Type::TWOCOMP, Dimension::COMP },
 };
 
+const ModelArray::TypeMap ModelArray::definedComp0Map = {
+    { Type::TWOCOMP, Type::TWOD },
+};
 }
