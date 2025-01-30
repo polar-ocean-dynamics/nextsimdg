@@ -335,6 +335,12 @@ TEST_CASE("Components")
     REQUIRE(src.components(0)[0] == 3.);
     REQUIRE(src.components(0)[1] == 4.);
 
+    // Map of types to their component 0 equivalent
+    // Type::TWOD maps to itself
+    REQUIRE(ModelArray::component0Type(ModelArray::Type::TWOD) == ModelArray::Type::TWOD);
+    // Type::TWOCOMP maps to Type::TWOD
+    REQUIRE(ModelArray::component0Type(ModelArray::Type::TWOCOMP) == ModelArray::Type::TWOD);
+
 }
 TEST_SUITE_END();
 

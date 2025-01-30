@@ -544,11 +544,11 @@ public:
     }
     using TypeMap = std::map<ModelArray::Type, ModelArray::Type>;
 private:
-    const TypeMap definedComp0Map;
+    static const TypeMap definedComp0Map();
 public:
     static ModelArray::Type component0Type(ModelArray::Type withComponents)
     {
-        static TypeMap comp0Map = definedComp0Map;
+        static TypeMap comp0Map = definedComp0Map();
         return (comp0Map.count(withComponents) > 0) ? comp0Map.at(withComponents) : withComponents;
     }
     /*!

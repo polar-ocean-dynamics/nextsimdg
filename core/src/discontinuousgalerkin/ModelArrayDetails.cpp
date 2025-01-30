@@ -135,8 +135,11 @@ const std::map<ModelArray::Type, ModelArray::Dimension> ModelArray::componentMap
     { Type::VERTEX, Dimension::NCOORDS },
 };
 
-const ModelArray::TypeMap ModelArray::definedComp0Map = {
-    { Type::DG, Type::H },
-    { Type::DGSTRESS, Type::H },
+const ModelArray::TypeMap ModelArray::definedComp0Map()
+{
+    return {
+        { Type::DG, Type::H },
+        { Type::DGSTRESS, Type::H },
+    };
 };
 }
