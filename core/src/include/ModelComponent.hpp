@@ -156,15 +156,6 @@ public:
         return os ? getState() : ModelState();
     }
 
-    //! @brief Returns the names of all Type::H ModelArrays defined in this component.
-    virtual std::unordered_set<std::string> hFields() const { return {}; }
-    //! @brief Returns the names of all Type::U ModelArrays defined in this component.
-    virtual std::unordered_set<std::string> uFields() const { return {}; }
-    //! @brief Returns the names of all Type::V ModelArrays defined in this component.
-    virtual std::unordered_set<std::string> vFields() const { return {}; }
-    //! @brief Returns the names of all Type::Z ModelArrays defined in this component.
-    virtual std::unordered_set<std::string> zFields() const { return {}; }
-
     /*!
      * @brief Returns the ModelArrayRef backing store.
      */
