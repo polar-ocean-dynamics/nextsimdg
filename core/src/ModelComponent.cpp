@@ -12,7 +12,6 @@
 namespace Nextsim {
 
 ModelArrayReferenceStore ModelComponent::store;
-ModelArray* ModelComponent::p_oceanMaskH = nullptr;
 size_t ModelComponent::nOcean;
 std::vector<size_t> ModelComponent::oceanIndex;
 
@@ -25,23 +24,17 @@ ModelComponent::ModelComponent() { noLandMask(); }
  */
 void ModelComponent::setOceanMask(const ModelArray& mask)
 {
-    if (p_oceanMaskH)
-        delete p_oceanMaskH;
-    p_oceanMaskH = new ModelArray(ModelArray::Type::H);
-    ModelArray& oceanMaskH = *p_oceanMaskH;
-    oceanMaskH.resize();
-    oceanMaskH = mask;
-
+    oceanMaskSingleton() = mask;
     // Generate the oceanIndex to grid index mapping
     // 1. Count the number of non-land squares
     for (size_t i = 0; i < ModelArray::size(ModelArray::Type::H); ++i) {
-        if (oceanMaskH[i] > 0)
+        if (oceanMask()[i] > 0)
             ++nOcean;
     }
     oceanIndex.resize(nOcean);
     size_t iOceanIndex = 0;
     for (size_t i = 0; i < ModelArray::size(ModelArray::Type::H); ++i) {
-        if (oceanMaskH[i] > 0) {
+        if (oceanMask()[i] > 0) {
             oceanIndex[iOceanIndex++] = i;
         }
     }
@@ -50,11 +43,10 @@ void ModelComponent::setOceanMask(const ModelArray& mask)
 // Fills the nOcean and OceanIndex variables for the zero land case
 void ModelComponent::noLandMask()
 {
-    if (p_oceanMaskH)
-        delete p_oceanMaskH;
-    p_oceanMaskH = new ModelArray(ModelArray::Type::H);
-    p_oceanMaskH->resize();
-    *p_oceanMaskH = 1.; // All ocean
+    ModelArray newOceanMask(ModelArray::Type::H);
+    newOceanMask.resize();
+    newOceanMask = 1.; // All ocean
+    oceanMaskSingleton() = newOceanMask;
 
     nOcean = ModelArray::size(ModelArray::Type::H);
     oceanIndex.resize(nOcean);
@@ -92,6 +84,6 @@ ModelArray ModelComponent::mask(const ModelArray& data)
     }
 }
 
-const ModelArray& ModelComponent::oceanMask() { return *p_oceanMaskH; }
+const ModelArray& ModelComponent::oceanMask() { return oceanMaskSingleton(); }
 
 } /* namespace Nextsim */

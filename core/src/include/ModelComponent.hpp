@@ -194,7 +194,11 @@ protected:
     static const ModelArray& oceanMask();
 
 protected:
-    static ModelArray* p_oceanMaskH;
+    static ModelArray& oceanMaskSingleton()
+    {
+        static ModelArray oceanMask;
+        return oceanMask;
+    }
 
 private:
     static ModelArrayReferenceStore store;
