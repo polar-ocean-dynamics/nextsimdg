@@ -11,7 +11,6 @@
 
 namespace Nextsim {
 
-ModelArrayReferenceStore ModelComponent::store;
 size_t ModelComponent::nOcean;
 std::vector<size_t> ModelComponent::oceanIndex;
 
