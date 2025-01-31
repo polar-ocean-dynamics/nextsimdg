@@ -271,6 +271,25 @@ TEST_CASE("Test component 0-only operations")
     REQUIRE(ratioRWScalar(0, 0) == 5. / 7.);
 }
 
+TEST_CASE("Full component access")
+{
+    const size_t nx = 5;
+    const size_t ny = 7;
+    const size_t nDG = 3;
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+    ModelArray::setDimension(ModelArray::Dimension::DG, nDG);
+    ModelArray dgSrc(ModelArray::Type::DG);
+    dgSrc.resize();
+    dgSrc = 5.;
+    static constexpr TextTag DG_SRC = { "DG_SRC" };
+    MiniModelComponent::getSharedArrays().registerArray(DG_SRC, &dgSrc, RO);
+    ModelArrayRef<DG_SRC> dgRef(MiniModelComponent::getSharedArrays());
+    const ModelArray::DataType& eArray = dgRef.allComponents();
+    REQUIRE(eArray.rows() == nx * ny);
+    REQUIRE(eArray.cols() == nDG);
+
+}
 TEST_SUITE_END();
 
 };

@@ -152,6 +152,14 @@ public:
         return *this;
     }
     /*!
+     * Casts the data to a DataType reference.
+     */
+    operator DataType&() { return m_data; }
+    /*!
+     * Casts the data to a const DataType reference
+     */
+    operator const DataType&() const { return m_data; }
+    /*!
      * Creates a ModelArraySlice.
      */
     ModelArraySlice operator[](const Slice&);

@@ -104,6 +104,10 @@ public:
         outArr = dataReference->component(0);
         return outArr;
     }
+    //! Returns a reference to the underlying data type of the referenced data.
+    const ModelArray::DataType& allComponents() const {
+        return dataReference->operator const ModelArray::DataType&();
+    }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }
 
@@ -263,6 +267,10 @@ public:
         ModelArray outArr(ModelArray::component0Type(dataReference->getType()));
         outArr = dataReference->component(0);
         return outArr;
+    }
+    //! Returns a reference to the underlying data type of the referenced data.
+    ModelArray::DataType& allComponents() {
+        return dataReference->operator ModelArray::DataType&();
     }
     //! Returns the size of the referenced ModelArray
     size_t size() const { return dataReference->size(); }

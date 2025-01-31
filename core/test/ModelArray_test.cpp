@@ -342,6 +342,23 @@ TEST_CASE("Components")
     REQUIRE(ModelArray::component0Type(ModelArray::Type::TWOCOMP) == ModelArray::Type::TWOD);
 
 }
+
+TEST_CASE("Direct DataType access")
+{
+    const size_t nx = 5;
+    const size_t ny = 7;
+    const size_t nComp = 3;
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+    ModelArray::setDimension(ModelArray::Dimension::COMP, nComp);
+    ModelArray twocomp(ModelArray::Type::TWOCOMP);
+    twocomp.resize();
+    twocomp = 1.;
+    REQUIRE(twocomp.components(0)[1] == 1.);
+    ModelArray::DataType& tcRef = twocomp;
+    tcRef(0, 1) = 2.;
+    REQUIRE(twocomp.components(0)[1] == 2.);
+}
 TEST_SUITE_END();
 
 } /* namespace Nextsim */
