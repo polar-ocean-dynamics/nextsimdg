@@ -108,6 +108,27 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
             kernel.setData(fieldName, mask(data));
         }
     }
+
+    // Set the DG field data
+    for (auto entry : std::map<std::string, ModelArray*>({ {hiceName, &hiceDG}, {ciceName, &ciceDG} })) {
+        const std::string& name = entry.first;
+        ModelArray& tgt = *entry.second;
+
+        tgt = 0.;
+        if (ms.count(name) > 0) {
+            const ModelArray& src = ms.at(name);
+            if (src.nComponents() == tgt.nComponents()) {
+                tgt = src;
+            } else if (src.nComponents() == 1) {
+                tgt.component(0) = src.data();
+            } else {
+                std::string err = std::string("Expected ") + name + " with 1 or " +
+                        std::to_string(tgt.nComponents()) + "components, got " +
+                        std::to_string(src.nComponents()) + " components.";
+                throw std::runtime_error(err);
+            }
+        }
+    }
 }
 
 void BBMDynamics::update(const TimestepTime& tst)
