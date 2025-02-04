@@ -17,6 +17,10 @@ template <int DG>
 class DGVectorHolder {
 public:
     using EigenDGVector = typename DGVector<DG>::EigenDGVector;
+    DGVectorHolder()
+        : ref(defaultReference())
+    {
+    }
     DGVectorHolder(ModelArray& ma)
         : ref(reinterpret_cast<EigenDGVector&>(static_cast<ModelArray::DataType&>(ma)))
     {
@@ -30,21 +34,28 @@ public:
     {
     }
 
-    operator DGVector<DG>()
+    operator DGVector<DG>&()
     {
-        return ref;
+        return reinterpret_cast<DGVector<DG>&>(ref);
     }
-    operator const DGVector<DG>() const
+    operator const DGVector<DG>&() const
     {
-        return ref;
+        return reinterpret_cast<const DGVector<DG>&>(ref);
     }
 
     double& operator()(size_t i, size_t j)
     {
         return ref(i, j);
     }
+
+    void zero() { ref.setZero(); }
 private:
     EigenDGVector& ref;
+    EigenDGVector& defaultReference()
+    {
+        static EigenDGVector defaultRef;
+        return defaultRef;
+    }
 };
 }
 
