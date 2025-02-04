@@ -20,6 +20,7 @@
 #include "dgVisu.hpp"
 
 #include "DGModelArray.hpp"
+#include "dgVectorHolder.hpp"
 #include "include/ModelArray.hpp"
 #include "include/Time.hpp"
 #include "include/gridNames.hpp"
@@ -63,8 +64,10 @@ public:
         dgtransport->settimesteppingscheme("rk2");
 
         // resize DG vectors
-        hice.resize_by_mesh(*smesh);
-        cice.resize_by_mesh(*smesh);
+//        hice.resize_by_mesh(*smesh);
+//        cice.resize_by_mesh(*smesh);
+        hiceSet = false;
+        ciceSet = false;
 
         seaSurfaceHeight.resize_by_mesh(*smesh);
 
@@ -107,9 +110,9 @@ public:
 
         // Special cases: hice, cice, (damage, stress) <- not yet implemented
         if (name == hiceName) {
-            DGModelArray::ma2dg(data, hice);
+//            DGModelArray::ma2dg(data, hice);
         } else if (name == ciceName) {
-            DGModelArray::ma2dg(data, cice);
+//            DGModelArray::ma2dg(data, cice);
         } else if (name == sshName) {
             DGModelArray::ma2dg(data, seaSurfaceHeight);
         } else {
@@ -131,9 +134,11 @@ public:
     {
         HField data(ModelArray::Type::H);
         if (name == hiceName) {
-            return DGModelArray::dg2ma(hice, data);
+//            return DGModelArray::dg2ma(hice, data);
+            return data;
         } else if (name == ciceName) {
-            return DGModelArray::dg2ma(cice, data);
+//            return DGModelArray::dg2ma(cice, data);
+            return data;
         } else {
             // Any other named field must exist
             return DGModelArray::dg2ma(advectedFields.at(name), data);
@@ -152,11 +157,13 @@ public:
         if (name == hiceName) {
             DGField data(ModelArray::Type::DG);
             data.resize();
-            return DGModelArray::dg2ma(hice, data);
+//            return DGModelArray::dg2ma(hice, data);
+            return data;
         } else if (name == ciceName) {
             DGField data(ModelArray::Type::DG);
             data.resize();
-            return DGModelArray::dg2ma(cice, data);
+//            return DGModelArray::dg2ma(cice, data);
+            return data;
         } else {
             // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);
@@ -185,8 +192,10 @@ public:
 protected:
     std::unique_ptr<Nextsim::DGTransport<DGadvection>> dgtransport;
 
-    DGVector<DGadvection> hice;
-    DGVector<DGadvection> cice;
+//    DGVector<DGadvection> hice;
+//    DGVector<DGadvection> cice;
+    DGVectorHolder<DGadvection> hice;
+    DGVectorHolder<DGadvection> cice;
 
     //! Vector storing the sea surface height (only dG(0) averages)
     DGVector<1> seaSurfaceHeight;
@@ -237,6 +246,9 @@ private:
 
     // A map from field name to the type of
     std::unordered_map<std::string, ModelArray::Type> fieldType;
+
+    bool hiceSet = false;
+    bool ciceSet = false;
 };
 
 }
