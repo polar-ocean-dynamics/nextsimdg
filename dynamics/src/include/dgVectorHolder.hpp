@@ -18,44 +18,39 @@ class DGVectorHolder {
 public:
     using EigenDGVector = typename DGVector<DG>::EigenDGVector;
     DGVectorHolder()
-        : ref(defaultReference())
+        : ref(nullptr)
     {
     }
     DGVectorHolder(ModelArray& ma)
-        : ref(reinterpret_cast<EigenDGVector&>(static_cast<ModelArray::DataType&>(ma)))
+        : ref(&reinterpret_cast<EigenDGVector&>(static_cast<ModelArray::DataType&>(ma)))
     {
     }
     DGVectorHolder(EigenDGVector& edgv)
-        :ref(edgv)
+        :ref(&edgv)
     {
     }
     DGVectorHolder(DGVector<DG>& dgv)
-        :ref(dgv)
+        :ref(&dgv)
     {
     }
 
     operator DGVector<DG>&()
     {
-        return reinterpret_cast<DGVector<DG>&>(ref);
+        return reinterpret_cast<DGVector<DG>&>(*ref);
     }
     operator const DGVector<DG>&() const
     {
-        return reinterpret_cast<const DGVector<DG>&>(ref);
+        return reinterpret_cast<const DGVector<DG>&>(*ref);
     }
 
     double& operator()(size_t i, size_t j)
     {
-        return ref(i, j);
+        return (*ref)(i, j);
     }
 
-    void zero() { ref.setZero(); }
+    void zero() { ref->setZero(); }
 private:
-    EigenDGVector& ref;
-    EigenDGVector& defaultReference()
-    {
-        static EigenDGVector defaultRef;
-        return defaultRef;
-    }
+    EigenDGVector* ref;
 };
 }
 
