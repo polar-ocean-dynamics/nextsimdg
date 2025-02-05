@@ -138,12 +138,8 @@ public:
     virtual ModelArray getDG0Data(const std::string& name) const
     {
         HField data(ModelArray::Type::H);
-        if (name == hiceName) {
-//            return DGModelArray::dg2ma(hice, data);
-            return data;
-        } else if (name == ciceName) {
-//            return DGModelArray::dg2ma(cice, data);
-            return data;
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Any other named field must exist
             return DGModelArray::dg2ma(advectedFields.at(name), data);
@@ -159,16 +155,8 @@ public:
     virtual ModelArray getDGData(const std::string& name) const
     {
 
-        if (name == hiceName) {
-            DGField data(ModelArray::Type::DG);
-            data.resize();
-//            return DGModelArray::dg2ma(hice, data);
-            return data;
-        } else if (name == ciceName) {
-            DGField data(ModelArray::Type::DG);
-            data.resize();
-//            return DGModelArray::dg2ma(cice, data);
-            return data;
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);
@@ -197,8 +185,6 @@ public:
 protected:
     std::unique_ptr<Nextsim::DGTransport<DGadvection>> dgtransport;
 
-//    DGVector<DGadvection> hice;
-//    DGVector<DGadvection> cice;
     DGVectorHolder<DGadvection> hice;
     DGVectorHolder<DGadvection> cice;
 

@@ -12,7 +12,7 @@
 
 namespace Nextsim {
 
-static const std::vector<std::string> namedFields = { /*hiceName, ciceName,*/ uName, vName };
+static const std::vector<std::string> namedFields = { uName, vName };
 static const std::map<std::string, std::pair<ModelArray::Type, double>> defaultFields = {
     { damageName, { ModelArray::Type::H, 1.0 } },
 };
@@ -141,8 +141,6 @@ void BBMDynamics::update(const TimestepTime& tst)
     damage = damage0;
 
     // set the updated ice thickness, concentration and damage
-//    kernel.setData(hiceName, hice);
-//    kernel.setData(ciceName, cice);
     hiceDG.component(0) = hice.allComponents();
     ciceDG.component(0) = cice.allComponents();
     kernel.setData(damageName, damage);
@@ -161,8 +159,6 @@ void BBMDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-//    hice = kernel.getDG0Data(hiceName);
-//    cice = kernel.getDG0Data(ciceName);
     hice.allComponents() = hiceDG.component(0);
     cice.allComponents() = ciceDG.component(0);
     damage = kernel.getDG0Data(damageName);
