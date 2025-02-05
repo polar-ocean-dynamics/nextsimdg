@@ -12,7 +12,7 @@
 
 namespace Nextsim {
 
-static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };
+static const std::vector<std::string> namedFields = { /*hiceName, ciceName,*/ uName, vName };
 static const std::map<std::string, std::pair<ModelArray::Type, double>> defaultFields = {
     { damageName, { ModelArray::Type::H, 1.0 } },
 };
@@ -128,6 +128,8 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
                 throw std::runtime_error(err);
             }
         }
+        // Having set up the full DG array, pass that data reference to the dynamics kernel.
+        kernel.setDGArray(name, tgt);
     }
 }
 
@@ -139,8 +141,10 @@ void BBMDynamics::update(const TimestepTime& tst)
     damage = damage0;
 
     // set the updated ice thickness, concentration and damage
-    kernel.setData(hiceName, hice);
-    kernel.setData(ciceName, cice);
+//    kernel.setData(hiceName, hice);
+//    kernel.setData(ciceName, cice);
+    hiceDG.component(0) = hice.allComponents();
+    ciceDG.component(0) = cice.allComponents();
     kernel.setData(damageName, damage);
 
     // set the forcing velocities
@@ -157,8 +161,10 @@ void BBMDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-    hice = kernel.getDG0Data(hiceName);
-    cice = kernel.getDG0Data(ciceName);
+//    hice = kernel.getDG0Data(hiceName);
+//    cice = kernel.getDG0Data(ciceName);
+    hice.allComponents() = hiceDG.component(0);
+    cice.allComponents() = ciceDG.component(0);
     damage = kernel.getDG0Data(damageName);
 
     uice = kernel.getDG0Data(uName);

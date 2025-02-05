@@ -66,8 +66,6 @@ public:
         // resize DG vectors
 //        hice.resize_by_mesh(*smesh);
 //        cice.resize_by_mesh(*smesh);
-        hiceSet = false;
-        ciceSet = false;
 
         seaSurfaceHeight.resize_by_mesh(*smesh);
 
@@ -79,8 +77,8 @@ public:
         s22.resize_by_mesh(*smesh);
 
         // Set initial values to zero. Prognostic fields will be filled from the restart file.
-        hice.zero();
-        cice.zero();
+//        hice.zero();
+//        cice.zero();
         e11.zero();
         e12.zero();
         e22.zero();
@@ -109,10 +107,8 @@ public:
     {
 
         // Special cases: hice, cice, (damage, stress) <- not yet implemented
-        if (name == hiceName) {
-//            DGModelArray::ma2dg(data, hice);
-        } else if (name == ciceName) {
-//            DGModelArray::ma2dg(data, cice);
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(std::string("Use setDGArray() to set the data for ") + name);
         } else if (name == sshName) {
             DGModelArray::ma2dg(data, seaSurfaceHeight);
         } else {
@@ -120,6 +116,15 @@ public:
             DGModelArray::ma2dg(data, advectedFields[name]);
             // …and have their type annotated
             fieldType[name] = data.getType();
+        }
+    }
+
+    void setDGArray(const std::string& name, ModelArray& dgData)
+    {
+        if (name == hiceName) {
+            hice = DGVectorHolder<DGadvection>(dgData);
+        } else if (name == ciceName) {
+            cice = DGVectorHolder<DGadvection>(dgData);
         }
     }
 
@@ -246,9 +251,6 @@ private:
 
     // A map from field name to the type of
     std::unordered_map<std::string, ModelArray::Type> fieldType;
-
-    bool hiceSet = false;
-    bool ciceSet = false;
 };
 
 }
