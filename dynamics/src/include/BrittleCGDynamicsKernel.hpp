@@ -80,6 +80,11 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
+        // Set the fields to zero. Prognostic fields will be filled from the restart file.
+        damage.zero();
+        avgU.zero();
+        avgV.zero();
+
         cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
         sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     }
