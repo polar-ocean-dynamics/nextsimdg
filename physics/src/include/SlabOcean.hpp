@@ -1,7 +1,7 @@
 /*!
  * @file SlabOcean.hpp
  *
- * @date 30 Aug 2024
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -36,8 +36,8 @@ public:
         , cpml(getStore())
         , emp(getStore())
         , cice(getStore())
-        , qio(getStore())
-        , qow(getStore())
+        , qswNet(getStore())
+        , qNoSun(getStore())
         , fwFlux(getStore())
         , sFlux(getStore())
     {
@@ -78,11 +78,11 @@ private:
     ModelArrayRef<Protected::ML_BULK_CP> cpml;
     ModelArrayRef<Protected::EVAP_MINUS_PRECIP> emp;
     ModelArrayRef<Protected::C_ICE> cice;
-    ModelArrayRef<Shared::Q_IO, RW> qio;
-    ModelArrayRef<Shared::Q_OW, RW> qow;
+    ModelArrayRef<Shared::Q_SW_OW, RO> qswNet;
+    ModelArrayRef<Shared::Q_NO_SUN, RO> qNoSun;
     // TODO ModelArrayRef to assimilation flux
-    ModelArrayRef<Protected::FWFLUX, RO> fwFlux;
-    ModelArrayRef<Protected::SFLUX, RO> sFlux;
+    ModelArrayRef<Protected::FWFLUX> fwFlux;
+    ModelArrayRef<Protected::SFLUX> sFlux;
 
     static const std::string sstSlabName;
     static const std::string sssSlabName;

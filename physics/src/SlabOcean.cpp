@@ -1,7 +1,7 @@
 /*!
  * @file SlabOcean.cpp
  *
- * @date 20 Nov 2024
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -77,9 +77,7 @@ void SlabOcean::update(const TimestepTime& tst)
 
     // Slab SST update
     qdw = (sstExt - sst) * cpml / relaxationTimeT;
-    HField qioMean = qio * cice; // cice at start of TS, not updated
-    HField qowMean = qow * (1 - cice); // 1- cice = open water fraction
-    sstSlab = sst - dt * (qioMean + qowMean - qdw) / cpml;
+    sstSlab = sst - dt * (qswNet + qNoSun - qdw) / cpml;
 
     // Slab SSS update
     HField arealDensity = cpml / Water::cp; // density times depth, or cpml divided by cp
@@ -87,16 +85,11 @@ void SlabOcean::update(const TimestepTime& tst)
     // Fdw = delS * mld * physical::rhow /(timeS*M_sss[i] - ddt*delS) where delS = sssSlab - sssExt
     fdw = (1 - sssExt / sss) * arealDensity / relaxationTimeS;
 
-    /* We use the "virtual salinity flux" approach:
-     *   \partial S / \partial t = F_{fw} S / H,
-     * where S is the ocean salinity, F_{fw} is the freshwater flux and H the mixed-layer depth. In
-     * the presence of sea ice F_{fw} S must be replaced by (S-S_i)I + S(P-E+M_s), with I and S
-     * the fresh-water flux due to ice and snow melt, respectively, and P and E, as precipitation
-     * and evaporation, respectively. Using the salt (F_s) and fresh-water fluxes (F_{fw})
-     * calculated by the IOceanBoundary class, we can write the change in ocean salinity as
-     *   \partial S / \partial t = ( S F_{fw} - 10^3 F_s ) / H
-     */
-    sssSlab = sss + (sss * (fwFlux + fdw) - 1e3 * sFlux) * dt / arealDensity;
+    // Mass per unit area after all the changes in water volume
+    HField denominator = arealDensity - (fwFlux - fdw) * dt;
+    // Clamp the denominator to be at least 1 m deep, i.e. at least Water::rho kg m⁻²
+    denominator.clampAbove(Water::rho);
+    sssSlab = sss + (sss * fwFlux - fdw * dt) / denominator;
 }
 
 } /* namespace Nextsim */

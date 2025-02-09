@@ -1,7 +1,7 @@
 /*!
  * @file ModelComponent.hpp
  *
- * @date 06 Dec 2024
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -94,6 +94,8 @@ namespace Shared {
         = "DQIA_DT"; // Derivative of Qᵢₐ w.r.t. ice surface temperature  W m⁻² K⁻¹
     inline constexpr TextTag Q_PEN_SW = "Q_PEN_SW"; // Penetrating shortwave flux W m⁻²
     inline constexpr TextTag Q_SW_OW = "Q_SW_OW"; // Net shortwave flux at ocean surface W m⁻²
+    inline constexpr TextTag Q_NO_SUN
+        = "Q_NO_SUN"; // Net non-solar flux flux at ocean surface W m⁻²
     inline constexpr TextTag Q_SW_BASE
         = "Q_SW_BASE"; // Net shortwave flux at the base of the ice W m⁻²
     // Mass fluxes

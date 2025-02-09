@@ -50,6 +50,8 @@ public:
         getStore().registerArray(Protected::SSH, &ssh, RO);
         getStore().registerArray(Protected::FWFLUX, &fwFlux, RO);
         getStore().registerArray(Protected::SFLUX, &sFlux, RO);
+        getStore().registerArray(Shared::Q_SW_OW, &qswNet, RO);
+        getStore().registerArray(Shared::Q_NO_SUN, &qNoSun, RO);
     }
     virtual ~IOceanBoundary() = default;
 

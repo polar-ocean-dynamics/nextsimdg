@@ -1,7 +1,7 @@
 /*!
  * @file SlabOcean_test.cpp
  *
- * @date 7 Sep 2023
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -54,12 +54,10 @@ TEST_CASE("Test Qdw")
 
     HField data0(ModelArray::Type::H);
     data0 = 0;
-    ModelComponent::getStore().registerArray(Shared::Q_IO, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::Q_OW, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::DELTA_HICE, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::NEW_ICE, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::HSNOW_MELT, &data0, RW);
-    ModelComponent::getStore().registerArray(Protected::EVAP_MINUS_PRECIP, &data0, RO);
+    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &data0, RO);
+    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &data0, RO);
+    ModelComponent::getStore().registerArray(Protected::FWFLUX, &data0, RO);
+    ModelComponent::getStore().registerArray(Protected::SFLUX, &data0, RO);
 
     // External SS* data
     HField sssExt(ModelArray::Type::H);
@@ -83,17 +81,16 @@ TEST_CASE("Test Qdw")
     REQUIRE(sstSlab[0] != doctest::Approx(sst[0]).epsilon(prec / dt));
     REQUIRE(sstSlab[0] == doctest::Approx(sst[0] + dt * qdw[0] / cpml[0]).epsilon(prec));
 
-    HField qow(ModelArray::Type::H);
-    qow[0] = 15;
-    ModelComponent::getStore().registerArray(Shared::Q_OW, &qow, RW);
-    HField qio(ModelArray::Type::H);
-    qio[0] = -17.5;
-    ModelComponent::getStore().registerArray(Shared::Q_IO, &qio, RW);
+    HField qswNet(ModelArray::Type::H);
+    qswNet[0] = 15;
+    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &qswNet, RW);
+    HField qNoSun(ModelArray::Type::H);
+    qNoSun[0] = -17.5;
+    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &qNoSun, RW);
     // Should not need to update anything else, as the slabOcean update only changes SLAB_SST
     slabOcean.update(tst);
     REQUIRE(sstSlab[0]
-        == doctest::Approx(sst[0] - dt * ((1 - cice0) * qow[0] + cice0 * qio[0] - qdw[0]) / cpml[0])
-               .epsilon(prec));
+        == doctest::Approx(sst[0] - dt * (qswNet[0] + qNoSun[0] - qdw[0]) / cpml[0]).epsilon(prec));
 }
 
 TEST_CASE("Test Fdw")
@@ -126,13 +123,10 @@ TEST_CASE("Test Fdw")
 
     HField data0(ModelArray::Type::H);
     data0 = 0;
-    ModelComponent::getStore().registerArray(Shared::Q_IO, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::Q_OW, &data0, RW);
-    ModelComponent::getStore().registerArray(Protected::C_ICE, &data0, RO);
-    ModelComponent::getStore().registerArray(Shared::DELTA_HICE, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::NEW_ICE, &data0, RW);
-    ModelComponent::getStore().registerArray(Shared::HSNOW_MELT, &data0, RW);
-    ModelComponent::getStore().registerArray(Protected::EVAP_MINUS_PRECIP, &data0, RO);
+    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &data0, RO);
+    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &data0, RO);
+    ModelComponent::getStore().registerArray(Protected::FWFLUX, &data0, RO);
+    ModelComponent::getStore().registerArray(Protected::SFLUX, &data0, RO);
 
     // External SS* data
     HField sssExt(ModelArray::Type::H);
@@ -166,11 +160,12 @@ TEST_CASE("Test Fdw")
         == doctest::Approx(sss[0] - (fdw[0] * dt) / (mld[0] * Water::rho + fdw[0] * dt))
                .epsilon(prec));
 
-    HField snowMelt(ModelArray::Type::H);
-    snowMelt = -1e-4;
-    ModelComponent::getStore().registerArray(Shared::HSNOW_MELT, &snowMelt, RW);
+    HField snowMeltFlux(ModelArray::Type::H);
+    double snowMelt = -1e-4;
+    double snowMeltVol = snowMelt * Ice::rhoSnow;
+    snowMeltFlux = snowMeltVol / dt;
+    ModelComponent::getStore().registerArray(Protected::FWFLUX, &snowMeltFlux, RW);
     slabOcean.update(tst);
-    double snowMeltVol = snowMelt[0] * Ice::rhoSnow;
     REQUIRE(sssSlab[0]
         == doctest::Approx(sss[0]
             + (snowMeltVol - fdw[0] * dt) / (mld[0] * Water::rho - snowMeltVol + fdw[0] * dt))
