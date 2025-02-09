@@ -1,7 +1,7 @@
 /*!
  * @file IOceanBoundary.hpp
  *
- * @date 05 Dec 2024
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -99,26 +99,25 @@ public:
      * Merges the ice-ocean fluxes and ocean-atmosphere fluxes into a single field to be passed to a
      * slab-ocean implementation or an ocean model through a coupler.
      */
-    void mergeFluxes(size_t i, const TimestepTime& tst)
+    void mergeFluxes(const TimestepTime& tst)
     {
         const double dt = tst.step.seconds();
 
-        qswNet(i) = cice(i) * qswBase(i) + (1 - cice(i)) * qswow(i);
-        qNoSun(i) = cice(i) * qio(i) + (1 - cice(i)) * qow(i) - qswNet(i);
+        qswNet = cice * qswBase + (1 - cice) * qswow;
+        qNoSun = cice * qio + (1 - cice) * qow - qswNet;
 
         // ice volume change, both laterally and vertically
-        const double deltaIceVol = newIce(i) + deltaHice(i) * cice(i);
+        const HField deltaIceVol = newIce + deltaHice * cice;
         // change in snow volume due to melting (should be < 0)
-        const double meltSnowVol = deltaSmelt(i) * cice(i);
+        const HField meltSnowVol = deltaSmelt * cice;
         // Effective ice salinity is always less than or equal to the SSS, and here we use the right
         // units too
-        const double effectiveIceSal = 1e-3 * std::min(sss(i), Ice::s);
+        const HField effectiveIceSal = 1e-3 * sss.clampBelow(Ice::s);
 
         // Positive flux is up!
-        fwFlux(i)
-            = ((1 - effectiveIceSal) * Ice::rho * deltaIceVol + Ice::rhoSnow * meltSnowVol) / dt
-            + emp(i) * (1 - cice(i));
-        sFlux(i) = effectiveIceSal * Ice::rho * deltaIceVol / dt;
+        fwFlux = ((1 - effectiveIceSal) * Ice::rho * deltaIceVol + Ice::rhoSnow * meltSnowVol) / dt
+            + emp * (1 - cice);
+        sFlux = effectiveIceSal * Ice::rho * deltaIceVol / dt;
     }
 
 protected:

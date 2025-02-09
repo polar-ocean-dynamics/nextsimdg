@@ -1,7 +1,7 @@
 /*!
  * @file ConfiguredOcean.cpp
  *
- * @date 06 Dec 2024
+ * @date 09 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -112,9 +112,7 @@ void ConfiguredOcean::updateBefore(const TimestepTime& tst)
 
 void ConfiguredOcean::updateAfter(const TimestepTime& tst)
 {
-    overElements(
-        std::bind(&IOceanBoundary::mergeFluxes, this, std::placeholders::_1, std::placeholders::_2),
-        tst);
+    mergeFluxes(tst);
     slabOcean.update(tst);
     sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
     sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();
