@@ -1,7 +1,7 @@
 /*!
  * @file ConfiguredOcean.cpp
  *
- * @date 09 Feb 2025
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -40,6 +40,7 @@ static const std::map<int, std::string> keyMap = {
 ConfiguredOcean::ConfiguredOcean()
     : sstExt(ModelArray::Type::H)
     , sssExt(ModelArray::Type::H)
+    , slabOcean(m_couplingArrays)
 {
 }
 

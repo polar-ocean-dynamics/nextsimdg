@@ -1,7 +1,7 @@
 /*!
  * @file IAtmosphereBoundary.hpp
  *
- * @date 24 Sep 2024
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -14,15 +14,6 @@
 
 namespace Nextsim {
 
-namespace CouplingFields {
-    constexpr TextTag SUBL = "SUBL"; // sublimation mass flux kg s⁻¹ m⁻²
-    constexpr TextTag SNOW = "SNOW"; // snowfall mass flux kg s⁻¹ m⁻²
-    constexpr TextTag RAIN = "RAIN"; // rainfall mass flux kg s⁻¹ m⁻²
-    constexpr TextTag EVAP = "EVAP"; // evaporation mass flux kg s⁻¹ m⁻²
-    constexpr TextTag WIND_U = "WIND_U"; // x-aligned wind component m s⁻¹
-    constexpr TextTag WIND_V = "WIND_V"; // y-aligned wind component m s⁻¹
-
-}
 //! An interface class for the atmospheric inputs into the ice physics.
 class IAtmosphereBoundary : public ModelComponent {
 public:

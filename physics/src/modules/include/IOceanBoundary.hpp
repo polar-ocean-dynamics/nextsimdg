@@ -1,7 +1,7 @@
 /*!
  * @file IOceanBoundary.hpp
  *
- * @date 09 Feb 2025
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -13,14 +13,6 @@
 
 namespace Nextsim {
 
-namespace CouplingFields {
-    constexpr TextTag SST = "SST"; // sea surface temperature ˚C
-    constexpr TextTag SSS = "SSS"; // sea surface salinity PSU
-    constexpr TextTag MLD = "MLD"; // Mixed layer or slab ocean depth m
-    constexpr TextTag OCEAN_U = "U"; // x(east)-ward ocean current m s⁻¹
-    constexpr TextTag OCEAN_V = "V"; // y(north)-ward ocean current m s⁻¹
-    constexpr TextTag SSH = "SSH"; // sea surface height, m
-}
 //! An interface class for the oceanic inputs into the ice physics.
 class IOceanBoundary : public ModelComponent {
 public:
@@ -34,10 +26,18 @@ public:
         , qow(getStore())
         , qswBase(getStore())
     {
-        m_couplingArrays.registerArray(CouplingFields::SST, &sst, RW);
-        m_couplingArrays.registerArray(CouplingFields::SSS, &sss, RW);
+        // Receive
+        m_couplingArrays.registerArray(CouplingFields::MLD, &mld, RW);
         m_couplingArrays.registerArray(CouplingFields::OCEAN_U, &u, RW);
         m_couplingArrays.registerArray(CouplingFields::OCEAN_V, &v, RW);
+        m_couplingArrays.registerArray(CouplingFields::SSH, &ssh, RW);
+        m_couplingArrays.registerArray(CouplingFields::SSS, &sss, RW);
+        m_couplingArrays.registerArray(CouplingFields::SST, &sst, RW);
+        // Send
+        m_couplingArrays.registerArray(CouplingFields::FWFLUX, &fwFlux, RO);
+        m_couplingArrays.registerArray(CouplingFields::Q_SS_NO_SW, &qNoSun, RO);
+        m_couplingArrays.registerArray(CouplingFields::Q_SS_SW, &qswNet, RO);
+        m_couplingArrays.registerArray(CouplingFields::SFLUX, &sFlux, RO);
 
         getStore().registerArray(Shared::Q_IO, &qio, RW);
         getStore().registerArray(Protected::SST, &sst, RO);
@@ -48,10 +48,6 @@ public:
         getStore().registerArray(Protected::OCEAN_U, &u, RO);
         getStore().registerArray(Protected::OCEAN_V, &v, RO);
         getStore().registerArray(Protected::SSH, &ssh, RO);
-        getStore().registerArray(Protected::FWFLUX, &fwFlux, RO);
-        getStore().registerArray(Protected::SFLUX, &sFlux, RO);
-        getStore().registerArray(Shared::Q_SW_OW, &qswNet, RO);
-        getStore().registerArray(Shared::Q_NO_SUN, &qNoSun, RO);
     }
     virtual ~IOceanBoundary() = default;
 

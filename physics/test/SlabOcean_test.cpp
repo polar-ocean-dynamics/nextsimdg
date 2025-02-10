@@ -1,7 +1,7 @@
 /*!
  * @file SlabOcean_test.cpp
  *
- * @date 09 Feb 2025
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -29,6 +29,8 @@ TEST_CASE("Test Qdw")
     ModelArray::setDimensions(ModelArray::Type::H, { 1, 1 });
     ModelArray::setDimensions(ModelArray::Type::Z, { 1, 1, 1 });
 
+    ModelArrayReferenceStore couplingArrays;
+
     double tOffset = 0.001;
     // Supply the data to the slab ocean
     HField sss(ModelArray::Type::H);
@@ -54,10 +56,10 @@ TEST_CASE("Test Qdw")
 
     HField data0(ModelArray::Type::H);
     data0 = 0;
-    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &data0, RO);
-    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &data0, RO);
-    ModelComponent::getStore().registerArray(Protected::FWFLUX, &data0, RO);
-    ModelComponent::getStore().registerArray(Protected::SFLUX, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::Q_SS_NO_SW, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::Q_SS_SW, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::FWFLUX, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::SFLUX, &data0, RO);
 
     // External SS* data
     HField sssExt(ModelArray::Type::H);
@@ -68,7 +70,7 @@ TEST_CASE("Test Qdw")
     sstExt = sst + tOffset;
     ModelComponent::getStore().registerArray(Protected::EXT_SST, &sstExt, RO);
 
-    SlabOcean slabOcean;
+    SlabOcean slabOcean(couplingArrays);
     slabOcean.configure();
     slabOcean.update(tst);
 
@@ -83,10 +85,10 @@ TEST_CASE("Test Qdw")
 
     HField qswNet(ModelArray::Type::H);
     qswNet[0] = 15;
-    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &qswNet, RW);
+    couplingArrays.registerArray(CouplingFields::Q_SS_SW, &qswNet, RW);
     HField qNoSun(ModelArray::Type::H);
     qNoSun[0] = -17.5;
-    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &qNoSun, RW);
+    couplingArrays.registerArray(CouplingFields::Q_SS_NO_SW, &qNoSun, RW);
     // Should not need to update anything else, as the slabOcean update only changes SLAB_SST
     slabOcean.update(tst);
     REQUIRE(sstSlab[0]
@@ -102,6 +104,8 @@ TEST_CASE("Test Fdw")
 
     ModelArray::setDimensions(ModelArray::Type::H, { 1, 1 });
     ModelArray::setDimensions(ModelArray::Type::Z, { 1, 1, 1 });
+
+    ModelArrayReferenceStore couplingArrays;
 
     double sOffset = 0.1;
     // Supply the data to the slab ocean
@@ -123,10 +127,10 @@ TEST_CASE("Test Fdw")
 
     HField data0(ModelArray::Type::H);
     data0 = 0;
-    ModelComponent::getStore().registerArray(Shared::Q_NO_SUN, &data0, RO);
-    ModelComponent::getStore().registerArray(Shared::Q_SW_OW, &data0, RO);
-    ModelComponent::getStore().registerArray(Protected::FWFLUX, &data0, RO);
-    ModelComponent::getStore().registerArray(Protected::SFLUX, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::Q_SS_NO_SW, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::Q_SS_SW, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::FWFLUX, &data0, RO);
+    couplingArrays.registerArray(CouplingFields::SFLUX, &data0, RO);
 
     // External SS* data
     HField sssExt(ModelArray::Type::H);
@@ -137,7 +141,7 @@ TEST_CASE("Test Fdw")
     sstExt = sst;
     ModelComponent::getStore().registerArray(Protected::EXT_SST, &sstExt, RO);
 
-    SlabOcean slabOcean;
+    SlabOcean slabOcean(couplingArrays);
     slabOcean.configure();
     slabOcean.update(tst);
 
@@ -164,7 +168,7 @@ TEST_CASE("Test Fdw")
     double snowMelt = -1e-4;
     double snowMeltVol = snowMelt * Ice::rhoSnow;
     snowMeltFlux = snowMeltVol / dt;
-    ModelComponent::getStore().registerArray(Protected::FWFLUX, &snowMeltFlux, RW);
+    couplingArrays.registerArray(CouplingFields::FWFLUX, &snowMeltFlux, RW);
     slabOcean.update(tst);
     REQUIRE(sssSlab[0]
         == doctest::Approx(sss[0]

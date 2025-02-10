@@ -1,7 +1,7 @@
 /*!
  * @file SlabOcean.cpp
  *
- * @date 09 Feb 2025
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -73,22 +73,21 @@ std::unordered_set<std::string> SlabOcean::hFields() const { return { sstSlabNam
 
 void SlabOcean::update(const TimestepTime& tst)
 {
-    double dt = tst.step.seconds();
+    const double dt = tst.step.seconds();
 
     // Slab SST update
     qdw = (sstExt - sst) * cpml / relaxationTimeT;
     sstSlab = sst - dt * (qswNet + qNoSun - qdw) / cpml;
 
     // Slab SSS update
-    HField arealDensity = cpml / Water::cp; // density times depth, or cpml divided by cp
+    const HField arealDensity = cpml / Water::cp; // density times depth, or cpml divided by cp
     // This is simplified compared to the finiteelement.cpp calculation
     // Fdw = delS * mld * physical::rhow /(timeS*M_sss[i] - ddt*delS) where delS = sssSlab - sssExt
     fdw = (1 - sssExt / sss) * arealDensity / relaxationTimeS;
 
     // Mass per unit area after all the changes in water volume
-    HField denominator = arealDensity - (fwFlux - fdw) * dt;
     // Clamp the denominator to be at least 1 m deep, i.e. at least Water::rho kg m⁻²
-    denominator.clampAbove(Water::rho);
+    const HField denominator = (arealDensity - (fwFlux - fdw) * dt).clampAbove(Water::rhoOcean);
     sssSlab = sss + (sss * fwFlux - fdw * dt) / denominator;
 }
 
