@@ -17,14 +17,27 @@ namespace Nextsim {
 class IOceanBoundary : public ModelComponent {
 public:
     IOceanBoundary()
-        : cice(getStore())
-        , qswow(getStore())
+        : qio(ModelArray::Type::H)
+        , sst(ModelArray::Type::H)
+        , sss(ModelArray::Type::H)
+        , mld(ModelArray::Type::H)
+        , cpml(ModelArray::Type::H)
+        , tf(ModelArray::Type::H)
+        , u(ModelArray::Type::H)
+        , v(ModelArray::Type::H)
+        , ssh(ModelArray::Type::H)
+        , qNoSun(ModelArray::Type::H)
+        , qswNet(ModelArray::Type::H)
+        , fwFlux(ModelArray::Type::H)
+        , sFlux(ModelArray::Type::H)
+        , qswow(ModelArray::Type::H)
+        , qswBase(ModelArray::Type::H)
+        , cice(getStore())
         , emp(getStore())
         , newIce(getStore())
         , deltaHice(getStore())
         , deltaSmelt(getStore())
         , qow(getStore())
-        , qswBase(getStore())
     {
         // Receive
         m_couplingArrays.registerArray(CouplingFields::MLD, &mld, RW);
@@ -48,6 +61,8 @@ public:
         getStore().registerArray(Protected::OCEAN_U, &u, RO);
         getStore().registerArray(Protected::OCEAN_V, &v, RO);
         getStore().registerArray(Protected::SSH, &ssh, RO);
+        getStore().registerArray(Shared::Q_SW_OW, &qswow, RW);
+        getStore().registerArray(Shared::Q_SW_BASE, &qswBase, RW);
     }
     virtual ~IOceanBoundary() = default;
 
@@ -70,6 +85,8 @@ public:
         qswNet.resize();
         fwFlux.resize();
         sFlux.resize();
+        qswow.resize();
+        qswBase.resize();
 
         if (ms.count("sst")) {
             sst = ms.at("sst");
@@ -132,17 +149,17 @@ protected:
     HField qswNet; // Net surface ocean shortwave flux, W m⁻²
     HField fwFlux; // Net surface ocean fresh-water flux, kg m⁻²
     HField sFlux; // Net surface ocean salt flux, kg m⁻²
+    HField qswow;
+    HField qswBase;
 
     ModelArrayReferenceStore m_couplingArrays;
 
     ModelArrayRef<Protected::C_ICE, RO> cice;
-    ModelArrayRef<Shared::Q_SW_OW, RO> qswow;
     ModelArrayRef<Protected::EVAP_MINUS_PRECIP, RO> emp;
     ModelArrayRef<Shared::NEW_ICE, RW> newIce;
     ModelArrayRef<Shared::DELTA_HICE, RW> deltaHice;
     ModelArrayRef<Shared::HSNOW_MELT, RW> deltaSmelt;
     ModelArrayRef<Shared::Q_OW, RW> qow;
-    ModelArrayRef<Shared::Q_SW_BASE, RW> qswBase;
 };
 } /* namespace Nextsim */
 
