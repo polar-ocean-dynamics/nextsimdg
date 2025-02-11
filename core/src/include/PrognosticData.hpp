@@ -74,6 +74,10 @@ private:
     HField m_damage;
     double m_dt;
 
+    // Full DG component arrays of thickness and concentration
+    DGField hiceDG;
+    DGField ciceDG;
+
     IAtmosphereBoundary* pAtmBdy;
     IOceanBoundary* pOcnBdy;
 

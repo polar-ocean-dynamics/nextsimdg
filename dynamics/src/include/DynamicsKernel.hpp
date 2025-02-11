@@ -119,7 +119,7 @@ public:
         }
     }
 
-    void setDGArray(const std::string& name, ModelArray& dgData)
+    void setDGArray(const std::string& name, ModelArray::DataType& dgData)
     {
         if (name == hiceName) {
             hice = DGVectorHolder<DGadvection>(dgData);
@@ -127,6 +127,7 @@ public:
             cice = DGVectorHolder<DGadvection>(dgData);
         }
     }
+
 
     /*!
      * @brief Returns an HField ModelArray containing the DG0 finite volume

@@ -22,6 +22,8 @@ PrognosticData::PrognosticData()
     , m_snow(ModelArray::Type::H)
     , m_tice(ModelArray::Type::Z)
     , m_damage(ModelArray::Type::H)
+    , hiceDG(ModelArray::Type::DG)
+    , ciceDG(ModelArray::Type::DG)
     , pAtmBdy(0)
     , pOcnBdy(0)
     , pDynamics(0)
@@ -32,6 +34,8 @@ PrognosticData::PrognosticData()
     getStore().registerArray(Protected::H_SNOW, &m_snow, RO);
     getStore().registerArray(Protected::T_ICE, &m_tice, RO);
     getStore().registerArray(Protected::DAMAGE, &m_damage, RO);
+    getStore().registerArray(Shared::H_ICE_DG, &hiceDG, RW);
+    getStore().registerArray(Shared::C_ICE_DG, &ciceDG, RW);
 }
 
 void PrognosticData::configure()
@@ -63,6 +67,20 @@ void copyMeanComponent(const ModelArray& source, ModelArray& sink)
     }
 }
 
+void copyAllComponents(const ModelArray& source, ModelArray& sink)
+{
+    if (source.nComponents() == sink.nComponents()) {
+        sink = source;
+    } else if (source.nComponents() == 1) {
+        sink.component(0) = source.data();
+    } else {
+        std::string err = std::string("PrognosticData::copyAllComponents: Expected 1 or ") +
+                std::to_string(sink.nComponents()) + " components, got " +
+                std::to_string(source.nComponents()) + " components.";
+        throw std::runtime_error(err);
+    }
+}
+
 void PrognosticData::setData(const ModelState::DataMap& ms)
 {
 
@@ -84,6 +102,12 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
         m_damage = 1.;
     }
 
+    // Copy the full DG data
+    hiceDG = 0;
+    ciceDG = 0;
+    copyAllComponents(ms.at(hiceName), hiceDG);
+    copyAllComponents(ms.at(ciceName), ciceDG);
+
     pAtmBdy->setData(ms);
     pOcnBdy->setData(ms);
     pDynamics->setData(ms);
@@ -100,9 +124,15 @@ void PrognosticData::update(const TimestepTime& tst)
     iceGrowth.update(tst);
     updatePrognosticFields();
 
+    // TODO: remove this. Specially update the mean component of the DG fields
+    hiceDG.component(0) = m_thick.data();
+    ciceDG.component(0) = m_conc.data();
     pDynamics->update(tst);
 
     updatePrognosticFields();
+    // TODO: remove this. Specially update the HField arrays with the  mean component of the DG fields.
+    m_thick = hiceDG.component(0);
+    m_conc = ciceDG.component(0);
 
     pOcnBdy->updateAfter(tst);
 }
@@ -139,6 +169,8 @@ ModelState PrognosticData::getState() const
                  { "mask", ModelArray(oceanMask()) }, // make a copy
                  { "hice", mask(m_thick) },
                  { "cice", mask(m_conc) },
+                 { "hiceDG", hiceDG },
+                 { "ciceDG", ciceDG },
                  { "hsnow", mask(m_snow) },
                  { "tice", mask(m_tice) },
                  { "sst", mask(sst) },

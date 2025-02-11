@@ -22,7 +22,11 @@ public:
     {
     }
     DGVectorHolder(ModelArray& ma)
-        : ref(&reinterpret_cast<EigenDGVector&>(static_cast<ModelArray::DataType&>(ma)))
+        : DGVectorHolder(static_cast<ModelArray::DataType&>(ma))
+    {
+    }
+    DGVectorHolder(ModelArray::DataType& madt)
+        : DGVectorHolder(reinterpret_cast<EigenDGVector&>(madt))
     {
     }
     DGVectorHolder(EigenDGVector& edgv)

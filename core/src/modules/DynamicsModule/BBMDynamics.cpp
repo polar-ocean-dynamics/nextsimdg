@@ -110,27 +110,8 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
     }
 
     // Set the DG field data
-    for (auto entry : std::map<std::string, ModelArray*>({ {hiceName, &hiceDG}, {ciceName, &ciceDG} })) {
-        const std::string& name = entry.first;
-        ModelArray& tgt = *entry.second;
-
-        tgt = 0.;
-        if (ms.count(name) > 0) {
-            const ModelArray& src = ms.at(name);
-            if (src.nComponents() == tgt.nComponents()) {
-                tgt = src;
-            } else if (src.nComponents() == 1) {
-                tgt.component(0) = src.data();
-            } else {
-                std::string err = std::string("Expected ") + name + " with 1 or " +
-                        std::to_string(tgt.nComponents()) + "components, got " +
-                        std::to_string(src.nComponents()) + " components.";
-                throw std::runtime_error(err);
-            }
-        }
-        // Having set up the full DG array, pass that data reference to the dynamics kernel.
-        kernel.setDGArray(name, tgt);
-    }
+    kernel.setDGArray(hiceName, hiceDG.allComponents());
+    kernel.setDGArray(ciceName, ciceDG.allComponents());
 }
 
 void BBMDynamics::update(const TimestepTime& tst)
@@ -141,8 +122,8 @@ void BBMDynamics::update(const TimestepTime& tst)
     damage = damage0;
 
     // set the updated ice thickness, concentration and damage
-    hiceDG.component(0) = hice.allComponents();
-    ciceDG.component(0) = cice.allComponents();
+//    hiceDG.component(0) = hice.allComponents();
+//    ciceDG.component(0) = cice.allComponents();
     kernel.setData(damageName, damage);
 
     // set the forcing velocities
@@ -159,8 +140,8 @@ void BBMDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-    hice.allComponents() = hiceDG.component(0);
-    cice.allComponents() = ciceDG.component(0);
+//    hice.allComponents() = hiceDG.component(0);
+//    cice.allComponents() = ciceDG.component(0);
     damage = kernel.getDG0Data(damageName);
 
     uice = kernel.getDG0Data(uName);
@@ -178,8 +159,8 @@ ModelState BBMDynamics::getState() const
 
     // Kernel prognostic fields
     state.merge({
-        { hiceName, kernel.getDGData(hiceName) },
-        { ciceName, kernel.getDGData(ciceName) },
+//        { hiceName, kernel.getDGData(hiceName) },
+//        { ciceName, kernel.getDGData(ciceName) },
         { damageName, kernel.getDGData(damageName) },
     });
 
