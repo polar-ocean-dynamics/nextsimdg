@@ -44,8 +44,6 @@ public:
         , windSpeed(getStore())
         , u_air(getStore())
         , v_air(getStore())
-        , tau_x_ow(getStore())
-        , tau_y_ow(getStore())
         , h_snow(getStore())
         , h_snow_true(getStore())
         , cice(getStore())
@@ -120,10 +118,6 @@ private:
     ModelArrayRef<Protected::T_ICE> tice;
     ModelArrayRef<Protected::SW_IN> sw_in;
     ModelArrayRef<Protected::LW_IN> lw_in;
-
-    // Outputs owned by others
-    ModelArrayRef<Shared::OW_STRESS_X, RW> tau_x_ow;
-    ModelArrayRef<Shared::OW_STRESS_Y, RW> tau_y_ow;
 
     void calculateOW(size_t i, const TimestepTime& tst);
     void calculateIce(size_t i, const TimestepTime& tst);

@@ -1,7 +1,7 @@
 /*!
  * @file IAtmosphereBoundary.hpp
  *
- * @date 10 Feb 2025
+ * @date 11 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -29,6 +29,8 @@ public:
         , uwind(ModelArray::Type::U)
         , vwind(ModelArray::Type::V)
         , penSW(ModelArray::Type::H)
+        , tauXOW(ModelArray::Type::H)
+        , tauYOW(ModelArray::Type::H)
     {
         m_couplingArrays.registerArray(CouplingFields::SUBL, &subl, RW);
         m_couplingArrays.registerArray(CouplingFields::SNOW, &snow, RW);
@@ -41,6 +43,8 @@ public:
         getStore().registerArray(Shared::DQIA_DT, &dqia_dt, RW);
         getStore().registerArray(Shared::Q_OW, &qow, RW);
         getStore().registerArray(Shared::SUBLIM, &subl, RW);
+        getStore().registerArray(Shared::OW_STRESS_X, &tauXOW, RW);
+        getStore().registerArray(Shared::OW_STRESS_Y, &tauYOW, RW);
         getStore().registerArray(Protected::SNOW, &snow, RO);
         getStore().registerArray(Protected::EVAP_MINUS_PRECIP, &emp, RO);
         getStore().registerArray(Protected::WIND_U, &uwind, RO);
@@ -66,6 +70,8 @@ public:
         uwind.resize();
         vwind.resize();
         penSW.resize();
+        tauXOW.resize();
+        tauYOW.resize();
     }
     virtual void update(const TimestepTime& tst) { }
 
@@ -83,6 +89,8 @@ protected:
     UField uwind;
     VField vwind;
     HField penSW;
+    HField tauXOW; // x(east)-ward open ocean stress, Pa
+    HField tauYOW; // y(north)-ward open ocean stress, Pa
 
     ModelArrayReferenceStore m_couplingArrays;
 };

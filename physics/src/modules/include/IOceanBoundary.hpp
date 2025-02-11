@@ -32,8 +32,6 @@ public:
         , sFlux(ModelArray::Type::H)
         , qswow(ModelArray::Type::H)
         , qswBase(ModelArray::Type::H)
-        , tauXOW(ModelArray::Type::H)
-        , tauYOW(ModelArray::Type::H)
         , tauX(ModelArray::Type::H)
         , tauY(ModelArray::Type::H)
         , cice(getStore())
@@ -44,6 +42,8 @@ public:
         , qow(getStore())
         , tauXIO(getStore())
         , tauYIO(getStore())
+        , tauXOW(getStore())
+        , tauYOW(getStore())
     {
         // Receive
         m_couplingArrays.registerArray(CouplingFields::MLD, &mld, RW);
@@ -69,8 +69,6 @@ public:
         getStore().registerArray(Protected::OCEAN_U, &u, RO);
         getStore().registerArray(Protected::OCEAN_V, &v, RO);
         getStore().registerArray(Protected::SSH, &ssh, RO);
-        getStore().registerArray(Shared::OW_STRESS_X, &tauXOW, RW);
-        getStore().registerArray(Shared::OW_STRESS_Y, &tauYOW, RW);
         getStore().registerArray(Shared::Q_SW_OW, &qswow, RW);
         getStore().registerArray(Shared::Q_SW_BASE, &qswBase, RW);
     }
@@ -97,8 +95,6 @@ public:
         sFlux.resize();
         qswow.resize();
         qswBase.resize();
-        tauXOW.resize();
-        tauYOW.resize();
         tauX.resize();
         tauY.resize();
 
@@ -171,8 +167,6 @@ protected:
     HField sFlux; // Net surface ocean salt flux, kg m⁻²
     HField qswow; // Shortwave flux in open water W m⁻²
     HField qswBase; // Shortwave flux at the base of the ice W m⁻²
-    HField tauXOW; // x(east)-ward open ocean stress, Pa
-    HField tauYOW; // y(north)-ward open ocean stress, Pa
     HField tauX; // x(east)-ward total ocean stress, Pa
     HField tauY; // y(north)-ward total ocean stress, Pa
 
@@ -186,6 +180,8 @@ protected:
     ModelArrayRef<Shared::DELTA_HICE, RW> deltaHice;
     ModelArrayRef<Shared::HSNOW_MELT, RW> deltaSmelt;
     ModelArrayRef<Shared::Q_OW, RW> qow;
+    ModelArrayRef<Shared::OW_STRESS_X, RW> tauXOW;
+    ModelArrayRef<Shared::OW_STRESS_Y, RW> tauYOW;
 };
 } /* namespace Nextsim */
 
