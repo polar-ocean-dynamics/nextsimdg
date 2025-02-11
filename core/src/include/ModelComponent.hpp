@@ -1,7 +1,7 @@
 /*!
  * @file ModelComponent.hpp
  *
- * @date 10 Feb 2025
+ * @date 11 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -95,6 +95,9 @@ namespace Shared {
     inline constexpr TextTag Q_SW_BASE = "Q_SW_BASE"; // Shortwave flux at the base of the ice W m⁻²
     // Mass fluxes
     inline constexpr TextTag HSNOW_MELT = "HSNOW_MELT"; // Thickness of snow that melted, m
+    // Momentum fluxes
+    inline constexpr TextTag OW_STRESS_X = "OW_STRESS_X"; // x(east)-ward open ocean stress, Pa
+    inline constexpr TextTag OW_STRESS_Y = "OW_STRESS_Y"; // y(north)-ward open ocean stress, Pa
     // Atmospheric conditions
     inline constexpr TextTag SUBLIM = "SUBLIM"; // Upward sublimation rate kg m⁻² s⁻¹
     inline constexpr TextTag DELTA_HICE = "DELTA_HICE"; // Change in sea ice thickness, m
@@ -115,6 +118,8 @@ namespace CouplingFields {
     inline constexpr TextTag SST = "SST"; // sea surface temperature ˚C
     // Send
     inline constexpr TextTag FWFLUX = "FWFLUX"; // Fresh-water flux at the ocean surface, kg m⁻²
+    inline constexpr TextTag O_STRESS_X = "O_STRESS_X"; // x(east)-ward surface ocean stress, Pa
+    inline constexpr TextTag O_STRESS_Y = "O_STRESS_Y"; // y(north)-ward surface ocean stress, Pa
     inline constexpr TextTag Q_SS_NO_SW = "Q_SS_NO_SW"; // Net non-solar flux at ocean surface W m⁻²
     inline constexpr TextTag Q_SS_SW = "Q_SS_SW"; // Net shortwave flux at ocean surface W m⁻²
     inline constexpr TextTag SFLUX = "SFLUX"; // Salt flux at the ocean surface, kg m⁻²

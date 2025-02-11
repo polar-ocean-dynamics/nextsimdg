@@ -1,7 +1,7 @@
 /*!
  * @file IOceanBoundary.hpp
  *
- * @date 10 Feb 2025
+ * @date 11 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -32,12 +32,18 @@ public:
         , sFlux(ModelArray::Type::H)
         , qswow(ModelArray::Type::H)
         , qswBase(ModelArray::Type::H)
+        , tauXOW(ModelArray::Type::H)
+        , tauYOW(ModelArray::Type::H)
+        , tauX(ModelArray::Type::H)
+        , tauY(ModelArray::Type::H)
         , cice(getStore())
         , emp(getStore())
         , newIce(getStore())
         , deltaHice(getStore())
         , deltaSmelt(getStore())
         , qow(getStore())
+        , tauXIO(getStore())
+        , tauYIO(getStore())
     {
         // Receive
         m_couplingArrays.registerArray(CouplingFields::MLD, &mld, RW);
@@ -48,6 +54,8 @@ public:
         m_couplingArrays.registerArray(CouplingFields::SST, &sst, RW);
         // Send
         m_couplingArrays.registerArray(CouplingFields::FWFLUX, &fwFlux, RO);
+        m_couplingArrays.registerArray(CouplingFields::O_STRESS_X, &tauX, RO);
+        m_couplingArrays.registerArray(CouplingFields::O_STRESS_Y, &tauY, RO);
         m_couplingArrays.registerArray(CouplingFields::Q_SS_NO_SW, &qNoSun, RO);
         m_couplingArrays.registerArray(CouplingFields::Q_SS_SW, &qswNet, RO);
         m_couplingArrays.registerArray(CouplingFields::SFLUX, &sFlux, RO);
@@ -61,6 +69,8 @@ public:
         getStore().registerArray(Protected::OCEAN_U, &u, RO);
         getStore().registerArray(Protected::OCEAN_V, &v, RO);
         getStore().registerArray(Protected::SSH, &ssh, RO);
+        getStore().registerArray(Shared::OW_STRESS_X, &tauXOW, RW);
+        getStore().registerArray(Shared::OW_STRESS_Y, &tauYOW, RW);
         getStore().registerArray(Shared::Q_SW_OW, &qswow, RW);
         getStore().registerArray(Shared::Q_SW_BASE, &qswBase, RW);
     }
@@ -87,6 +97,10 @@ public:
         sFlux.resize();
         qswow.resize();
         qswBase.resize();
+        tauXOW.resize();
+        tauYOW.resize();
+        tauX.resize();
+        tauY.resize();
 
         if (ms.count("sst")) {
             sst = ms.at("sst");
@@ -118,9 +132,11 @@ public:
     {
         const double dt = tst.step.seconds();
 
+        // Heat fluxes - partitioned in solar and non-solar
         qswNet = cice * qswBase + (1 - cice) * qswow;
         qNoSun = cice * qio + (1 - cice) * qow - qswNet;
 
+        // Mass fluxes - fresh water and salt
         // ice volume change, both laterally and vertically
         const HField deltaIceVol = newIce + deltaHice * cice;
         // change in snow volume due to melting (should be < 0)
@@ -133,6 +149,10 @@ public:
         fwFlux = ((1 - effectiveIceSal) * Ice::rho * deltaIceVol + Ice::rhoSnow * meltSnowVol) / dt
             + emp * (1 - cice);
         sFlux = effectiveIceSal * Ice::rho * deltaIceVol / dt;
+
+        // Momentum fluxes
+        tauX = cice * tauXIO + (1 - cice) * tauXOW;
+        tauY = cice * tauYIO + (1 - cice) * tauYOW;
     }
 
 protected:
@@ -149,13 +169,19 @@ protected:
     HField qswNet; // Net surface ocean shortwave flux, W m⁻²
     HField fwFlux; // Net surface ocean fresh-water flux, kg m⁻²
     HField sFlux; // Net surface ocean salt flux, kg m⁻²
-    HField qswow;
-    HField qswBase;
+    HField qswow; // Shortwave flux in open water W m⁻²
+    HField qswBase; // Shortwave flux at the base of the ice W m⁻²
+    HField tauXOW; // x(east)-ward open ocean stress, Pa
+    HField tauYOW; // y(north)-ward open ocean stress, Pa
+    HField tauX; // x(east)-ward total ocean stress, Pa
+    HField tauY; // y(north)-ward total ocean stress, Pa
 
     ModelArrayReferenceStore m_couplingArrays;
 
     ModelArrayRef<Protected::C_ICE, RO> cice;
     ModelArrayRef<Protected::EVAP_MINUS_PRECIP, RO> emp;
+    ModelArrayRef<Protected::IO_STRESS_X> tauXIO;
+    ModelArrayRef<Protected::IO_STRESS_X> tauYIO;
     ModelArrayRef<Shared::NEW_ICE, RW> newIce;
     ModelArrayRef<Shared::DELTA_HICE, RW> deltaHice;
     ModelArrayRef<Shared::HSNOW_MELT, RW> deltaSmelt;

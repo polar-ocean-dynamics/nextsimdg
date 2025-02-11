@@ -1,7 +1,7 @@
 /*!
  * @file FiniteElementFluxes.hpp
  *
- * @date 24 Sep 2024
+ * @date 11 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -41,7 +41,11 @@ public:
         , t_air(getStore())
         , t_dew2(getStore())
         , p_air(getStore())
+        , windSpeed(getStore())
+        , u_air(getStore())
         , v_air(getStore())
+        , tau_x_ow(getStore())
+        , tau_y_ow(getStore())
         , h_snow(getStore())
         , h_snow_true(getStore())
         , cice(getStore())
@@ -107,7 +111,9 @@ private:
     ModelArrayRef<Protected::T_AIR> t_air;
     ModelArrayRef<Protected::DEW_2M> t_dew2;
     ModelArrayRef<Protected::P_AIR> p_air;
-    ModelArrayRef<Protected::WIND_SPEED> v_air;
+    ModelArrayRef<Protected::WIND_SPEED> windSpeed;
+    ModelArrayRef<Protected::WIND_U> u_air;
+    ModelArrayRef<Protected::WIND_V> v_air;
     ModelArrayRef<Protected::H_SNOW> h_snow; // cell-averaged value
     ModelArrayRef<Protected::HTRUE_SNOW> h_snow_true; // cell-averaged value
     ModelArrayRef<Protected::C_ICE> cice;
@@ -115,12 +121,16 @@ private:
     ModelArrayRef<Protected::SW_IN> sw_in;
     ModelArrayRef<Protected::LW_IN> lw_in;
 
+    // Outputs owned by others
+    ModelArrayRef<Shared::OW_STRESS_X, RW> tau_x_ow;
+    ModelArrayRef<Shared::OW_STRESS_Y, RW> tau_y_ow;
+
     void calculateOW(size_t i, const TimestepTime& tst);
     void calculateIce(size_t i, const TimestepTime& tst);
     void calculateAtmos(size_t i, const TimestepTime& tst);
 
     static double dragOcean_q;
-    static double dragOcean_m(double windSpeed);
+    static inline double dragOcean_m(double windSpeed);
     static double dragOcean_t;
     static double dragIce_t;
 
