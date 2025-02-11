@@ -115,8 +115,8 @@ void FiniteElementFluxes::calculateOW(size_t i, const TimestepTime& tst)
     evap[i] = dragOcean_q * rho_air[i] * windSpeed[i] * (sh_water[i] - sh_air[i]);
     // Momentum flux from open water (drag pressure)
     /* Drag the ocean experiences from the wind - still only used in the coupled case */
-    tau_x_ow[i] = u_air[i] * rho_air[i] * dragOcean_m(windSpeed[i]);
-    tau_y_ow[i] = v_air[i] * rho_air[i] * dragOcean_m(windSpeed[i]);
+    tau_x_ow[i] = rho_air[i] * dragOcean_m(windSpeed[i]) * u_air[i] * windSpeed[i];
+    tau_y_ow[i] = rho_air[i] * dragOcean_m(windSpeed[i]) * v_air[i] * windSpeed[i];
 
     // Heat flux open water
     //   Latent heat from evaporation (and condensation)
