@@ -48,18 +48,6 @@ public:
      */
     void update(const TimestepTime& tsTime);
 
-//    //! Returns a const reference to the cell-averaged ice thickness field.
-//    const HField& iceThickness() { return m_thick; }
-//
-//    //! Returns a reference to the ice concentration field
-//    const HField& iceConcentration() { return m_conc; }
-//
-//    //! Returns a const reference to the cell-averaged snow thickness field.
-//    const HField& snowThickness() { return m_snow; }
-//
-//    //! Returns a const reference to the (three dimensional) ice temperature field.
-//    const ZField& iceTemperature() { return m_tice; }
-
     /*!
      * Writes a restart file to the specified file path.
      * @param filePath the file path to write the restart file to.
@@ -67,8 +55,6 @@ public:
     void writeRestartFile(const std::string& filePath, const ModelMetadata& metadata) const;
 
 private:
-//    HField m_thick;
-//    HField m_conc;
     ZField m_tice;
     HField m_snow;
     HField m_damage;
