@@ -164,6 +164,7 @@ public:
     static ModelArrayReferenceStore& getStore() { return columnPhysicsStore(); }
 
     static ModelArrayReferenceStore& getAdvectionStore() { return advectionStore(); }
+
 protected:
     inline static void overElements(IteratedFn fn, const TimestepTime& tst)
     {

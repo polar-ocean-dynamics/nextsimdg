@@ -72,9 +72,9 @@ void copyAllComponents(const ModelArray& source, ModelArray& sink)
     } else if (source.nComponents() == 1) {
         sink.component(0) = source.data();
     } else {
-        std::string err = std::string("PrognosticData::copyAllComponents: Expected 1 or ") +
-                std::to_string(sink.nComponents()) + " components, got " +
-                std::to_string(source.nComponents()) + " components.";
+        std::string err = std::string("PrognosticData::copyAllComponents: Expected 1 or ")
+            + std::to_string(sink.nComponents()) + " components, got "
+            + std::to_string(source.nComponents()) + " components.";
         throw std::runtime_error(err);
     }
 }

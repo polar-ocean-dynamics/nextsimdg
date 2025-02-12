@@ -147,7 +147,8 @@ public:
      *
      * @param src The DataType object to be assigned.
      */
-    ModelArray& operator=(const DataType& src) {
+    ModelArray& operator=(const DataType& src)
+    {
         m_data = src;
         return *this;
     }
@@ -560,8 +561,10 @@ public:
         return *this;
     }
     using TypeMap = std::map<ModelArray::Type, ModelArray::Type>;
+
 private:
     static const TypeMap definedComp0Map();
+
 public:
     static ModelArray::Type component0Type(ModelArray::Type withComponents)
     {
