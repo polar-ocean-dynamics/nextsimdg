@@ -17,8 +17,8 @@ namespace Nextsim {
 
 PrognosticData::PrognosticData()
     : m_dt(1)
-    , m_thick(ModelArray::Type::H)
-    , m_conc(ModelArray::Type::H)
+//    , m_thick(ModelArray::Type::H)
+//    , m_conc(ModelArray::Type::H)
     , m_snow(ModelArray::Type::H)
     , m_tice(ModelArray::Type::Z)
     , m_damage(ModelArray::Type::H)
@@ -29,8 +29,10 @@ PrognosticData::PrognosticData()
     , pDynamics(0)
 
 {
-    getStore().registerArray(Protected::H_ICE, &m_thick, RO);
-    getStore().registerArray(Protected::C_ICE, &m_conc, RO);
+//    getStore().registerArray(Protected::H_ICE, &m_thick, RO);
+//    getStore().registerArray(Protected::C_ICE, &m_conc, RO);
+    getStore().registerArray(Protected::H_ICE, &hiceDG, RO);
+    getStore().registerArray(Protected::C_ICE, &ciceDG, RO);
     getStore().registerArray(Protected::H_SNOW, &m_snow, RO);
     getStore().registerArray(Protected::T_ICE, &m_tice, RO);
     getStore().registerArray(Protected::DAMAGE, &m_damage, RO);
@@ -90,8 +92,8 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
         noLandMask();
     }
 
-    copyMeanComponent(ms.at(hiceName), m_thick);
-    copyMeanComponent(ms.at(ciceName), m_conc);
+//    copyMeanComponent(ms.at(hiceName), m_thick);
+//    copyMeanComponent(ms.at(ciceName), m_conc);
     copyMeanComponent(ms.at(ticeName), m_tice);
     copyMeanComponent(ms.at(hsnowName), m_snow);
     // Damage is an optional field, and defaults to 1, if absent
@@ -125,14 +127,14 @@ void PrognosticData::update(const TimestepTime& tst)
     updatePrognosticFields();
 
     // TODO: remove this. Specially update the mean component of the DG fields
-    hiceDG.component(0) = m_thick.data();
-    ciceDG.component(0) = m_conc.data();
+//    hiceDG.component(0) = m_thick.data();
+//    ciceDG.component(0) = m_conc.data();
     pDynamics->update(tst);
 
-    updatePrognosticFields();
+    updateDynamicsFields();
     // TODO: remove this. Specially update the HField arrays with the  mean component of the DG fields.
-    m_thick = hiceDG.component(0);
-    m_conc = ciceDG.component(0);
+//    m_thick = hiceDG.component(0);
+//    m_conc = ciceDG.component(0);
 
     pOcnBdy->updateAfter(tst);
 }
@@ -149,8 +151,26 @@ void PrognosticData::updatePrognosticFields()
     HField hiceUpd = hiceTrueUpd * ciceUpd;
     HField hsnowUpd = hsnowTrueUpd * ciceUpd;
 
-    m_thick.setData(hiceUpd);
-    m_conc.setData(ciceUpd);
+//    m_thick.setData(hiceUpd);
+//    m_conc.setData(ciceUpd);
+    // Update the DG0 component of the DG fields
+    hiceDG.component(0) = hiceUpd.data();
+    ciceDG.component(0) = ciceUpd.allComponents();
+    m_snow.setData(hsnowUpd);
+    m_tice.setData(ticeUpd);
+    m_damage.setData(damageUpd);
+}
+
+void PrognosticData::updateDynamicsFields()
+{
+    ModelArrayRef<Shared::H_SNOW, RO> hsnowTrueUpd(getStore());
+    ModelArrayRef<Shared::T_ICE, RO> ticeUpd(getStore());
+    ModelArrayRef<Shared::DAMAGE, RO> damageUpd(getStore());
+
+    // Calculate the cell average thicknesses
+    HField hsnowUpd;
+    hsnowUpd.setData(hsnowTrueUpd.allComponents() * ciceDG.component(0));
+
     m_snow.setData(hsnowUpd);
     m_tice.setData(ticeUpd);
     m_damage.setData(damageUpd);
@@ -167,10 +187,10 @@ ModelState PrognosticData::getState() const
     // clang-format off
     ModelState localState = { {
                  { "mask", ModelArray(oceanMask()) }, // make a copy
-                 { "hice", mask(m_thick) },
-                 { "cice", mask(m_conc) },
-                 { "hiceDG", hiceDG },
-                 { "ciceDG", ciceDG },
+//                 { "hice", mask(m_thick) },
+//                 { "cice", mask(m_conc) },
+                 { "hice", hiceDG },
+                 { "cice", ciceDG },
                  { "hsnow", mask(m_snow) },
                  { "tice", mask(m_tice) },
                  { "sst", mask(sst) },
