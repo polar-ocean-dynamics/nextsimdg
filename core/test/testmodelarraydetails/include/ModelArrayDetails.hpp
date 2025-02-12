@@ -19,6 +19,8 @@ enum class Type {
     TWOCOMP,
 };
 
+static const Type AdvectionType = Type::TWOCOMP;
+
 static ModelArray OneDField() { return ModelArray(Type::ONED); }
 static ModelArray TwoDField() { return ModelArray(Type::TWOD); }
 static ModelArray ZUField() { return ModelArray(Type::ZUFIELD); }

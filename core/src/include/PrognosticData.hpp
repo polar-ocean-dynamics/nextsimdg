@@ -61,8 +61,8 @@ private:
     double m_dt;
 
     // Full DG component arrays of thickness and concentration
-    DGField hiceDG;
-    DGField ciceDG;
+    AdvectionField hiceAdvection;
+    AdvectionField ciceAdvection;
 
     IAtmosphereBoundary* pAtmBdy;
     IOceanBoundary* pOcnBdy;

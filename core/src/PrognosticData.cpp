@@ -20,20 +20,20 @@ PrognosticData::PrognosticData()
     , m_snow(ModelArray::Type::H)
     , m_tice(ModelArray::Type::Z)
     , m_damage(ModelArray::Type::H)
-    , hiceDG(ModelArray::Type::DG)
-    , ciceDG(ModelArray::Type::DG)
+    , hiceAdvection(ModelArray::AdvectionType)
+    , ciceAdvection(ModelArray::AdvectionType)
     , pAtmBdy(0)
     , pOcnBdy(0)
     , pDynamics(0)
 
 {
-    getStore().registerArray(Protected::H_ICE, &hiceDG, RO);
-    getStore().registerArray(Protected::C_ICE, &ciceDG, RO);
+    getStore().registerArray(Protected::H_ICE, &hiceAdvection, RO);
+    getStore().registerArray(Protected::C_ICE, &ciceAdvection, RO);
     getStore().registerArray(Protected::H_SNOW, &m_snow, RO);
     getStore().registerArray(Protected::T_ICE, &m_tice, RO);
     getStore().registerArray(Protected::DAMAGE, &m_damage, RO);
-    getStore().registerArray(Shared::H_ICE_DG, &hiceDG, RW);
-    getStore().registerArray(Shared::C_ICE_DG, &ciceDG, RW);
+    getStore().registerArray(Shared::H_ICE_DG, &hiceAdvection, RW);
+    getStore().registerArray(Shared::C_ICE_DG, &ciceAdvection, RW);
 }
 
 void PrognosticData::configure()
@@ -99,10 +99,10 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
     }
 
     // Copy the full DG data
-    hiceDG = 0;
-    ciceDG = 0;
-    copyAllComponents(ms.at(hiceName), hiceDG);
-    copyAllComponents(ms.at(ciceName), ciceDG);
+    hiceAdvection = 0;
+    ciceAdvection = 0;
+    copyAllComponents(ms.at(hiceName), hiceAdvection);
+    copyAllComponents(ms.at(ciceName), ciceAdvection);
 
     pAtmBdy->setData(ms);
     pOcnBdy->setData(ms);
@@ -140,8 +140,8 @@ void PrognosticData::updatePrognosticFields()
     HField hsnowUpd = hsnowTrueUpd * ciceUpd;
 
     // Update the DG0 component of the DG fields
-    hiceDG.component(0) = hiceUpd.data();
-    ciceDG.component(0) = ciceUpd.allComponents();
+    hiceAdvection.component(0) = hiceUpd.data();
+    ciceAdvection.component(0) = ciceUpd.allComponents();
     m_snow.setData(hsnowUpd);
     m_tice.setData(ticeUpd);
     m_damage.setData(damageUpd);
@@ -155,7 +155,7 @@ void PrognosticData::updateDynamicsFields()
 
     // Calculate the cell average thicknesses
     HField hsnowUpd;
-    hsnowUpd.setData(hsnowTrueUpd.allComponents() * ciceDG.component(0));
+    hsnowUpd.setData(hsnowTrueUpd.allComponents() * ciceAdvection.component(0));
 
     m_snow.setData(hsnowUpd);
     m_tice.setData(ticeUpd);
@@ -173,10 +173,8 @@ ModelState PrognosticData::getState() const
     // clang-format off
     ModelState localState = { {
                  { "mask", ModelArray(oceanMask()) }, // make a copy
-//                 { "hice", mask(m_thick) },
-//                 { "cice", mask(m_conc) },
-                 { "hice", hiceDG },
-                 { "cice", ciceDG },
+                 { "hice", hiceAdvection },
+                 { "cice", ciceAdvection },
                  { "hsnow", mask(m_snow) },
                  { "tice", mask(m_tice) },
                  { "sst", mask(sst) },
