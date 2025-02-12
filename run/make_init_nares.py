@@ -21,7 +21,7 @@ import numpy as np
 Ly = 120
 Lx = 2*Ly
 
-for N in [16, 32, 64]:  # number of elements in y-direction
+for N in [32, 64, 128]:  # number of elements in y-direction
 
     ny = N
     nx = 2*N
@@ -39,10 +39,10 @@ for N in [16, 32, 64]:  # number of elements in y-direction
 
     # Ice everywhere and all boundaries closed
     initializer.mask[:, :] = 1.
-#    initializer.mask[0, :] = 0.
-#    initializer.mask[-1, :] = 0.
-    initializer.mask[:, 0] = 0.
-    initializer.mask[:, -1] = 0.
+    initializer.mask[0, :] = 0.
+    initializer.mask[-1, :] = 0.
+#    initializer.mask[:, 0] = 0.  # left/ right open
+#    initializer.mask[:, -1] = 0. # 
 
     # narrowing
     for iy in range(ny):
