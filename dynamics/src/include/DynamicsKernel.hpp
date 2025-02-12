@@ -63,10 +63,6 @@ public:
         dgtransport = std::make_unique<Nextsim::DGTransport<DGadvection>>(*smesh);
         dgtransport->settimesteppingscheme("rk2");
 
-        // resize DG vectors
-//        hice.resize_by_mesh(*smesh);
-//        cice.resize_by_mesh(*smesh);
-
         seaSurfaceHeight.resize_by_mesh(*smesh);
 
         e11.resize_by_mesh(*smesh);
@@ -77,8 +73,6 @@ public:
         s22.resize_by_mesh(*smesh);
 
         // Set initial values to zero. Prognostic fields will be filled from the restart file.
-//        hice.zero();
-//        cice.zero();
         e11.zero();
         e12.zero();
         e22.zero();
@@ -128,7 +122,6 @@ public:
         }
     }
 
-
     /*!
      * @brief Returns an HField ModelArray containing the DG0 finite volume
      * component of the named dynamics field.
@@ -140,7 +133,8 @@ public:
     {
         HField data(ModelArray::Type::H);
         if (name == hiceName || name == ciceName) {
-            throw std::runtime_error(std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
+            throw std::runtime_error(
+                std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Any other named field must exist
             return DGModelArray::dg2ma(advectedFields.at(name), data);
@@ -157,7 +151,8 @@ public:
     {
 
         if (name == hiceName || name == ciceName) {
-            throw std::runtime_error(std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
+            throw std::runtime_error(
+                std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);

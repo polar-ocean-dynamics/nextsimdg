@@ -13,8 +13,7 @@
 
 namespace Nextsim {
 
-template <int DG>
-class DGVectorHolder {
+template <int DG> class DGVectorHolder {
 public:
     using EigenDGVector = typename DGVector<DG>::EigenDGVector;
     DGVectorHolder()
@@ -30,29 +29,21 @@ public:
     {
     }
     DGVectorHolder(EigenDGVector& edgv)
-        :ref(&edgv)
+        : ref(&edgv)
     {
     }
     DGVectorHolder(DGVector<DG>& dgv)
-        :ref(&dgv)
+        : ref(&dgv)
     {
     }
 
-    operator DGVector<DG>&()
-    {
-        return reinterpret_cast<DGVector<DG>&>(*ref);
-    }
-    operator const DGVector<DG>&() const
-    {
-        return reinterpret_cast<const DGVector<DG>&>(*ref);
-    }
+    operator DGVector<DG>&() { return reinterpret_cast<DGVector<DG>&>(*ref); }
+    operator const DGVector<DG>&() const { return reinterpret_cast<const DGVector<DG>&>(*ref); }
 
-    double& operator()(size_t i, size_t j)
-    {
-        return (*ref)(i, j);
-    }
+    double& operator()(size_t i, size_t j) { return (*ref)(i, j); }
 
     void zero() { ref->setZero(); }
+
 private:
     EigenDGVector* ref;
 };
