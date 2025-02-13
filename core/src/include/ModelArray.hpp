@@ -706,7 +706,7 @@ private:
 };
 
 #include "include/ModelArrayTypedefs.hpp"
-using AdvectionField = ModelArray;
+using AdvectedField = ModelArray;
 
 // ModelArray arithmetic with doubles
 ModelArray operator+(const double&, const ModelArray&);
