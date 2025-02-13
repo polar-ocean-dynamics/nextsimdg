@@ -50,7 +50,7 @@ void MEVPDynamics::configure()
         = Configured::getConfiguration(keyMap.at(ANGLE_KEY), oceanTurningAngleDefault);
 }
 
-static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };
+static const std::vector<std::string> namedFields = { uName, vName };
 MEVPDynamics::MEVPDynamics()
     : IDynamics()
     , kernel(params)
@@ -79,15 +79,15 @@ void MEVPDynamics::setData(const ModelState::DataMap& ms)
     for (const auto& fieldName : namedFields) {
         kernel.setData(fieldName, ms.at(fieldName));
     }
+
+    // Set the DG field data
+    kernel.setDGArray(hiceName, hiceDG.allComponents());
+    kernel.setDGArray(ciceName, ciceDG.allComponents());
 }
 
 void MEVPDynamics::update(const TimestepTime& tst)
 {
     std::cout << tst.start << std::endl;
-
-    // set the updated ice thickness and concentration
-    kernel.setData(hiceName, hice);
-    kernel.setData(ciceName, cice);
 
     // set the forcing velocities
     kernel.setData(uWindName, uwind);
@@ -96,13 +96,7 @@ void MEVPDynamics::update(const TimestepTime& tst)
     kernel.setData(vOceanName, vocean);
     kernel.setData(sshName, ssh);
 
-    // kernel.setData(uName, uice);
-    // kernel.setData(vName, vice);
-
     kernel.update(tst);
-
-    hice = kernel.getDG0Data(hiceName);
-    cice = kernel.getDG0Data(ciceName);
 
     uice = kernel.getDG0Data(uName);
     vice = kernel.getDG0Data(vName);
