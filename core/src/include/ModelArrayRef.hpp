@@ -30,6 +30,12 @@ typedef const ModelArray* ModelArrayConstReference;
  * referenced ModelArray. Here the returned data are by const references, used
  * for accessing data in a read-only fashion.
  *
+ * ModelArrayRef is designed to support moving data around the column physics part of nextSIM. As
+ * such, it only supports accessing component 0 of the underlying data array, which is assumed to
+ * be the cell-mean value (DG0 component for a discontinuous Galerkin model). Access to the full
+ * underlying data array can be achieved with the allComponents() member function, but this is
+ * intended for a few specific circumstances.
+ *
  * @tparam fieldName The TextTag containing the name of the field to be referenced.
  * @tparam isReadWrite A boolean which is here false, indicating access to the array is read-only.
  */
