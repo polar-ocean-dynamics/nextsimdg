@@ -1,7 +1,7 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date 06 Dec 2024
+ * @date 19 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -129,8 +129,8 @@ protected:
         //      update by a loop.. implicit parts and h-dependent
 #pragma omp parallel for
         for (int i = 0; i < u.rows(); ++i) {
-	    if (pmap->cglandmask(i)==0)
-	      continue;
+            if (pmap->cglandmask(i) == 0)
+                continue;
             auto uOcnRel = u(i) - uOcean(i);
             auto vOcnRel = v(i) - vOcean(i);
             double absatm = sqrt(SQR(uAtmos(i)) + SQR(vAtmos(i)));

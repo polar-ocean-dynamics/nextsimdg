@@ -1,6 +1,6 @@
 /*!
  * @file    ParametricMap.hpp
- * @date    Dec 13, 2022
+ * @date    19 Feb 2025
  * @author  Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -70,7 +70,6 @@ public:
     CGVector<1> lumpedcg1mass;
     //! Vector to store the landmask in the CG-degrees of freedom
     CGVector<CG> cglandmask;
-  
 
     /*!
      * These matrices realize the integration of (-div S, phi) = (S, nabla phi)

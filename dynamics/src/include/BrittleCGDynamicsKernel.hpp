@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 06 Dec 2024
+ * @date 19 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -204,10 +204,9 @@ protected:
 
 #pragma omp parallel for
         for (size_t i = 0; i < u.rows(); ++i) {
-	    if (pmap->cglandmask(i)==0)
-	      continue;
+            if (pmap->cglandmask(i) == 0)
+                continue;
 
-	  
             // FIXME dte_over_mass should include snow in the total mass
             const double dteOverMass = deltaT / (params.rhoIce * cgH(i));
             // Memoized initial velocity values
