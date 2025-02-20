@@ -1,7 +1,7 @@
 /*!
  * @file IDynamics.hpp
  *
- * @date 7 Sep 2023
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -23,6 +23,8 @@ public:
         : uice(ModelArray::Type::H)
         , vice(ModelArray::Type::H)
         , damage(ModelArray::Type::H)
+        , taux(ModelArray::Type::H)
+        , tauy(ModelArray::Type::H)
         , hice(getStore())
         , cice(getStore())
         , hsnow(getStore())
@@ -31,9 +33,12 @@ public:
         , vwind(getStore())
         , uocean(getStore())
         , vocean(getStore())
+        , ssh(getStore())
         , m_usesDamage(usesDamageIn)
     {
         getStore().registerArray(Shared::DAMAGE, &damage, RW);
+        getStore().registerArray(Protected::IO_STRESS_X, &taux, RO);
+        getStore().registerArray(Protected::IO_STRESS_Y, &tauy, RO);
     }
     virtual ~IDynamics() = default;
 
@@ -46,7 +51,11 @@ public:
             {} };
     }
     ModelState getState(const OutputLevel&) const override { return getState(); }
-    ModelState getStateRecursive(const OutputSpec& os) const override { return os ? getState() : ModelState(); }
+    ModelState getStateRecursive(const OutputSpec& os) const override
+    {
+        // Ensure the base class implementation of getState() is called
+        return os ? IDynamics::getState() : ModelState();
+    }
 
     std::string getName() const override { return "IDynamics"; }
     virtual void setData(const ModelState::DataMap& ms) override
@@ -72,18 +81,21 @@ protected:
     HField vice;
     // Updated damage array
     HField damage;
+    // Ice-ocean stress (for the coupler, mostly)
+    HField taux;
+    HField tauy;
     // References to the DG0 finite volume data arrays
     ModelArrayRef<Shared::H_ICE, RW> hice;
     ModelArrayRef<Shared::C_ICE, RW> cice;
     ModelArrayRef<Shared::H_SNOW, RW> hsnow;
     ModelArrayRef<Protected::DAMAGE, RO> damage0;
-    //ModelArrayRef<ModelComponent::SharedArray::D, MARBackingStore, RW> damage;
 
     // References to the forcing velocity arrays
     ModelArrayRef<Protected::WIND_U> uwind;
     ModelArrayRef<Protected::WIND_V> vwind;
     ModelArrayRef<Protected::OCEAN_U> uocean;
     ModelArrayRef<Protected::OCEAN_V> vocean;
+    ModelArrayRef<Protected::SSH> ssh;
 
     // Does this implementation of the dynamics use damage?
     bool m_usesDamage;
@@ -100,12 +112,10 @@ protected:
             return false;
         } else {
             // Throw a runtime_error exception which can either be handled or not
-            throw std::runtime_error(
-                    "Input data must contain either Cartesian (" + xName + ", " + yName
-                            + ") or spherical (" + longitudeName + ", " + latitudeName
-                            + ") coordinates.");
+            throw std::runtime_error("Input data must contain either Cartesian (" + xName + ", "
+                + yName + ") or spherical (" + longitudeName + ", " + latitudeName
+                + ") coordinates.");
         }
-
     }
 };
 }

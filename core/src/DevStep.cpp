@@ -1,15 +1,16 @@
 /*!
  * @file DevStep.cpp
  *
- * @date Jan 12, 2022
+ * @date 2 Jul 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
 #include "include/DevStep.hpp"
 
 #include "include/ConfiguredModule.hpp"
+#include "include/Finalizer.hpp"
 #include "include/IDiagnosticOutput.hpp"
-#include "include/Module.hpp"
+#include "include/NextsimModule.hpp"
 namespace Nextsim {
 
 DevStep::DevStep()
@@ -21,12 +22,19 @@ DevStep::DevStep()
 
 void DevStep::init()
 {
+    Finalizer::registerUnique(Module::finalize<IDiagnosticOutput>);
     IDiagnosticOutput& ido = Module::getImplementation<IDiagnosticOutput>();
     ido.setFilenamePrefix("diagnostic");
     tryConfigure(ido);
 }
 
-void DevStep::start(const TimePoint& startTime) { lastOutput = startTime; }
+void DevStep::start(const TimePoint& startTime)
+{
+    // Set the last output time for the restart files to the model start time
+    lastOutput = startTime;
+    // Set the model start time for the diagnostic output files
+    Module::getImplementation<IDiagnosticOutput>().setModelStart(startTime);
+}
 
 void DevStep::iterate(const TimestepTime& tst)
 {
@@ -36,11 +44,12 @@ void DevStep::iterate(const TimestepTime& tst)
     mData->incrementTime(tst.step);
     if ((m_restartPeriod.seconds() > 0) && (mData->time() >= lastOutput + m_restartPeriod)) {
         std::string currentFileName = mData->time().format(m_restartFileName);
-        pData->writeRestartFile(currentFileName);
+        pData->writeRestartFile(currentFileName, *mData);
         lastOutput = mData->time();
     }
     // XIOS wants all the fields, every timestep, so I guess that's what everyone gets
-    ModelState overallState = pData->getStateRecursive(true);
+    OutputSpec os; // The default OutputSpec is all fields, but only cell average values
+    ModelState overallState = pData->getStateRecursive(os);
     overallState.merge(ConfiguredModule::getAllModuleConfigurations());
     Module::getImplementation<IDiagnosticOutput>().outputState(*mData);
 }

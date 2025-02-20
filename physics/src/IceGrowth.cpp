@@ -1,19 +1,20 @@
 /*!
  * @file IceGrowth.cpp
  *
- * @date Mar 15, 2022
+ * @date 20 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #include "include/IceGrowth.hpp"
 
-#include "include/Module.hpp"
+#include "include/Finalizer.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/constants.hpp"
 
 namespace Nextsim {
 
-template <>
-const std::map<int, std::string> Configured<IceGrowth>::keyMap = {
+static const std::map<int, std::string> keyMap = {
     { IceGrowth::ICE_THERMODYNAMICS_KEY, "IceThermodynamicsModel" },
     { IceGrowth::LATERAL_GROWTH_KEY, "LateralIceModel" },
     { IceGrowth::MINC_KEY, "nextsim_thermo.min_conc" },
@@ -56,6 +57,7 @@ void IceGrowth::setData(const ModelState::DataMap& ms)
 {
     iVertical->setData(ms);
     iLateral->setData(ms);
+    iHealing->setData(ms);
 
     hice.resize();
     cice.resize();
@@ -88,6 +90,7 @@ ModelState IceGrowth::getStateRecursive(const OutputSpec& os) const
     // Merge in other states here
     state.merge(iLateral->getStateRecursive(os));
     state.merge(iVertical->getStateRecursive(os));
+    state.merge(iHealing->getStateRecursive(os));
 
     return os ? state : ModelState();
 }
@@ -96,9 +99,11 @@ IceGrowth::HelpMap& IceGrowth::getHelpText(HelpMap& map, bool getAll)
 {
     map["IceGrowth"] = {
         { keyMap.at(MINC_KEY), ConfigType::NUMERIC, { "0", "1" },
-            std::to_string(IceMinima::cMinDefault), "", "Minimum allowed ice concentration." },
+            ConfigurationHelp::toString(IceMinima::cMinDefault), "",
+            "Minimum allowed ice concentration." },
         { keyMap.at(MINH_KEY), ConfigType::NUMERIC, { "0", "∞" },
-            std::to_string(IceMinima::hMinDefault), "m", "Minimum allowed ice thickness." },
+            ConfigurationHelp::toString(IceMinima::hMinDefault), "m",
+            "Minimum allowed ice thickness." },
         { keyMap.at(USE_THERMO_KEY), ConfigType::BOOLEAN, { "true", "false" }, "true", "",
             "Perform ice physics calculations as part of the timestep." },
     };
@@ -109,11 +114,16 @@ IceGrowth::HelpMap& IceGrowth::getHelpRecursive(HelpMap& map, bool getAll)
     getHelpText(map, getAll);
     Module::getHelpRecursive<IIceThermodynamics>(map, getAll);
     Module::getHelpRecursive<ILateralIceSpread>(map, getAll);
+    Module::getHelpRecursive<IDamageHealing>(map, getAll);
     return map;
 }
 
 void IceGrowth::configure()
 {
+    Finalizer::registerUnique(Module::finalize<IIceThermodynamics>);
+    Finalizer::registerUnique(Module::finalize<ILateralIceSpread>);
+    Finalizer::registerUnique(Module::finalize<IDamageHealing>);
+
     // Configure whether we actually do anything here
     doThermo = Configured::getConfiguration(keyMap.at(USE_THERMO_KEY), true);
     // Configure constants
@@ -123,8 +133,10 @@ void IceGrowth::configure()
     // Configure the vertical and lateral growth modules
     iVertical = std::move(Module::getInstance<IIceThermodynamics>());
     iLateral = std::move(Module::getInstance<ILateralIceSpread>());
+    iHealing = std::move(Module::getInstance<IDamageHealing>());
     tryConfigure(*iVertical);
     tryConfigure(*iLateral);
+    tryConfigure(*iHealing);
 }
 
 ConfigMap IceGrowth::getConfiguration() const
@@ -154,6 +166,10 @@ void IceGrowth::update(const TimestepTime& tsTime)
                          std::placeholders::_2),
             tsTime);
     }
+
+    // Damage always heals, even if there's no active thermo
+    // TODO: This should only be called for brittle rheologies
+    iHealing->update(tsTime);
 }
 
 void IceGrowth::initializeThicknesses()
@@ -181,7 +197,7 @@ void IceGrowth::initializeThicknessesElement(size_t i, const TimestepTime&)
     }
 
     // reset the new ice volume array
-    newice = 0;
+    newice[i] = 0;
 }
 
 void IceGrowth::newIceFormation(size_t i, const TimestepTime& tst)

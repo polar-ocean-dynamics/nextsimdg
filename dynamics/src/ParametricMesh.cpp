@@ -1,10 +1,17 @@
+/*!
+ * @file ParametricMesh.hpp
+ * @date 14 Jan 2025
+ * @author Thomas Richter <thomas.richter@ovgu.de>
+ */
+
 #include "ParametricMesh.hpp"
+
+#include "ParametricTools.hpp"
 
 #include <fstream>
 #include <iostream>
 
 namespace Nextsim {
-
 void ParametricMesh::readmesh(std::string fname)
 {
     reset();
@@ -217,8 +224,7 @@ void ParametricMesh::coordinatesFromModelArray(const ModelArray& coords)
 void ParametricMesh::landmaskFromModelArray(const ModelArray& mask)
 {
     landmask.resize(nelements);
-    for (size_t idx = 0; idx < mask.trueSize(); ++idx)
-    {
+    for (size_t idx = 0; idx < mask.trueSize(); ++idx) {
         landmask[idx] = (mask[idx] == 1.);
     }
 }
@@ -229,18 +235,19 @@ void ParametricMesh::landmaskFromModelArray(const ModelArray& mask)
 void ParametricMesh::dirichletFromMask()
 {
     // Edges are accessed in the order: BOTTOM, RIGHT, TOP, LEFT. See also ParametricMesh::edges.
-    const std::array<size_t, N_EDGE> startX = {0, 0, 0, 1};
-    const std::array<size_t, N_EDGE> stopX = {nx, nx - 1, nx, nx};
-    const std::array<size_t, N_EDGE> startY = {1, 0, 0, 0};
-    const std::array<size_t, N_EDGE> stopY = {ny, ny, ny - 1, ny};
-    const std::array<int, N_EDGE> deltaIdx = {-static_cast<int>(nx), 1, static_cast<int>(nx), -1};
+    const std::array<size_t, N_EDGE> startX = { 0, 0, 0, 1 };
+    const std::array<size_t, N_EDGE> stopX = { nx, nx - 1, nx, nx };
+    const std::array<size_t, N_EDGE> startY = { 1, 0, 0, 0 };
+    const std::array<size_t, N_EDGE> stopY = { ny, ny, ny - 1, ny };
+    const std::array<int, N_EDGE> deltaIdx = { -static_cast<int>(nx), 1, static_cast<int>(nx), -1 };
 
     // Loop over edges
     for (Edge edge : edges) {
         for (size_t j = startY[edge]; j < stopY[edge]; ++j) {
             for (size_t i = startX[edge]; i < stopX[edge]; ++i) {
-                size_t idx = ModelArray::indexFromLocation(ModelArray::Type::H, {i, j});
-                if (!landmask[idx]) continue;
+                size_t idx = ModelArray::indexFromLocation(ModelArray::Type::H, { i, j });
+                if (!landmask[idx])
+                    continue;
                 // mask(i, j) is ocean. Check the appropriate neighbour
                 if (!landmask[idx + deltaIdx[edge]]) {
                     dirichlet[edge].push_back(idx);
@@ -259,9 +266,9 @@ void ParametricMesh::dirichletFromMask()
 void ParametricMesh::dirichletFromEdge(Edge edge)
 {
     // BOTTOM, RIGHT, TOP, LEFT
-    const std::array<size_t, N_EDGE> start = {0, nx - 1, nelements - nx, 0};
-    const std::array<size_t, N_EDGE> stop = {nx, nelements, nelements, nelements};
-    const std::array<size_t, N_EDGE> stride = {1, nx, 1, nx};
+    const std::array<size_t, N_EDGE> start = { 0, nx - 1, nelements - nx, 0 };
+    const std::array<size_t, N_EDGE> stop = { nx, nelements, nelements, nelements };
+    const std::array<size_t, N_EDGE> stride = { 1, nx, 1, nx };
 
     for (size_t idx = start[edge]; idx < stop[edge]; idx += stride[edge]) {
         if (landmask[idx]) {
@@ -290,6 +297,7 @@ void ParametricMesh::sortDirichlet(Edge edge)
 {
     std::sort(dirichlet[edge].begin(), dirichlet[edge].end());
 }
+
 /*!
  * returns minimum mesh size.
  *
@@ -303,6 +311,34 @@ double ParametricMesh::hmin() const
 }
 
 /*!
+ * return the area of the mesh element with index eid
+ */
+double ParametricMesh::area(const size_t eid) const
+{
+    // The element area is computed by transforming the reference element K = [0,1]^2 onto the
+    // element T. Hence, Area(T) = \int_T dx = \int_K J(z) dz
+    // The integral is computed with Gauss-Quadrature
+    // For Cartesian meshes, 1 Gauss point is sufficient as J is a bi-linear
+    // function.
+    //
+    // In Spherical Coordinates, the cosine of the lat must be added. This increases the error
+    // Machine precision is only achieved for 3 GP. I propose to use only two, which still gives
+    // 10^-9 rel. error.
+    if (CoordinateSystem == CARTESIAN) {
+        return (ParametricTools::J<1>((*this), eid).array() * GAUSSWEIGHTS<1>.array()).sum();
+    } else if (CoordinateSystem == SPHERICAL) {
+        // In spherical coordinates cosine of the latitude and the square of the radius must be
+        // added
+        return (ParametricTools::J<2>((*this), eid).array() * GAUSSWEIGHTS<2>.array()
+                   * (ParametricTools::getGaussPointsInElement<2>((*this), eid).row(1).array())
+                         .cos())
+                   .sum()
+            * EarthRadius * EarthRadius;
+    } else
+        abort();
+}
+
+/*!
  * returns are of domain
  */
 double ParametricMesh::area() const
@@ -312,5 +348,4 @@ double ParametricMesh::area() const
         a += area(i);
     return a;
 }
-
 }

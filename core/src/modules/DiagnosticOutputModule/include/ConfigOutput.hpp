@@ -1,7 +1,7 @@
 /*!
  * @file ConfigOutput.hpp
  *
- * @date 7 Sep 2023
+ * @date 24 Sep 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -37,7 +37,7 @@ public:
 
     // IDiagnosticOutput overrides
     void setFilenamePrefix(const std::string& filePrefix) override { m_filePrefix = filePrefix; }
-
+    void setModelStart(const TimePoint& modelStart) override;
     void outputState(const ModelMetadata& meta) override;
 
     // ModelComponent overrides
@@ -70,7 +70,6 @@ private:
     static const std::string defaultLastOutput;
 
     std::map<std::string, std::string> reverseExternalNames;
-
 };
 
 } /* namespace Nextsim */

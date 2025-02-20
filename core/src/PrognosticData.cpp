@@ -1,14 +1,16 @@
 /*!
  * @file PrognosticData.cpp
  *
- * @date 7 Sep 2023
+ * @date 21 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #include "include/PrognosticData.hpp"
 
+#include "include/Finalizer.hpp"
 #include "include/ModelArrayRef.hpp"
-#include "include/Module.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
 
 namespace Nextsim {
@@ -19,6 +21,7 @@ PrognosticData::PrognosticData()
     , m_conc(ModelArray::Type::H)
     , m_snow(ModelArray::Type::H)
     , m_tice(ModelArray::Type::Z)
+    , m_damage(ModelArray::Type::H)
     , pAtmBdy(0)
     , pOcnBdy(0)
     , pDynamics(0)
@@ -33,6 +36,11 @@ PrognosticData::PrognosticData()
 
 void PrognosticData::configure()
 {
+    // Register finalizers before calling configure.
+    Finalizer::registerUnique(Module::finalize<IAtmosphereBoundary>);
+    Finalizer::registerUnique(Module::finalize<IOceanBoundary>);
+    Finalizer::registerUnique(Module::finalize<IDynamics>);
+
     pAtmBdy = &Module::getImplementation<IAtmosphereBoundary>();
     tryConfigure(pAtmBdy);
 
@@ -45,25 +53,35 @@ void PrognosticData::configure()
     tryConfigure(iceGrowth);
 }
 
+// Copies an HField from a source ModelArray that is either an HField or a DGField.
+void copyMeanComponent(const ModelArray& source, ModelArray& sink)
+{
+    if (source.nComponents() > 1) {
+        sink.setData(source.data().col(0));
+    } else {
+        sink = source;
+    }
+}
+
 void PrognosticData::setData(const ModelState::DataMap& ms)
 {
 
-    if (ms.count("mask")) {
-        setOceanMask(ms.at("mask"));
+    if (ms.count(maskName)) {
+        setOceanMask(ms.at(maskName));
     } else {
         noLandMask();
     }
 
-    m_thick = ms.at("hice");
-    m_conc = ms.at("cice");
-    m_tice = ms.at("tice");
-    m_snow = ms.at("hsnow");
-    // Damage is an optional field, and defaults to zero, if absent
+    copyMeanComponent(ms.at(hiceName), m_thick);
+    copyMeanComponent(ms.at(ciceName), m_conc);
+    copyMeanComponent(ms.at(ticeName), m_tice);
+    copyMeanComponent(ms.at(hsnowName), m_snow);
+    // Damage is an optional field, and defaults to 1, if absent
     if (ms.count(damageName) > 0) {
-        m_damage = ms.at(damageName);
+        copyMeanComponent(ms.at(damageName), m_damage);
     } else {
         m_damage.resize();
-        m_damage = 0.5;
+        m_damage = 1.;
     }
 
     pAtmBdy->setData(ms);
@@ -74,21 +92,16 @@ void PrognosticData::setData(const ModelState::DataMap& ms)
 
 void PrognosticData::update(const TimestepTime& tst)
 {
-    ModelArrayRef<Shared::T_ICE, RW> ticeUpd(getStore());
-
     pOcnBdy->updateBefore(tst);
     pAtmBdy->update(tst);
-
-    // Fill the values of the true ice and snow thicknesses.
-    iceGrowth.initializeThicknesses();
-    // Fill the updated ice temperature array
-    ticeUpd.data().setData(m_tice);
-    pDynamics->update(tst);
-    updatePrognosticFields();
 
     // Take the updated values of the true ice and snow thicknesses, and reset hice0 and hsnow0
     // IceGrowth updates its own fields during update
     iceGrowth.update(tst);
+    updatePrognosticFields();
+
+    pDynamics->update(tst);
+
     updatePrognosticFields();
 
     pOcnBdy->updateAfter(tst);
@@ -113,10 +126,14 @@ void PrognosticData::updatePrognosticFields()
     m_damage.setData(damageUpd);
 }
 
+// Gets all of the prognostic data, including that in the dynamics
 ModelState PrognosticData::getState() const
 {
     ModelArrayRef<Protected::SST> sst(getStore());
     ModelArrayRef<Protected::SSS> sss(getStore());
+
+    // Get the prognostic data from the dynamics, including the full dynamics state
+    ModelState dynamicsState = pDynamics->getState();
     // clang-format off
     ModelState localState = { {
                  { "mask", ModelArray(oceanMask()) }, // make a copy
@@ -129,27 +146,33 @@ ModelState PrognosticData::getState() const
              },
         {} };
     // clang-format on
-    // Get the state from the dynamics (ice velocity). This allows the
-    // dynamics to define its own dimensions for the velocity grid.
-    localState.merge(pDynamics->getState());
 
-    // Merge in the damage field, if the dynamics uses it.
-    if (pDynamics->usesDamage()) {
-        ModelState damageState = { {
-                                       { "damage", mask(m_damage) },
-                                   },
-            {} };
-        localState.merge(damageState);
-    }
-    return localState;
+    // Use the dynamics values of any duplicated fields
+    ModelState state(dynamicsState);
+    state.merge(localState);
+
+    return state;
 }
 
+// Recursively gets the data from all subcomponents
 ModelState PrognosticData::getStateRecursive(const OutputSpec& os) const
 {
-    ModelState state(getState());
-    state.merge(pAtmBdy->getStateRecursive(os));
-    state.merge(iceGrowth.getStateRecursive(os));
-    state.merge(pDynamics->getStateRecursive(os));
+    ModelState state;
+    /* If allComponents is set on the OutputSpec, then for any duplicate fields, the subsystems
+     * take priority, otherwise the fields held by PrognosticData itself. Note that std::map::merge
+     * will not overwrite existing keys, so the first one that exists will survive.
+     */
+    if (os.allComponents()) {
+        state.merge(pAtmBdy->getStateRecursive(os));
+        state.merge(iceGrowth.getStateRecursive(os));
+        state.merge(pDynamics->getStateRecursive(os));
+        state.merge(getState());
+    } else {
+        state.merge(getState());
+        state.merge(pAtmBdy->getStateRecursive(os));
+        state.merge(iceGrowth.getStateRecursive(os));
+        state.merge(pDynamics->getStateRecursive(os));
+    }
     // OceanBoundary does not contribute to the output model state
     return os ? state : ModelState();
 }

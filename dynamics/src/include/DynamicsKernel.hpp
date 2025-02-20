@@ -25,6 +25,7 @@
 #include "include/gridNames.hpp"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -32,12 +33,10 @@
 namespace Nextsim {
 
 // forward define the class holding the potentially non-DG parts
-template <int DGdegree>
-class DynamicsInternals;
+template <int DGdegree> class DynamicsInternals;
 
 template <int DGadvection, int DGstress> class DynamicsKernel {
 public:
-
     typedef std::pair<const std::string, const DGVector<DGadvection>&> DataMapping;
     typedef std::map<typename DataMapping::first_type, typename DataMapping::second_type> DataMap;
 
@@ -46,10 +45,12 @@ public:
     virtual void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask)
     {
         //! Define the spatial mesh
-        smesh = new ParametricMesh((isSpherical) ? Nextsim::SPHERICAL : Nextsim::CARTESIAN);
+        smesh = std::make_unique<ParametricMesh>(
+            (isSpherical) ? Nextsim::SPHERICAL : Nextsim::CARTESIAN);
 
         smesh->coordinatesFromModelArray(coords);
-        if (isSpherical) smesh->RotatePoleToGreenland();
+        if (isSpherical)
+            smesh->RotatePoleToGreenland();
         smesh->landmaskFromModelArray(mask);
         smesh->dirichletFromMask();
         // TODO: handle periodic and open edges
@@ -58,12 +59,14 @@ public:
         }
 
         //! Initialize transport
-        dgtransport = new Nextsim::DGTransport<DGadvection>(*smesh);
+        dgtransport = std::make_unique<Nextsim::DGTransport<DGadvection>>(*smesh);
         dgtransport->settimesteppingscheme("rk2");
 
         // resize DG vectors
         hice.resize_by_mesh(*smesh);
         cice.resize_by_mesh(*smesh);
+
+        seaSurfaceHeight.resize_by_mesh(*smesh);
 
         e11.resize_by_mesh(*smesh);
         e12.resize_by_mesh(*smesh);
@@ -71,7 +74,17 @@ public:
         s11.resize_by_mesh(*smesh);
         s12.resize_by_mesh(*smesh);
         s22.resize_by_mesh(*smesh);
-}
+
+        // Set initial values to zero. Prognostic fields will be filled from the restart file.
+        hice.zero();
+        cice.zero();
+        e11.zero();
+        e12.zero();
+        e22.zero();
+        s11.zero();
+        s12.zero();
+        s22.zero();
+    }
 
     /*!
      * @brief Sets the data from a provided ModelArray.
@@ -97,9 +110,13 @@ public:
             DGModelArray::ma2dg(data, hice);
         } else if (name == ciceName) {
             DGModelArray::ma2dg(data, cice);
+        } else if (name == sshName) {
+            DGModelArray::ma2dg(data, seaSurfaceHeight);
         } else {
             // All other fields get shoved in a (labelled) bucket
             DGModelArray::ma2dg(data, advectedFields[name]);
+            // …and have their type annotated
+            fieldType[name] = data.getType();
         }
     }
 
@@ -110,7 +127,7 @@ public:
      * @param name the name of the requested field.
      *
      */
-    virtual ModelArray getDG0Data(const std::string& name)
+    virtual ModelArray getDG0Data(const std::string& name) const
     {
         HField data(ModelArray::Type::H);
         if (name == hiceName) {
@@ -129,7 +146,7 @@ public:
      *
      * @param name the name of the requested field.
      */
-    ModelArray getDGData(const std::string& name)
+    virtual ModelArray getDGData(const std::string& name) const
     {
 
         if (name == hiceName) {
@@ -141,6 +158,7 @@ public:
             data.resize();
             return DGModelArray::dg2ma(cice, data);
         } else {
+            // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);
             ModelArray data(type);
             data.resize();
@@ -148,10 +166,7 @@ public:
         }
     }
 
-    virtual void update(const TimestepTime& tst)
-    {
-        ++stepNumber;
-    }
+    virtual void update(const TimestepTime& tst) { ++stepNumber; }
 
     void advectionAndLimits(const TimestepTime& tst)
     {
@@ -168,10 +183,13 @@ public:
     }
 
 protected:
-    Nextsim::DGTransport<DGadvection>* dgtransport;
+    std::unique_ptr<Nextsim::DGTransport<DGadvection>> dgtransport;
 
     DGVector<DGadvection> hice;
     DGVector<DGadvection> cice;
+
+    //! Vector storing the sea surface height (only dG(0) averages)
+    DGVector<1> seaSurfaceHeight;
 
     //! Vectors storing strain and stress components
     DGVector<DGstress> e11, e12, e22;
@@ -183,7 +201,7 @@ protected:
 
     double deltaT;
 
-    Nextsim::ParametricMesh* smesh;
+    std::unique_ptr<Nextsim::ParametricMesh> smesh;
 
     virtual void updateMomentum(const TimestepTime& tst) = 0;
 
@@ -215,11 +233,10 @@ protected:
     virtual void prepareAdvection() = 0;
 
 private:
-
     std::unordered_map<std::string, DGVector<DGadvection>> advectedFields;
 
     // A map from field name to the type of
-    const std::unordered_map<std::string, ModelArray::Type> fieldType;
+    std::unordered_map<std::string, ModelArray::Type> fieldType;
 };
 
 }

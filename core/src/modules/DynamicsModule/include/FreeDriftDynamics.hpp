@@ -1,7 +1,7 @@
 /*!
  * @file FreeDriftDynamics.hpp
  *
- * @date 27 Mar 2023
+ * @date 19 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -15,10 +15,16 @@
 #include "include/ModelComponent.hpp"
 #include "include/gridNames.hpp"
 
+#ifndef DGCOMP
+#define DGCOMP 3 // Define to prevent errors from static analysis tools
+#error "Number of DG components (DGCOMP) not defined" // But throw an error anyway
+#endif
+
 namespace Nextsim {
 static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };
 
-
+// TODO: This class should be configurable and configure the densities, drag coefficients, Coriolis
+// parameter, and turning angle.
 class FreeDriftDynamics : public IDynamics {
 public:
     FreeDriftDynamics()
@@ -74,8 +80,7 @@ public:
     }
 
 private:
-    // TODO: How to get the template parameters here?
-    FreeDriftDynamicsKernel<6> kernel;
+    FreeDriftDynamicsKernel<DGCOMP> kernel;
     DynamicsParameters params;
 };
 }

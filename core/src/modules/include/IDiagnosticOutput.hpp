@@ -1,7 +1,7 @@
 /*!
  * @file IDiagnosticOutput.hpp
  *
- * @date May 25, 2022
+ * @date 24 Sep 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -18,15 +18,16 @@ namespace Nextsim {
 class IDiagnosticOutput : public ModelComponent {
 public:
     IDiagnosticOutput()
-    : externalNames ({
-        /*
-         * Using a pair of .ipp files to allow definitions of the externally visible
-         * names of the fields to defined outside of an actual source file, even if the
-         * definition file has a slightly odd format.
-         */
+        : externalNames({
+    /*
+     * Using a pair of .ipp files to allow definitions of the externally visible
+     * names of the fields to defined outside of an actual source file, even if the
+     * definition file has a slightly odd format.
+     */
 #include "include/ProtectedArrayNames.ipp"
 #include "include/SharedArrayNames.ipp"
-        })    {
+          })
+    {
     }
     virtual ~IDiagnosticOutput() = default;
 
@@ -48,6 +49,14 @@ public:
     // Define some of the ModelComponent class functions
     // No data to be set
     void setData(const ModelState::DataMap& state) { }
+
+    /*!
+     * Sets the model start time, which implementations may use to time output events.
+     *
+     * @brief modelStart the TimePoint of the start of the model run.
+     */
+    virtual void setModelStart(const TimePoint& ModelStart) { }
+
 protected:
     const std::map<std::string, std::string> externalNames;
 };

@@ -1,8 +1,9 @@
 /*!
  * @file ModelComponent.hpp
  *
- * @date 7 Sep 2023
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #ifndef MODELCOMPONENT_HPP
@@ -33,7 +34,7 @@ namespace Protected {
     inline constexpr TextTag C_ICE = "C_ICE0"; // Ice concentration
     inline constexpr TextTag H_SNOW = "H_SNOW_cell"; // Snow depth, cell average, m
     inline constexpr TextTag T_ICE = "T_ICE0"; // Ice temperature, ˚C
-    inline constexpr TextTag DAMAGE = "DAMAGE"; // Ice damage 0–1
+    inline constexpr TextTag DAMAGE = "DAMAGE0"; // Ice damage 0–1
     // External data fields
     inline constexpr TextTag T_AIR = "T_AIR"; // Air temperature, ˚C
     inline constexpr TextTag DEW_2M = "DEW_2M"; // Dew point at 2 m, ˚C
@@ -49,6 +50,7 @@ namespace Protected {
         = "EXT_SSS"; // sea surface salinity from coupling or forcing, PSU
     inline constexpr TextTag EXT_SST
         = "EXT_SST"; // sea surface temperature from coupling or forcing, ˚C
+    inline constexpr TextTag SSH = "SSH"; // sea surface height, m
     inline constexpr TextTag EVAP_MINUS_PRECIP
         = "E-P"; // E-P atmospheric freshwater flux, kg s⁻¹ m⁻²
     // Derived fields, calculated once per timestep
@@ -63,6 +65,8 @@ namespace Protected {
     inline constexpr TextTag WIND_V = "WIND_V"; // y(north)-ward component of wind, m s⁻¹
     inline constexpr TextTag ICE_U = "ICE_U"; // x(east)-ward ice velocity, m s⁻¹
     inline constexpr TextTag ICE_V = "ICE_V"; // y(north)-ward ice velocity, m s⁻¹
+    inline constexpr TextTag IO_STRESS_X = "IO_STRESS_X"; // x(east)-ward ice-ocean stress, Pa
+    inline constexpr TextTag IO_STRESS_Y = "IO_STRESS_Y"; // y(north)-ward ice-ocean stress, Pa
     // Slab ocean fields
     inline constexpr TextTag SLAB_SST = "SLAB_SST"; // Slab ocean sea surface temperature, ˚C
     inline constexpr TextTag SLAB_SSS = "SLAB_SSS"; // Slab ocean sea surface salinity, ˚C

@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.hpp
  *
- * @date Jan 31, 2024
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -10,42 +10,62 @@
 
 #include "DynamicsKernel.hpp"
 
-// Import this from the build system *somehow*
-static const int CGdegree = 2;
-static const int DGstressDegree = CG2DGSTRESS(CGdegree);
+#ifndef CGDEGREE
+#define CGDEGREE 2
+#define DGSTRESSCOMP (CG2DGSTRESS(CGDEGREE))
+#endif
+
+static const int CGdegree = CGDEGREE;
+static const int DGstressComp = DGSTRESSCOMP;
 static const int nGauss = CGdegree + 1;
 static const int CGdof = nGauss * nGauss;
 
 namespace Nextsim {
 
 template <int DGadvection>
-class CGDynamicsKernel : public DynamicsKernel<DGadvection, DGstressDegree> {
+class CGDynamicsKernel : public DynamicsKernel<DGadvection, DGstressComp> {
 protected:
-    using DynamicsKernel<DGadvection, DGstressDegree>::s11;
-    using DynamicsKernel<DGadvection, DGstressDegree>::s12;
-    using DynamicsKernel<DGadvection, DGstressDegree>::s22;
-    using DynamicsKernel<DGadvection, DGstressDegree>::e11;
-    using DynamicsKernel<DGadvection, DGstressDegree>::e12;
-    using DynamicsKernel<DGadvection, DGstressDegree>::e22;
-    using DynamicsKernel<DGadvection, DGstressDegree>::smesh;
-    using DynamicsKernel<DGadvection, DGstressDegree>::dgtransport;
-    using typename DynamicsKernel<DGadvection, DGstressDegree>::DataMap;
-
+    using DynamicsKernel<DGadvection, DGstressComp>::s11;
+    using DynamicsKernel<DGadvection, DGstressComp>::s12;
+    using DynamicsKernel<DGadvection, DGstressComp>::s22;
+    using DynamicsKernel<DGadvection, DGstressComp>::e11;
+    using DynamicsKernel<DGadvection, DGstressComp>::e12;
+    using DynamicsKernel<DGadvection, DGstressComp>::e22;
+    using DynamicsKernel<DGadvection, DGstressComp>::smesh;
+    using DynamicsKernel<DGadvection, DGstressComp>::dgtransport;
+    using typename DynamicsKernel<DGadvection, DGstressComp>::DataMap;
 
 public:
-    CGDynamicsKernel()
-        : pmap(nullptr)
-    {
-    }
+    CGDynamicsKernel() { }
     virtual ~CGDynamicsKernel() = default;
     void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask) override;
+
     void setData(const std::string& name, const ModelArray& data) override;
-    ModelArray getDG0Data(const std::string& name) override;
+    ModelArray getDG0Data(const std::string& name) const override;
+    void ComputeGradientOfSeaSurfaceHeight(const DGVector<1>& seaSurfaceHeight);
     void prepareIteration(const DataMap& data) override;
     void projectVelocityToStrain() override;
     void stressDivergence() override;
     void applyBoundaries() override;
     void prepareAdvection() override;
+
+    virtual inline double getIceOceanStressElement(const std::string& name, const int i) const = 0;
+    CGVector<CGdegree> getIceOceanStress(const std::string& name) const
+    {
+        if (name != uIOStressName && name != vIOStressName)
+            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
+                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
+
+        CGVector<CGdegree> tau;
+        tau.resizeLike(u);
+
+#pragma omp parallel for
+        for (int i = 0; i < tau.rows(); ++i)
+            tau(i) = getIceOceanStressElement(name, i);
+
+        return tau;
+    }
+
 protected:
     void addStressTensorCell(const size_t eid, const size_t cx, const size_t cy);
     void dirichletZero(CGVector<CGdegree>&) const;
@@ -56,6 +76,10 @@ protected:
     // CG ice thickness and concentration
     CGVector<CGdegree> cgA;
     CGVector<CGdegree> cgH;
+
+    // CG gradient of the seaSurfaceHeight
+    CGVector<CGdegree> xGradSeaSurfaceHeight;
+    CGVector<CGdegree> yGradSeaSurfaceHeight;
 
     // divergence of stress
     CGVector<CGdegree> dStressX;
@@ -69,8 +93,16 @@ protected:
     CGVector<CGdegree> uAtmos;
     CGVector<CGdegree> vAtmos;
 
-    ParametricMomentumMap<CGdegree>* pmap;
+    std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
 
+    CGVector<CGdegree>& ma2cg(const ModelArray& maData, CGVector<CGdegree>& cgData)
+    {
+        DGVector<DGadvection> dgtmp(*smesh);
+        dgtmp.zero();
+        DGModelArray::ma2dg(maData, dgtmp);
+        Nextsim::Interpolations::DG2CG(*smesh, cgData, dgtmp);
+        return cgData;
+    }
 };
 
 } /* namespace Nextsim */

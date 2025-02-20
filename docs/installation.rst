@@ -55,7 +55,7 @@ You must have root privilege :
 
         sudo apt-get update
         sudo apt-get install netcdf-bin libnetcdf-c++4-dev libboost-all-dev cmake subversion libeigen3-dev
-        svn checkout http://forge.ipsl.jussieu.fr/ioserver/svn/XIOS/trunk xios
+        svn checkout http://forge.ipsl.fr/ioserver/svn/XIOS/trunk xios
         cd xios
         ./make_xios --arch <your_architecture>
 
@@ -121,6 +121,22 @@ After all dependencies have been installed, we can build the code:
         cd build
         cmake ..
         make
+
+Configuring the dynamics
+------------------------
+The dynamics for nextSIM are chosen at the point of configuring CMake. This is in contrast to most of the model configuration, which is done at model run time. The dynamics are set through the configuration option ``DynamicsType``. The available options for the dynamics are
+
+* ``DG1``: First order discontinuous Galerkin dynamics on a 2D rectangular grid. Advection calculations are performed with 3 DG components.
+
+  * This is the default option if no other option is provided to CMake.
+
+* ``DG2``: Second order discontinuous Galerkin dynamics on a 2D rectangular grid. Advection calculations are performed with 6 DG components.
+
+The syntax for chosing the dynamics via CMake is the standard method of providing options to CMake. For example, to compile the model with second order discontinuous Galerkin dynamics (``DG2``), the CMake command line with the dynamics argument would be
+
+.. code::
+
+        cmake -DDynamicsType=DG2 ..
 
 Dependencies and Build for MPI Parallelisation
 ----------------------------------------------
