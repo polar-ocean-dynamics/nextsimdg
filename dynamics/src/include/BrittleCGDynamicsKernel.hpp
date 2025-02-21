@@ -1,7 +1,7 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 19 Feb 2025
+ * @date 21 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -12,7 +12,6 @@
 #include "CGDynamicsKernel.hpp"
 
 #include "BBMParameters.hpp"
-#include "ParametricMap.hpp"
 #include "StressUpdateStep.hpp"
 #include "include/constants.hpp"
 #include <cmath>
@@ -37,6 +36,7 @@ protected:
     using DynamicsKernel<DGadvection, DGstressComp>::applyBoundaries;
     using DynamicsKernel<DGadvection, DGstressComp>::advectionAndLimits;
     using DynamicsKernel<DGadvection, DGstressComp>::dgtransport;
+    using DynamicsKernel<DGadvection, DGstressComp>::neumannZero;
 
     using CGDynamicsKernel<DGadvection>::u;
     using CGDynamicsKernel<DGadvection>::v;
@@ -108,6 +108,8 @@ public:
         dgtransport->step(tst.step.seconds(), damage);
         Nextsim::LimitMax(damage, 1.0);
         Nextsim::LimitMin(damage, 1e-12);
+
+        neumannZero(damage);
 
         prepareIteration({ { hiceName, hice }, { ciceName, cice } });
 

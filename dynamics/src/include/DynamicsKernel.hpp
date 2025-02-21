@@ -1,7 +1,7 @@
 /*!
  * @file DynamicsKernel.hpp
  *
- * @date Jan 5, 2024
+ * @date 21 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -53,9 +53,9 @@ public:
             smesh->RotatePoleToGreenland();
         smesh->landmaskFromModelArray(mask);
         smesh->dirichletFromMask();
-        // TODO: handle periodic and open edges
-        for (ParametricMesh::Edge edge : ParametricMesh::edges) {
-            smesh->dirichletFromEdge(edge);
+        // TODO: handle periodic edges
+        for (const ParametricMesh::Edge edge : ParametricMesh::edges) {
+            smesh->neumannFromEdge(edge);
         }
 
         //! Initialize transport
@@ -180,6 +180,9 @@ public:
         Nextsim::LimitMax(cice, 1.0);
         Nextsim::LimitMin(cice, 0.0);
         Nextsim::LimitMin(hice, 0.0);
+
+        neumannZero(cice);
+        neumannZero(hice);
     }
 
 protected:
@@ -231,6 +234,39 @@ protected:
      * Prepares the transport objects to perform the advection step.
      */
     virtual void prepareAdvection() = 0;
+
+    template <int DG> void neumannZero(DGVector<DG>& v) const
+    {
+        // the four segments bottom, right, top, left, are each processed in parallel
+        for (size_t seg = 0; seg < 4; ++seg) {
+#pragma omp parallel for
+            for (size_t i = 0; i < smesh->neumann[seg].size(); ++i) {
+
+                const size_t eid = smesh->neumann[seg][i];
+                const size_t ix = eid % smesh->nx; // compute coordinates of element
+                const size_t iy = eid / smesh->nx;
+
+                switch (seg) {
+                case 0: // bottom <= top
+                    for (size_t j = 0; j < DG; ++j)
+                        v(iy * smesh->nx + ix, j) = v((iy + 1) * smesh->nx + ix, j);
+                    break;
+                case 1: // right <= left
+                    for (size_t j = 0; j < DG; ++j)
+                        v(iy * smesh->nx + ix, j) = v(iy * smesh->nx + ix - 1, j);
+                    break;
+                case 2: // top <= bottom
+                    for (size_t j = 0; j < DG; ++j)
+                        v(iy * smesh->nx + ix, j) = v((iy - 1) * smesh->nx + ix, j);
+                    break;
+                case 3: // left <= right
+                    for (size_t j = 0; j < DG; ++j)
+                        v(iy * smesh->nx + ix, j) = v(iy * smesh->nx + ix + 1, j);
+                    break;
+                }
+            }
+        }
+    }
 
 private:
     std::unordered_map<std::string, DGVector<DGadvection>> advectedFields;

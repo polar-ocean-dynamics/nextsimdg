@@ -3,7 +3,7 @@
  *
  * @brief Test the ParametricMesh class, especially processing from ModelArray files.
  *
- * @date Dec 15, 2023
+ * @date 21 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -122,7 +122,7 @@ TEST_CASE("Compare readmesh and landmask reading")
     // Dirichlet conditions
     fromArrays.dirichletFromMask();
     for (ParametricMesh::Edge edge : ParametricMesh::edges) {
-        fromArrays.dirichletFromEdge(edge);
+        fromArrays.neumannFromEdge(edge);
     }
     fromArrays.sortDirichlet();
     for (ParametricMesh::Edge edge : ParametricMesh::edges) {

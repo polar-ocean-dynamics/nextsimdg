@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 19 Feb 2025
+ * @date 21 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -419,10 +419,61 @@ void CGDynamicsKernel<DGadvection>::dirichletZero(CGVector<CGdegree>& v) const
     }
 }
 
+template <int DGadvection>
+void CGDynamicsKernel<DGadvection>::neumannZero(CGVector<CGdegree>& v) const
+{
+    // the four segments bottom, right, top, left, are each processed in parallel
+    for (size_t seg = 0; seg < 4; ++seg) {
+#pragma omp parallel for
+        for (size_t i = 0; i < smesh->neumann[seg].size(); ++i) {
+
+            const size_t eid = smesh->neumann[seg][i];
+            const size_t ix = eid % smesh->nx; // compute coordinates of element
+            const size_t iy = eid / smesh->nx;
+
+            switch (seg) {
+            case 0: // bottom <= top
+                for (size_t j = 0; j < CGdegree + 1; ++j)
+                    v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + j, 0) = v(
+                        (iy + 1) * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + j, 0);
+                break;
+            case 1: // right <= left
+                for (size_t j = 0; j < CGdegree + 1; ++j)
+                    v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + CGdegree
+                            + (CGdegree * smesh->nx + 1) * j,
+                        0)
+                        = v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix
+                                + (CGdegree * smesh->nx + 1) * j,
+                            0);
+                break;
+            case 2: // top <= bottom
+                for (size_t j = 0; j < CGdegree + 1; ++j)
+                    v((iy + 1) * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + j, 0)
+                        = v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + j, 0);
+                break;
+            case 3: // left <= right
+                for (size_t j = 0; j < CGdegree + 1; ++j)
+                    v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix
+                            + (CGdegree * smesh->nx + 1) * j,
+                        0)
+                        = v(iy * CGdegree * (CGdegree * smesh->nx + 1) + CGdegree * ix + CGdegree
+                                + (CGdegree * smesh->nx + 1) * j,
+                            0);
+                break;
+            default:
+                std::cerr << "That should not have happened!" << std::endl;
+                abort();
+            }
+        }
+    }
+}
+
 template <int DGadvection> void CGDynamicsKernel<DGadvection>::applyBoundaries()
 {
     dirichletZero(u);
     dirichletZero(v);
+    neumannZero(u);
+    neumannZero(v);
     // TODO Periodic boundary conditions.
 }
 
