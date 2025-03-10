@@ -132,6 +132,8 @@ void ThermoWinton::calculateElement(size_t i, const TimestepTime& tst)
         tice.zIndexAndLayer(i, 1) = seaIceTf;
         tice.zIndexAndLayer(i, 2) = seaIceTf;
 
+        tsurf[i] = seaIceTf;
+
         return;
     }
 
@@ -310,6 +312,8 @@ void ThermoWinton::calculateElement(size_t i, const TimestepTime& tst)
     tice.zIndexAndLayer(i, 0) = tSurf;
     tice.zIndexAndLayer(i, 1) = tUppr;
     tice.zIndexAndLayer(i, 2) = tLowr;
+
+    tsurf[i] = tSurf;
 }
 
 void ThermoWinton::calculateTemps(

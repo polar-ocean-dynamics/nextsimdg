@@ -12,7 +12,9 @@
 #include "include/gridNames.hpp"
 #include "include/ModelArray.hpp"
 #include "include/ModelArrayRef.hpp"
+#include "include/ModelArraySlice.hpp"
 #include "include/ModelComponent.hpp"
+#include "include/Slice.hpp"
 #include "include/Time.hpp"
 
 namespace Nextsim {
@@ -25,6 +27,8 @@ public:
     void setData(const ModelState::DataMap& ms) override
     {
         tice.resize();
+        tsurf.resize();
+        tsurf = static_cast<ModelArray>(tice0)[z0Slice];
         deltaHi.resize();
         snowToIce.resize();
     }
@@ -56,6 +60,7 @@ public:
 protected:
     IIceThermodynamics()
         : tice(ModelArray::Type::Z)
+        , tsurf(ModelArray::Type::H)
         , deltaHi(ModelArray::Type::H)
         , snowToIce(ModelArray::Type::H)
         , hice(getStore())
@@ -75,6 +80,7 @@ protected:
     {
         getStore().registerArray(Shared::DELTA_HICE, &deltaHi, RW);
         getStore().registerArray(Shared::T_ICE, &tice, RW);
+        getStore().registerArray(Protected::T_SURF, &tsurf, RO);
     }
 
     ModelArrayRef<Shared::H_ICE, RW> hice; // From IceGrowth
@@ -93,10 +99,13 @@ protected:
     ModelArrayRef<Protected::SNOW> snowfall; // From ExternalData
     ModelArrayRef<Protected::SSS> sss; // From ExternalData (possibly PrognosticData)
     // Owned, shared arrays
-    HField tice;
+    HField tsurf;
+    ZField tice;
     HField deltaHi;
     // Owned, Module-private arrays
     HField snowToIce;
+
+    const ArraySlicer::Slice z0Slice {{{ }, { }, {0}}};
 };
 
 } /* namespace Nextsim */
