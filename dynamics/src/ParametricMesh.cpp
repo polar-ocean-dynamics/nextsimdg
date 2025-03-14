@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMesh.hpp
- * @date 21 Feb 2025
+ * @date 14 Jan 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -8,7 +8,6 @@
 
 #include "ParametricTools.hpp"
 
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 
@@ -260,11 +259,11 @@ void ParametricMesh::dirichletFromMask()
 }
 
 /*!
- * Add to the neumann arrays due to the domain edges according to an edge index.
+ * Add to the dirichlet arrays due to the domain edges according to an edge index.
  *
- * @param edge index of the edge to add open boundary conditions to.
+ * @param edge index of the edge to add closed boundary conditions to.
  */
-void ParametricMesh::neumannFromEdge(Edge edge)
+void ParametricMesh::dirichletFromEdge(Edge edge)
 {
     // BOTTOM, RIGHT, TOP, LEFT
     const std::array<size_t, N_EDGE> start = { 0, nx - 1, nelements - nx, 0 };
@@ -273,11 +272,10 @@ void ParametricMesh::neumannFromEdge(Edge edge)
 
     for (size_t idx = start[edge]; idx < stop[edge]; idx += stride[edge]) {
         if (landmask[idx]) {
-            neumann[edge].push_back(idx);
+            dirichlet[edge].push_back(idx);
         }
     }
-    for (Edge edge : edges)
-        std::sort(neumann[edge].begin(), neumann[edge].end());
+    sortDirichlet(edge);
 }
 
 /*!
