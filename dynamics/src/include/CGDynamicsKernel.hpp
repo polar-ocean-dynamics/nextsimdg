@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.hpp
  *
- * @date 21 Feb 2025
+ * @date 06 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -69,7 +69,6 @@ public:
 protected:
     void addStressTensorCell(const size_t eid, const size_t cx, const size_t cy);
     void dirichletZero(CGVector<CGdegree>&) const;
-    void neumannZero(CGVector<CGdegree>&) const;
     // CG ice velocity
     CGVector<CGdegree> u;
     CGVector<CGdegree> v;

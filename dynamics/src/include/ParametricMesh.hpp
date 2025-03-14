@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMesh.hpp
- * @date 21 Feb 2025
+ * @date 09 Jan 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -56,9 +56,9 @@ public:
     Eigen::Matrix<Nextsim::FloatType, Eigen::Dynamic, 2> vertices; // stores the
 
     /*!
-     * Stores the Dirichlet and Neumann boundary information
+     * Stores the Dirichlet boundary information
      *
-     * Dirichlet- and Neumann-Information is stored in 4 vectors, e.g.
+     * Dirichlet-Information is stored in 4 vectors
      * dirichlet[0]: List of elements that have a Dirichlet-Boundary on the bottom
      * dirichlet[1]: List of elements that have a Dirichlet-Boundary on the right
      * dirichlet[2]: List of elements that have a Dirichlet-Boundary on the top
@@ -67,7 +67,6 @@ public:
      * Each of the vectors is processed in parallel
      */
     std::array<std::vector<size_t>, 4> dirichlet;
-    std::array<std::vector<size_t>, 4> neumann;
 
     /*!
      * Periodic:
@@ -404,7 +403,7 @@ public:
      *
      * @param edge index of the edge to add closed boundary conditions to.
      */
-    void neumannFromEdge(Edge edge);
+    void dirichletFromEdge(Edge edge);
 
     /*!
      * Sort all the dirichlet arrays, so the element indices are ordered.
