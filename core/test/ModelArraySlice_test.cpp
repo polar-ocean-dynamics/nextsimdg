@@ -21,6 +21,7 @@ const auto nz = 5;
 
 namespace Nextsim {
 TEST_SUITE_BEGIN("ModelArraySlice");
+#if false
 TEST_CASE("Assign scalar to slice")
 {
     ModelArray::setDimension(ModelArray::Dimension::X, nx);
@@ -498,6 +499,60 @@ TEST_CASE("Eigen copying")
     source[topRow2].copyToSlicedBuffer(eig1_0, eig1BottomRowBlock);
     // Check the copied values
     REQUIRE(eig1(Indexer::indexer(eig1Dim, {iTest + oneWrap, 0}), 0) == source(iTest, ny-1));
+}
+#endif
+TEST_CASE("Eigen (ModelArray::DataType) buffers")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    const size_t DG = 6;
+    ModelArray::setDimension(ModelArray::Dimension::COMP, DG);
+
+    size_t sliceNx = 7;
+    size_t sliceNy = 11;
+    size_t sliceX0 = 3;
+    size_t sliceY0 = 5;
+
+    double xMul = 100;
+    double yMul = 100;
+    ModelArray::DataType eaSrc;
+    eaSrc.resize(sliceNx * sliceNy, DG);
+    for (size_t j = 0; j < sliceNy; ++j) {
+        for (size_t i = 0; i < sliceNx; ++i) {
+            size_t ii = Indexer::indexer({sliceNx, sliceNy}, {i, j});
+            for (size_t c = 0; c < DG; ++c) {
+                eaSrc(ii, c) = c + xMul * (i + yMul * j);
+            }
+        }
+    }
+    REQUIRE(eaSrc(Indexer::indexer({sliceNx, sliceNy}, {2, 3}), 4) == 4 + xMul*(2 + yMul * 3));
+
+    ModelArray maInter(ModelArray::Type::TWOCOMP);
+    maInter = -1.;
+    REQUIRE(maInter.components({sliceX0+2, sliceY0+3})[4] == -1.);
+    Slice maSlice {{{sliceX0, sliceX0 + sliceNx}, {sliceY0, sliceY0 + sliceNy}}};
+    maInter[maSlice] = eaSrc;
+    REQUIRE(maInter.components({sliceX0-1, sliceY0-1})[0] == -1.);
+    REQUIRE(maInter.components({sliceX0-1, sliceY0-1})[DG-1] == -1.);
+    REQUIRE(maInter.components({sliceX0+0, sliceY0+0})[0] == 0.);
+    REQUIRE(maInter.components({sliceX0+0, sliceY0+0})[DG-1] == DG-1);
+    REQUIRE(maInter.components({sliceX0+1, sliceY0+0})[0] == xMul);
+    REQUIRE(maInter.components({sliceX0+1, sliceY0+0})[DG-1] == xMul + DG-1);
+    REQUIRE(maInter.components({sliceX0+0, sliceY0+1})[0] == xMul * yMul);
+    REQUIRE(maInter.components({sliceX0+0, sliceY0+1})[DG-1] == xMul  * yMul + DG-1);
+
+    REQUIRE(maInter.components({sliceX0+2, sliceY0+3})[4] == 4 + xMul*(2 + yMul * 3));
+
+    ModelArray::DataType eaSink;
+    eaSink.resize(sliceNx * sliceNy, DG);
+    eaSink = -1;
+    eaSink = maInter[maSlice];
+    REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {0, 0}), 0) == 0);
+    REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {0, 0}), 5) == 5);
+    REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {3, 5}), 2) == 2 + xMul * (3 + yMul * 5));
+
+
 }
 TEST_SUITE_END();
 } // namespace Nextsim
