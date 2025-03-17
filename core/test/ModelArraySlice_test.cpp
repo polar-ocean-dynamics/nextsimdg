@@ -21,7 +21,6 @@ const auto nz = 5;
 
 namespace Nextsim {
 TEST_SUITE_BEGIN("ModelArraySlice");
-#if false
 TEST_CASE("Assign scalar to slice")
 {
     ModelArray::setDimension(ModelArray::Dimension::X, nx);
@@ -500,7 +499,7 @@ TEST_CASE("Eigen copying")
     // Check the copied values
     REQUIRE(eig1(Indexer::indexer(eig1Dim, {iTest + oneWrap, 0}), 0) == source(iTest, ny-1));
 }
-#endif
+
 TEST_CASE("Eigen (ModelArray::DataType) buffers")
 {
     ModelArray::setDimension(ModelArray::Dimension::X, nx);
@@ -551,8 +550,6 @@ TEST_CASE("Eigen (ModelArray::DataType) buffers")
     REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {0, 0}), 0) == 0);
     REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {0, 0}), 5) == 5);
     REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {3, 5}), 2) == 2 + xMul * (3 + yMul * 5));
-
-
 }
 TEST_SUITE_END();
 } // namespace Nextsim
