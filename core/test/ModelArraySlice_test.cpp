@@ -551,5 +551,88 @@ TEST_CASE("Eigen (ModelArray::DataType) buffers")
     REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {0, 0}), 5) == 5);
     REQUIRE(eaSink(Indexer::indexer({sliceNx, sliceNy}, {3, 5}), 2) == 2 + xMul * (3 + yMul * 5));
 }
+
+TEST_CASE("Eigen (ModelArray::DataType) subscripted buffers")
+{
+    ModelArray::setDimension(ModelArray::Dimension::X, nx);
+    ModelArray::setDimension(ModelArray::Dimension::Y, ny);
+
+    const size_t DG = 6;
+    ModelArray::setDimension(ModelArray::Dimension::COMP, DG);
+
+    double xMul = 100;
+    double yMul = 100;
+
+    // Buffer of the array perimeter
+    ModelArray maSrc(ModelArray::Type::TWOCOMP);
+    maSrc.resize();
+
+    for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+            double spatial = xMul * (i + yMul * j);
+            for (size_t c = 0; c < DG; ++c) {
+                maSrc.components({i, j})[c] = spatial + c;
+            }
+        }
+    }
+    REQUIRE(maSrc.components({2, 3})[4] == 4 + xMul * (2 + yMul * 3));
+
+    ModelArray::DataType perimeterBuffer;
+    perimeterBuffer.resize(2*nx + 2*ny, DG);
+    Slice left {{{0}, {}}};
+    Slice right {{{nx-1},{}}};
+    Slice bottom {{{},{0}}};
+    Slice top {{{}, {ny-1}}};
+    // bottom 0, nx points
+    perimeterBuffer(Eigen::seqN(0, nx), Eigen::all) = static_cast<ModelArray::DataType>(maSrc[bottom]);
+    // right nx, ny points
+    perimeterBuffer(Eigen::seqN(nx, ny), Eigen::all) = static_cast<ModelArray::DataType>(maSrc[right]);
+    // top nx + ny, nx points
+    perimeterBuffer(Eigen::seqN(nx+ny, nx), Eigen::all) = static_cast<ModelArray::DataType>(maSrc[top]);
+    // left 2nx + ny, ny points
+    perimeterBuffer(Eigen::seqN(2*nx+ny, ny), Eigen::all) = static_cast<ModelArray::DataType>(maSrc[left]);
+
+    // bottom check
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(perimeterBuffer(i, i % DG) == (i % DG) + xMul * i);
+    }
+    // right check
+    for (size_t j = 0; j < ny; ++j) {
+        REQUIRE(perimeterBuffer(j + nx, j % DG) == (j % DG) + xMul * (nx-1 + yMul * j));
+    }
+    // top check
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(perimeterBuffer(i + nx + ny, i % DG) == (i % DG) + xMul * (i + yMul * (ny -1)));
+    }
+    // left check
+    for (size_t j = 0; j < ny; ++j) {
+        REQUIRE(perimeterBuffer(j + 2 * nx + ny, j % DG) == (j % DG) + xMul * (0 + yMul * j));
+    }
+
+    ModelArray maSnk(ModelArray::Type::TWOCOMP);
+    maSnk.resize();
+    maSnk[bottom] = ModelArray::DataType(perimeterBuffer(Eigen::seqN(0, nx), Eigen::all));
+    maSnk[right] = ModelArray::DataType(perimeterBuffer(Eigen::seqN(nx, ny), Eigen::all));
+    maSnk[top] = ModelArray::DataType(perimeterBuffer(Eigen::seqN(nx + ny, nx), Eigen::all));
+    maSnk[left] = ModelArray::DataType(perimeterBuffer(Eigen::seqN(2*nx + ny, ny), Eigen::all));
+
+    // bottom check
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(maSnk.components({i, 0})[i % DG] == (i % DG) + xMul * i);
+    }
+    // right check
+    for (size_t j = 0; j < ny; ++j) {
+        REQUIRE(maSnk.components({nx-1, j})[j % DG] == (j % DG) + xMul * (nx-1 + yMul * j));
+    }
+    // top check
+    for (size_t i = 0; i < nx; ++i) {
+        REQUIRE(maSnk.components({i, ny-1})[i % DG] == (i % DG) + xMul * (i + yMul * (ny -1)));
+    }
+    // left check
+    for (size_t j = 0; j < ny; ++j) {
+        REQUIRE(maSnk.components({0, j})[j % DG] == (j % DG) + xMul * (0 + yMul * j));
+    }
+
+}
 TEST_SUITE_END();
 } // namespace Nextsim
