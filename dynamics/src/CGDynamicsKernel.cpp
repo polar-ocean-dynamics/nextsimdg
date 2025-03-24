@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 14 Jan 2025
+ * @date 19 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -29,6 +29,7 @@ void CGDynamicsKernel<DGadvection>::initialise(
     pmap = std::make_unique<ParametricMomentumMap<CGdegree, DGadvection>>(*smesh);
     pmap->InitializeLumpedCGMassMatrix();
     pmap->InitializeDivSMatrices();
+    pmap->InitializeCGLandmask();
 
     u.resize_by_mesh(*smesh);
     v.resize_by_mesh(*smesh);
