@@ -8,6 +8,7 @@
 #ifndef CGDYNAMICSKERNEL_HPP
 #define CGDYNAMICSKERNEL_HPP
 
+#include "DynamicsParameters.hpp"
 #include "DynamicsKernel.hpp"
 
 #ifndef CGDEGREE
@@ -36,7 +37,7 @@ protected:
     using typename DynamicsKernel<DGadvection, DGstressComp>::DataMap;
 
 public:
-    CGDynamicsKernel() { }
+    CGDynamicsKernel(const DynamicsParameters& params);
     virtual ~CGDynamicsKernel() = default;
     void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask) override;
 
@@ -49,26 +50,11 @@ public:
     void applyBoundaries() override;
     void prepareAdvection() override;
 
-    virtual inline double getIceOceanStressElement(const std::string& name, const int i) const = 0;
-    CGVector<CGdegree> getIceOceanStress(const std::string& name) const
-    {
-        if (name != uIOStressName && name != vIOStressName)
-            throw std::logic_error(std::string(__func__) + " called with an unknown argument "
-                + name + ". Only " + uIOStressName + " and " + vIOStressName + " are supported\n");
-
-        CGVector<CGdegree> tau;
-        tau.resizeLike(u);
-
-#pragma omp parallel for
-        for (int i = 0; i < tau.rows(); ++i)
-            tau(i) = getIceOceanStressElement(name, i);
-
-        return tau;
-    }
-
 protected:
     void addStressTensorCell(const size_t eid, const size_t cx, const size_t cy);
     void dirichletZero(CGVector<CGdegree>&) const;
+    void updateIceOceanStress(const CGVector<CGdegree>& uIce, const CGVector<CGdegree>& vIce);
+
     // CG ice velocity
     CGVector<CGdegree> u;
     CGVector<CGdegree> v;
@@ -92,6 +78,14 @@ protected:
     // Atmospheric wind velocity
     CGVector<CGdegree> uAtmos;
     CGVector<CGdegree> vAtmos;
+
+    // ice ocean stresses
+    CGVector<CGdegree> uIceOceanStress;
+    CGVector<CGdegree> vIceOceanStress;
+
+    double cosOceanAngle;
+    double sinOceanAngle;
+    double FOcean;
 
     std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
 

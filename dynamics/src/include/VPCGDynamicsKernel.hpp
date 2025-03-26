@@ -49,13 +49,14 @@ protected:
     using CGDynamicsKernel<DGadvection>::dStressX;
     using CGDynamicsKernel<DGadvection>::dStressY;
     using CGDynamicsKernel<DGadvection>::pmap;
+    using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
 
 public:
     VPCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const DynamicsParameters& paramsIn)
-        : CGDynamicsKernel<DGadvection>()
+        const VPParameters& paramsIn)
+        : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const VPParameters&>(paramsIn))
+        , params(paramsIn)
     {
     }
     virtual ~VPCGDynamicsKernel() = default;
@@ -88,29 +89,16 @@ public:
 
             applyBoundaries();
         }
+
+        updateIceOceanStress(u, v);
+
         // Finally, do the base class update
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
     }
 
-    double getIceOceanStressElement(const std::string& name, const int i) const override
-    {
-        const double FOcean = params.COcean * params.rhoOcean;
-
-        double uOcnRel = u(i) - uOcean(i);
-        double vOcnRel = v(i) - vOcean(i);
-        double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
-
-        if (name == uIOStressName)
-            return FOcean * absocn * uOcnRel;
-        else if (name == vIOStressName)
-            return FOcean * absocn * vOcnRel;
-        else
-            return std::numeric_limits<double>::quiet_NaN();
-    }
-
 protected:
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const VPParameters& params;
+    const VPParameters params;
     const double alpha = 1500.;
     const double beta = 1500.;
 

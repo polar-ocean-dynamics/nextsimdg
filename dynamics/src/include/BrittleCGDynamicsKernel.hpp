@@ -53,15 +53,16 @@ protected:
     using CGDynamicsKernel<DGadvection>::dStressX;
     using CGDynamicsKernel<DGadvection>::dStressY;
     using CGDynamicsKernel<DGadvection>::pmap;
-
-    double cosOceanAngle, sinOceanAngle;
+    using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
+    using CGDynamicsKernel<DGadvection>::cosOceanAngle;
+    using CGDynamicsKernel<DGadvection>::sinOceanAngle;
 
 public:
     BrittleCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const DynamicsParameters& paramsIn)
-        : CGDynamicsKernel<DGadvection>()
+        const BBMParameters& paramsIn)
+        : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const BBMParameters&>(paramsIn))
+        , params(paramsIn)
         , stresstransport(nullptr)
     {
     }
@@ -83,9 +84,6 @@ public:
         damage.zero();
         avgU.zero();
         avgV.zero();
-
-        cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
-        sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP
@@ -134,6 +132,9 @@ public:
 
             // Land mask
         }
+
+        updateIceOceanStress(avgU, avgV);
+
         // Finally, do the base class update
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
     }
@@ -168,28 +169,12 @@ public:
         }
     }
 
-    double getIceOceanStressElement(const std::string& name, const int i) const override
-    {
-        const double FOcean = params.COcean * params.rhoOcean;
-
-        const double uOceanRel = uOcean(i) - avgU(i);
-        const double vOceanRel = vOcean(i) - avgV(i);
-        const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
-
-        if (name == uIOStressName)
-            return cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
-        else if (name == vIOStressName)
-            return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
-        else
-            return std::numeric_limits<double>::quiet_NaN();
-    }
-
 protected:
     CGVector<CGdegree> avgU;
     CGVector<CGdegree> avgV;
 
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const BBMParameters& params;
+    const BBMParameters params;
 
     std::unique_ptr<DGTransport<DGstressComp>> stresstransport;
 

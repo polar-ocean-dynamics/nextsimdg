@@ -11,6 +11,7 @@
 
 #include "include/CGDynamicsKernel.hpp"
 #include "include/ModelArray.hpp"
+#include "include/constants.hpp"
 
 #include "include/Interpolations.hpp"
 #include "include/ParametricMap.hpp"
@@ -18,6 +19,14 @@
 #include "include/cgVector.hpp"
 
 namespace Nextsim {
+
+template <int DGadvection>
+CGDynamicsKernel<DGadvection>::CGDynamicsKernel(const DynamicsParameters& params)
+    : cosOceanAngle(std::cos(radians(params.oceanTurningAngle)))
+    , sinOceanAngle(std::sin(radians(params.oceanTurningAngle)))
+    , FOcean(params.COcean * params.rhoOcean)
+{
+}
 
 template <int DGadvection>
 void CGDynamicsKernel<DGadvection>::initialise(
@@ -47,6 +56,9 @@ void CGDynamicsKernel<DGadvection>::initialise(
 
     uAtmos.resize_by_mesh(*smesh);
     vAtmos.resize_by_mesh(*smesh);
+
+    uIceOceanStress.resize_by_mesh(*smesh);
+    vIceOceanStress.resize_by_mesh(*smesh);
 }
 
 template <int DGadvection>
@@ -83,12 +95,12 @@ ModelArray CGDynamicsKernel<DGadvection>::getDG0Data(const std::string& name) co
     } else if (name == uIOStressName) {
         ModelArray data(ModelArray::Type::U);
         DGVector<DGadvection> utmp(*smesh);
-        Nextsim::Interpolations::CG2DG(*smesh, utmp, getIceOceanStress(name));
+        Nextsim::Interpolations::CG2DG(*smesh, utmp, uIceOceanStress);
         return DGModelArray::dg2ma(utmp, data);
     } else if (name == vIOStressName) {
         ModelArray data(ModelArray::Type::V);
         DGVector<DGadvection> vtmp(*smesh);
-        Nextsim::Interpolations::CG2DG(*smesh, vtmp, getIceOceanStress(name));
+        Nextsim::Interpolations::CG2DG(*smesh, vtmp, vIceOceanStress);
         return DGModelArray::dg2ma(vtmp, data);
     } else {
         return DynamicsKernel<DGadvection, DGstressComp>::getDG0Data(name);
@@ -292,7 +304,7 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::projectVelocityTo
         int cgi = CGdegree * cgshift * row; //!< Lower left index of cg vector
 
         for (size_t col = 0; col < smesh->nx;
-             ++col, ++dgi, cgi += CGdegree) { // loop over all elements
+            ++col, ++dgi, cgi += CGdegree) { // loop over all elements
 
             if (smesh->landmask[dgi] == 0) // only on ice
                 continue;
@@ -423,6 +435,20 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::applyBoundaries()
     dirichletZero(u);
     dirichletZero(v);
     // TODO Periodic boundary conditions.
+}
+
+template <int DGadvection>
+void CGDynamicsKernel<DGadvection>::updateIceOceanStress(
+    const CGVector<CGdegree>& uIce, const CGVector<CGdegree>& vIce)
+{
+#pragma omp parallel for
+    for (int i = 0; i < uIceOceanStress.rows(); ++i) {
+        const FloatType uOceanRel = uOcean(i) - uIce(i);
+        const FloatType vOceanRel = vOcean(i) - vIce(i);
+        const FloatType cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
+        uIceOceanStress(i) = cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
+        vIceOceanStress(i) = cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
+    }
 }
 
 // Instantiate the templates for all (1, 3, 6) degrees of DGadvection
