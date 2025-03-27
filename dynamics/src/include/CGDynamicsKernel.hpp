@@ -84,9 +84,9 @@ protected:
     CGVector<CGdegree> uIceOceanStress;
     CGVector<CGdegree> vIceOceanStress;
 
-    double cosOceanAngle;
-    double sinOceanAngle;
-    double FOcean;
+    double cosOceanAngle = std::numeric_limits<double>::quiet_NaN();
+    double sinOceanAngle = std::numeric_limits<double>::quiet_NaN();
+    const DynamicsParameters& baseParams;
 
     std::unique_ptr<ParametricMomentumMap<CGdegree, DGadvection>> pmap;
 

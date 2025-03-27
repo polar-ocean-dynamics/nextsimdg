@@ -23,9 +23,7 @@ namespace Nextsim {
 
 template <int DGadvection>
 CGDynamicsKernel<DGadvection>::CGDynamicsKernel(const DynamicsParameters& params)
-    : cosOceanAngle(std::cos(radians(params.oceanTurningAngle)))
-    , sinOceanAngle(std::sin(radians(params.oceanTurningAngle)))
-    , FOcean(params.COcean * params.rhoOcean)
+    : baseParams(params)
 {
 }
 
@@ -60,6 +58,9 @@ void CGDynamicsKernel<DGadvection>::initialise(
 
     uIceOceanStress.resize_by_mesh(*smesh);
     vIceOceanStress.resize_by_mesh(*smesh);
+
+    cosOceanAngle = std::cos(radians(baseParams.oceanTurningAngle));
+    sinOceanAngle = std::sin(radians(baseParams.oceanTurningAngle));
 }
 
 template <int DGadvection>
@@ -442,6 +443,8 @@ template <int DGadvection>
 void CGDynamicsKernel<DGadvection>::updateIceOceanStress(
     const CGVector<CGdegree>& uIce, const CGVector<CGdegree>& vIce)
 {
+    const double FOcean = baseParams.COcean * baseParams.rhoOcean;
+
 #pragma omp parallel for
     for (int i = 0; i < uIceOceanStress.rows(); ++i) {
         const FloatType uOceanRel = uOcean(i) - uIce(i);

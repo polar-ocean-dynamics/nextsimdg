@@ -101,7 +101,7 @@ public:
 
 protected:
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const VPParameters params;
+    const VPParameters& params;
     const double alpha = 1500.;
     const double beta = 1500.;
 

@@ -174,7 +174,7 @@ protected:
     CGVector<CGdegree> avgV;
 
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const BBMParameters params;
+    const BBMParameters& params;
 
     std::unique_ptr<DGTransport<DGstressComp>> stresstransport;
 

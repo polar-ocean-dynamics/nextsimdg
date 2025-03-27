@@ -36,18 +36,24 @@ template <int DGadvection> class FreeDriftDynamicsKernel : public CGDynamicsKern
     using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
     using CGDynamicsKernel<DGadvection>::cosOceanAngle;
     using CGDynamicsKernel<DGadvection>::sinOceanAngle;
-    using CGDynamicsKernel<DGadvection>::FOcean;
+    using CGDynamicsKernel<DGadvection>::baseParams;
 
 public:
     FreeDriftDynamicsKernel(const DynamicsParameters& paramsIn)
         : CGDynamicsKernel<DGadvection>(paramsIn)
         , params(paramsIn)
-        , FAtm(params.CAtm * params.rhoAtm)
-        , NansenNumber(std::sqrt(FAtm / FOcean))
     {
     }
 
-    virtual ~FreeDriftDynamicsKernel() = default;
+    void initialise(const ModelArray& coords, bool isSpherical, const ModelArray& mask) override
+    {
+        DynamicsKernel<DGadvection, DGstressComp>::initialise(coords, isSpherical, mask);
+
+        // can't be done in the constructor since the param values are configured after construction
+        FOcean = baseParams.COcean * baseParams.rhoOcean;
+        FAtm = params.CAtm * params.rhoAtm;
+        NansenNumber = std::sqrt(FAtm / FOcean);
+    }
 
     void update(const TimestepTime& tst) override
     {
@@ -61,9 +67,10 @@ public:
     };
 
 protected:
-    const DynamicsParameters params;
-    const double FAtm;
-    const double NansenNumber;
+    const DynamicsParameters& params;
+    double FAtm = std::numeric_limits<double>::quiet_NaN();
+    double NansenNumber = std::numeric_limits<double>::quiet_NaN();
+    double FOcean = std::numeric_limits<double>::quiet_NaN();
 
     void updateMomentum(const TimestepTime& tst) override
     {
