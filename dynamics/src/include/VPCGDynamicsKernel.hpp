@@ -1,8 +1,9 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date 06 Dec 2024
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 #ifndef VPCGDYNAMICSKERNEL_HPP
@@ -52,14 +53,16 @@ protected:
     using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
 
 public:
-    VPCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const VPParameters& paramsIn)
+    VPCGDynamicsKernel(
+        StressUpdateStep<DGadvection, DGstressComp>& stressStepIn, const VPParameters& paramsIn)
         : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
         , params(paramsIn)
     {
     }
+
     virtual ~VPCGDynamicsKernel() = default;
+
     void update(const TimestepTime& tst) override
     {
         // Let DynamicsKernel handle the advection step
@@ -108,7 +111,6 @@ protected:
 
     void updateMomentum(const TimestepTime& tst) override
     {
-
         // Update the velocity
 
         const double FOcean = params.COcean * params.rhoOcean;
@@ -149,9 +151,6 @@ protected:
                     + dStressY(i) / pmap->lumpedcgmass(i)); // Internal stress term
         }
     }
-
-private:
-    VPCGDynamicsKernel();
 };
 
 } /* namespace Nextsim */

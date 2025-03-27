@@ -1,9 +1,10 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 06 Dec 2024
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 #ifndef BRITTLECGDYNAMICSKERNEL_HPP
@@ -58,8 +59,8 @@ protected:
     using CGDynamicsKernel<DGadvection>::sinOceanAngle;
 
 public:
-    BrittleCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const BBMParameters& paramsIn)
+    BrittleCGDynamicsKernel(
+        StressUpdateStep<DGadvection, DGstressComp>& stressStepIn, const BBMParameters& paramsIn)
         : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
         , params(paramsIn)
@@ -91,7 +92,6 @@ public:
 
     void update(const TimestepTime& tst) override
     {
-
         // Let DynamicsKernel handle the advection step
         advectionAndLimits(tst);
 

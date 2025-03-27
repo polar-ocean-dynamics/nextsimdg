@@ -1,8 +1,9 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 14 Jan 2025
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 /*
@@ -113,7 +114,7 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::prepareAdvection(
 }
 
 template <int DGadvection>
-void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
+void CGDynamicsKernel<DGadvection>::computeGradientOfSeaSurfaceHeight(
     const DGVector<1>& seaSurfaceHeight)
 {
     // First transform to CG1 Vector and do all computations in CG1
@@ -193,7 +194,7 @@ void CGDynamicsKernel<DGadvection>::ComputeGradientOfSeaSurfaceHeight(
     vGrad((smesh->ny + 1) * cg1row - 1) = vGrad((smesh->ny) * cg1row - 1 - 1);
 
     // Interpolate to CG2 (maybe own function in interpolation?)
-    if (CGDEGREE == 1) {
+    if constexpr (CGDEGREE == 1) {
         xGradSeaSurfaceHeight = uGrad;
         yGradSeaSurfaceHeight = vGrad;
     } else {
@@ -257,7 +258,7 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::prepareIteration(
 
     // Reinit the gradient of the sea surface height. Not done by
     // DataMap as seaSurfaceHeight is always dG(0)
-    ComputeGradientOfSeaSurfaceHeight(DynamicsKernel<DGadvection, DGstressComp>::seaSurfaceHeight);
+    computeGradientOfSeaSurfaceHeight(DynamicsKernel<DGadvection, DGstressComp>::seaSurfaceHeight);
 
     /* limit A to [0,1] and H to [5 cm, ...)
      * This limit on H is equivalent to assuming that ice thinner than 5 cm is always in free drift,
@@ -304,7 +305,7 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::projectVelocityTo
         int cgi = CGdegree * cgshift * row; //!< Lower left index of cg vector
 
         for (size_t col = 0; col < smesh->nx;
-            ++col, ++dgi, cgi += CGdegree) { // loop over all elements
+             ++col, ++dgi, cgi += CGdegree) { // loop over all elements
 
             if (smesh->landmask[dgi] == 0) // only on ice
                 continue;

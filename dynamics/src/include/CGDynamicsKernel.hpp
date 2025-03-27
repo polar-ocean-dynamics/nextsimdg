@@ -1,15 +1,16 @@
 /*!
  * @file CGDynamicsKernel.hpp
  *
- * @date 06 Dec 2024
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 #ifndef CGDYNAMICSKERNEL_HPP
 #define CGDYNAMICSKERNEL_HPP
 
-#include "DynamicsParameters.hpp"
 #include "DynamicsKernel.hpp"
+#include "DynamicsParameters.hpp"
 
 #ifndef CGDEGREE
 #define CGDEGREE 2
@@ -43,7 +44,7 @@ public:
 
     void setData(const std::string& name, const ModelArray& data) override;
     ModelArray getDG0Data(const std::string& name) const override;
-    void ComputeGradientOfSeaSurfaceHeight(const DGVector<1>& seaSurfaceHeight);
+    void computeGradientOfSeaSurfaceHeight(const DGVector<1>& seaSurfaceHeight);
     void prepareIteration(const DataMap& data) override;
     void projectVelocityToStrain() override;
     void stressDivergence() override;
