@@ -484,6 +484,11 @@ void DGTransport<DG>::DGTransportOperator(const ParametricMesh& smesh, const dou
     // Neumann inflow / outflow
     // This can only appear on outer mesh-boundaries, whenever the element at the edge
     // is ice.
+
+    // TO DISCUSS: there can't be in/outflow and periodic on the same edge. We either need a structure
+    // for in/outflow or we say: either there is an in/outflow boundary or periodic. But not both..
+    if (smesh.periodic.size()==0)
+      {
 #pragma omp parallel for
     for (size_t i=0; i<smesh.nx; ++i)
       {
@@ -507,6 +512,7 @@ void DGTransport<DG>::DGTransportOperator(const ParametricMesh& smesh, const dou
 	  boundary_left(smesh, dt, phiup, phi, normalvel_Y, element_left, edge_left);
 	if (smesh.landmask[element_right] == 1)
 	  boundary_right(smesh, dt, phiup, phi, normalvel_Y, element_right, edge_right);
+      }
       }
 
 #pragma omp parallel for
