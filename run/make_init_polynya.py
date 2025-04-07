@@ -3,9 +3,13 @@ from make_init_base import initMaker
 # Creates initial conditions for the Bjornsson et al. (2001) polynya case
 
 # Domain size [km]
-x = 100
-y = 50
+#x = 100
+#y = 50
+#res = 2
+x = 64
+y = 48
 res = 2
+
 
 nfirst = int(y / res)
 nsecond = int(x / res)
@@ -21,6 +25,7 @@ initializer.mask[:, :] = 1.
 initializer.mask[0, :] = 0.
 initializer.mask[-1, :] = 0.
 initializer.mask[:, 0] = 0.
+#initializer.mask[:, -1] = 0. ## right
 
 # Uniform concentration of 90%
 initializer.cice[:, :] = 0.9

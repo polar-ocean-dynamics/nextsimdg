@@ -61,6 +61,19 @@ public:
     virtual ~VPCGDynamicsKernel() = default;
     void update(const TimestepTime& tst) override
     {
+
+      	size_t si = 30;
+	if (DynamicsKernel<DGadvection, DGstressComp>::stepNumber%si==0)
+	  {
+	    int vtkn = DynamicsKernel<DGadvection, DGstressComp>::stepNumber/si;
+	    VTK::write_dg("Polynya/hice",  vtkn, hice, *smesh);
+	    VTK::write_dg("Polynya/cice",  vtkn, cice ,*smesh);
+	    VTK::write_cg_velocity("Polynya/vel",vtkn, u,v,*smesh);
+	    VTK::write_cg("Polynya/cgl",vtkn, pmap->cglandmask,*smesh);
+	  }
+	
+
+      
         // Let DynamicsKernel handle the advection step
         DynamicsKernel<DGadvection, DGstressComp>::advectionAndLimits(tst);
 
