@@ -1,7 +1,7 @@
 /*!
  * @file ModelComponent_test.cpp
  *
- * @date Feb 28, 2022
+ * @date 24 Sep 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -22,7 +22,7 @@ class HappyExcept : public std::runtime_error {
 
 class Module1 : public ModelComponent {
 public:
-    Module1() { registerModule(); }
+    Module1() { }
     std::string getName() const override { return "Module1"; }
     void setData(const ModelState::DataMap& st) override
     {
@@ -30,27 +30,7 @@ public:
     }
     ModelState getState() const override { return ModelState(); }
     ModelState getState(const OutputLevel& lvl) const override { return getState(); }
-    std::unordered_set<std::string> uFields() const override { return { "u1" }; }
-    std::unordered_set<std::string> vFields() const override { return { "v1", "v2" }; }
-    std::unordered_set<std::string> zFields() const override { return { "z1", "z2", "z3" }; }
 };
-
-TEST_CASE("Register a new module")
-{
-    Module1 m1;
-    REQUIRE_THROWS_AS(ModelComponent::setAllModuleData(ModelState()), HappyExcept);
-
-    std::unordered_set<std::string> uu;
-    std::unordered_set<std::string> vv;
-    std::unordered_set<std::string> zz;
-
-    ModelComponent::getAllFieldNames(uu, vv, zz);
-    REQUIRE(uu.size() == 1);
-    REQUIRE(vv.size() == 2);
-    REQUIRE(zz.size() == 3);
-
-    ModelComponent::unregisterAllModules();
-}
 
 class ModuleSupplyAndWait : public ModelComponent {
 public:
@@ -58,16 +38,16 @@ public:
         : hice(ModelArray::HField())
         , cice_ref(getStore())
     {
-        registerModule();
         getStore().registerArray(Protected::H_ICE, &hice, RO);
     }
     void setData(const ModelState::DataMap& ms) override { hice[0] = hiceData; }
     std::string getName() const override { return "SupplyAndWait"; }
     ModelState getState() const override
     {
-        return {{
-            { "hice", hice },
-        }, {}};
+        return { {
+                     { "hice", hice },
+                 },
+            {} };
     }
     ModelState getState(const OutputLevel& lvl) const override { return getState(); }
 
@@ -86,16 +66,16 @@ public:
         : cice(ModelArray::HField())
         , hice_ref(getStore())
     {
-        registerModule();
         getStore().registerArray(Protected::C_ICE, &cice, RO);
     }
     void setData(const ModelState::DataMap& ms) override { cice[0] = ciceData; }
     std::string getName() const override { return "SupplyAndWait"; }
     ModelState getState() const override
     {
-        return {{
-            { "cice", cice },
-        }, {}};
+        return { {
+                     { "cice", cice },
+                 },
+            {} };
     }
     ModelState getState(const OutputLevel& lvl) const override { return getState(); }
 
@@ -125,16 +105,16 @@ public:
         : qic(ModelArray::HField())
         , qio_ref(getStore())
     {
-        registerModule();
         getStore().registerArray(Shared::Q_IC, &qic, RW);
     }
     void setData(const ModelState::DataMap& ms) override { qic[0] = qicData; }
     std::string getName() const override { return "SemiShared"; }
     ModelState getState() const override
     {
-        return {{
-            { "qic", qic },
-        }, {}};
+        return { {
+                     { "qic", qic },
+                 },
+            {} };
     }
     ModelState getState(const OutputLevel& lvl) const override { return getState(); }
 
@@ -153,16 +133,16 @@ public:
         : qio(ModelArray::HField())
         , qic_ref(getStore())
     {
-        registerModule();
         getStore().registerArray(Shared::Q_IO, &qio, RW);
     }
     void setData(const ModelState::DataMap& ms) override { qio[0]; }
     std::string getName() const override { return "Shared"; }
     ModelState getState() const override
     {
-        return {{
-            { "qio", qio },
-        }, {}};
+        return { {
+                     { "qio", qio },
+                 },
+            {} };
     }
     ModelState getState(const OutputLevel& lvl) const override { return getState(); }
 

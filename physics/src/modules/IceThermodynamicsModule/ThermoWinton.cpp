@@ -1,7 +1,7 @@
 /*!
  * @file ThermoWinton.cpp
  *
- * @date Sep 30, 2022
+ * @date 20 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -38,8 +38,7 @@ ThermoWinton::ThermoWinton()
     snowToIce.resize();
 }
 
-template <>
-const std::map<int, std::string> Configured<ThermoWinton>::keyMap = {
+static const std::map<int, std::string> keyMap = {
     { ThermoWinton::KS_KEY, IIceThermodynamics::getKappaSConfigKey() },
     { ThermoWinton::FLOODING_KEY, "nextsim_thermo.doFlooding" },
 };
@@ -63,8 +62,8 @@ ModelState ThermoWinton::getStateRecursive(const OutputSpec& os) const
 ThermoWinton::HelpMap& ThermoWinton::getHelpText(HelpMap& map, bool getAll)
 {
     map["ThermoWinton"] = {
-        { keyMap.at(KS_KEY), ConfigType::NUMERIC, { "0", "∞" }, std::to_string(k_sDefault),
-            "W K⁻¹ m⁻¹", "Thermal conductivity of snow." },
+        { keyMap.at(KS_KEY), ConfigType::NUMERIC, { "0", "∞" },
+            ConfigurationHelp::toString(k_sDefault), "W K⁻¹ m⁻¹", "Thermal conductivity of snow." },
     };
     return map;
 }
@@ -83,8 +82,8 @@ void ThermoWinton::setData(const ModelState::DataMap& state)
     snowToIce.resize();
 
     // The Winton scheme requires three temperature levels in the ice
-    if (tice0.data().size() != nLevels * hice.data().size()) {
-        double actualLevels = static_cast<double>(tice0.data().size()) / hice.data().size();
+    if (tice0.size() != nLevels * hice.size()) {
+        double actualLevels = static_cast<double>(tice0.size()) / hice.size();
         throw std::length_error(std::string("The inferred number of ice temperature levels is ")
             + std::to_string(actualLevels) + " when the Winton ice thermodynamics scheme expects "
             + std::to_string(nLevels));

@@ -1,7 +1,8 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date Jul 1, 2024
+ * @date 06 Dec 2024
+ * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
@@ -10,19 +11,17 @@
 
 #include "CGDynamicsKernel.hpp"
 
-#include "MEBParameters.hpp"
+#include "BBMParameters.hpp"
 #include "ParametricMap.hpp"
 #include "StressUpdateStep.hpp"
+#include "include/constants.hpp"
+#include <cmath>
 
 namespace Nextsim {
-
-// Degrees to radians as a hex float
-static const double radians = 0x1.1df46a2529d39p-6;
 
 // The brittle momentum solver for CG velocity fields
 template <int DGadvection> class BrittleCGDynamicsKernel : public CGDynamicsKernel<DGadvection> {
 protected:
-    using DynamicsKernel<DGadvection, DGstressComp>::nSteps;
     using DynamicsKernel<DGadvection, DGstressComp>::s11;
     using DynamicsKernel<DGadvection, DGstressComp>::s12;
     using DynamicsKernel<DGadvection, DGstressComp>::s22;
@@ -40,6 +39,8 @@ protected:
 
     using CGDynamicsKernel<DGadvection>::u;
     using CGDynamicsKernel<DGadvection>::v;
+    using CGDynamicsKernel<DGadvection>::xGradSeaSurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::yGradSeaSurfaceHeight;
     using CGDynamicsKernel<DGadvection>::uAtmos;
     using CGDynamicsKernel<DGadvection>::vAtmos;
     using CGDynamicsKernel<DGadvection>::uOcean;
@@ -60,7 +61,7 @@ public:
         const DynamicsParameters& paramsIn)
         : CGDynamicsKernel<DGadvection>()
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const MEBParameters&>(paramsIn))
+        , params(reinterpret_cast<const BBMParameters&>(paramsIn))
         , stresstransport(nullptr)
     {
     }
@@ -71,15 +72,20 @@ public:
         CGDynamicsKernel<DGadvection>::initialise(coords, isSpherical, mask);
 
         //! Initialize stress transport
-        stresstransport = new Nextsim::DGTransport<DGstressComp>(*smesh);
+        stresstransport = std::make_unique<Nextsim::DGTransport<DGstressComp>>(*smesh);
         stresstransport->settimesteppingscheme("rk2");
 
         damage.resize_by_mesh(*smesh);
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
-        cosOceanAngle = cos(radians * params.ocean_turning_angle);
-        sinOceanAngle = sin(radians * params.ocean_turning_angle);
+        // Set the fields to zero. Prognostic fields will be filled from the restart file.
+        damage.zero();
+        avgU.zero();
+        avgV.zero();
+
+        cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
+        sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP
@@ -105,12 +111,12 @@ public:
         prepareIteration({ { hiceName, hice }, { ciceName, cice } });
 
         // The timestep for the brittle solver is the solver subtimestep
-        deltaT = tst.step.seconds() / nSteps;
+        deltaT = tst.step.seconds() / params.nSteps;
 
         avgU.zero();
         avgV.zero();
 
-        for (size_t subStep = 0; subStep < nSteps; ++subStep) {
+        for (size_t subStep = 0; subStep < params.nSteps; ++subStep) {
 
             projectVelocityToStrain();
 
@@ -162,51 +168,71 @@ public:
         }
     }
 
+    double getIceOceanStressElement(const std::string& name, const int i) const override
+    {
+        const double FOcean = params.COcean * params.rhoOcean;
+
+        const double uOceanRel = uOcean(i) - avgU(i);
+        const double vOceanRel = vOcean(i) - avgV(i);
+        const double cPrime = FOcean * std::hypot(uOceanRel, vOceanRel);
+
+        if (name == uIOStressName)
+            return cPrime * (uOceanRel * cosOceanAngle - vOceanRel * sinOceanAngle);
+        else if (name == vIOStressName)
+            return cPrime * (vOceanRel * cosOceanAngle + uOceanRel * sinOceanAngle);
+        else
+            return std::numeric_limits<double>::quiet_NaN();
+    }
+
 protected:
     CGVector<CGdegree> avgU;
     CGVector<CGdegree> avgV;
 
     StressUpdateStep<DGadvection, DGstressComp>& stressStep;
-    const MEBParameters& params;
+    const BBMParameters& params;
 
-    Nextsim::DGTransport<DGstressComp>* stresstransport;
+    std::unique_ptr<DGTransport<DGstressComp>> stresstransport;
 
     DGVector<DGadvection> damage;
 
     // Common brittle parts of the momentum solver.
     void updateMomentum(const TimestepTime& tst) override
     {
+        const double FOcean = params.COcean * params.rhoOcean;
+        const double FAtm = params.CAtm * params.rhoAtm;
+
 #pragma omp parallel for
         for (size_t i = 0; i < u.rows(); ++i) {
             // FIXME dte_over_mass should include snow in the total mass
-            const double dteOverMass = deltaT / (params.rho_ice * cgH(i));
+            const double dteOverMass = deltaT / (params.rhoIce * cgH(i));
             // Memoized initial velocity values
             const double uIce = u(i);
             const double vIce = v(i);
 
-            const double cPrime
-                = cgA(i) * params.F_ocean * std::hypot(uOcean(i) - uIce, vOcean(i) - vIce);
+            const double cPrime = cgA(i) * FOcean * std::hypot(uOcean(i) - uIce, vOcean(i) - vIce);
 
             // FIXME grounding term tauB = cBu[i] / std::hypot(uIce, vIce) + u0
             const double tauB = 0.;
             const double alpha = 1 + dteOverMass * (cPrime * cosOceanAngle + tauB);
             /* FIXME latitude needed for spherical cases
-             * const double beta = deltaT * params.fc +
+             * const double beta = deltaT * fc +
              * dteOverMass * cPrime * std::copysign(sinOceanAngle, lat[i]);
              */
             const double beta = deltaT * params.fc + dteOverMass * cPrime * sinOceanAngle;
             const double rDenom = 1 / (SQR(alpha) + SQR(beta));
 
             // Atmospheric drag
-            const double dragAtm = cgA(i) * params.F_atm * std::hypot(uAtmos(i), vAtmos(i));
+            const double dragAtm = cgA(i) * FAtm * std::hypot(uAtmos(i), vAtmos(i));
             const double tauX = dragAtm * uAtmos(i)
                 + cPrime * (uOcean(i) * cosOceanAngle - vOcean(i) * sinOceanAngle);
             const double tauY = dragAtm * vAtmos(i)
                 + cPrime * (vOcean(i) * cosOceanAngle + uOcean(i) * sinOceanAngle);
 
             // Stress gradient
-            const double gradX = dStressX(i) / pmap->lumpedcgmass(i);
-            const double gradY = dStressY(i) / pmap->lumpedcgmass(i);
+            const double gradX = dStressX(i) / pmap->lumpedcgmass(i)
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * xGradSeaSurfaceHeight(i);
+            const double gradY = dStressY(i) / pmap->lumpedcgmass(i)
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * yGradSeaSurfaceHeight(i);
 
             u(i) = alpha * uIce + beta * vIce
                 + dteOverMass * (alpha * (gradX + tauX) + beta * (gradY + tauY));
@@ -217,8 +243,8 @@ protected:
             v(i) *= rDenom;
 
             // Calculate the contribution to the average velocity
-            avgU(i) += u(i) / nSteps;
-            avgV(i) += v(i) / nSteps;
+            avgU(i) += u(i) / params.nSteps;
+            avgV(i) += v(i) / params.nSteps;
         }
     }
 };

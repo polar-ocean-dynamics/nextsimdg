@@ -1,20 +1,20 @@
 /*!
  * @file IceGrowth.cpp
  *
- * @date Jul 5, 2022
+ * @date 20 Nov 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #include "include/IceGrowth.hpp"
 
-#include "include/Module.hpp"
+#include "include/Finalizer.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/constants.hpp"
 
 namespace Nextsim {
 
-template <>
-const std::map<int, std::string> Configured<IceGrowth>::keyMap = {
+static const std::map<int, std::string> keyMap = {
     { IceGrowth::ICE_THERMODYNAMICS_KEY, "IceThermodynamicsModel" },
     { IceGrowth::LATERAL_GROWTH_KEY, "LateralIceModel" },
     { IceGrowth::MINC_KEY, "nextsim_thermo.min_conc" },
@@ -41,7 +41,6 @@ IceGrowth::IceGrowth()
     , tf(getStore())
     , deltaHi(getStore())
 {
-    registerModule();
     getStore().registerArray(Shared::H_ICE, &hice, RW);
     getStore().registerArray(Shared::C_ICE, &cice, RW);
     getStore().registerArray(Shared::H_SNOW, &hsnow, RW);
@@ -99,9 +98,11 @@ IceGrowth::HelpMap& IceGrowth::getHelpText(HelpMap& map, bool getAll)
 {
     map["IceGrowth"] = {
         { keyMap.at(MINC_KEY), ConfigType::NUMERIC, { "0", "1" },
-            std::to_string(IceMinima::cMinDefault), "", "Minimum allowed ice concentration." },
+            ConfigurationHelp::toString(IceMinima::cMinDefault), "",
+            "Minimum allowed ice concentration." },
         { keyMap.at(MINH_KEY), ConfigType::NUMERIC, { "0", "∞" },
-            std::to_string(IceMinima::hMinDefault), "m", "Minimum allowed ice thickness." },
+            ConfigurationHelp::toString(IceMinima::hMinDefault), "m",
+            "Minimum allowed ice thickness." },
         { keyMap.at(USE_THERMO_KEY), ConfigType::BOOLEAN, { "true", "false" }, "true", "",
             "Perform ice physics calculations as part of the timestep." },
     };
@@ -118,6 +119,10 @@ IceGrowth::HelpMap& IceGrowth::getHelpRecursive(HelpMap& map, bool getAll)
 
 void IceGrowth::configure()
 {
+    Finalizer::registerUnique(Module::finalize<IIceThermodynamics>);
+    Finalizer::registerUnique(Module::finalize<ILateralIceSpread>);
+    Finalizer::registerUnique(Module::finalize<IDamageHealing>);
+
     // Configure whether we actually do anything here
     doThermo = Configured::getConfiguration(keyMap.at(USE_THERMO_KEY), true);
     // Configure constants
