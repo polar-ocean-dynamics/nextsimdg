@@ -25,6 +25,7 @@ on:
       - '**.sh'
       - '**.xml'
       - '**CMakeLists.txt'
+  pull_request_review:
 
 jobs:
 
