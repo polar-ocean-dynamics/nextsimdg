@@ -22,7 +22,6 @@ namespace Nextsim {
 // The brittle momentum solver for CG velocity fields
 template <int DGadvection> class BrittleCGDynamicsKernel : public CGDynamicsKernel<DGadvection> {
 protected:
-    using DynamicsKernel<DGadvection, DGstressComp>::nSteps;
     using DynamicsKernel<DGadvection, DGstressComp>::s11;
     using DynamicsKernel<DGadvection, DGstressComp>::s12;
     using DynamicsKernel<DGadvection, DGstressComp>::s22;
@@ -80,6 +79,11 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
+        // Set the fields to zero. Prognostic fields will be filled from the restart file.
+        damage.zero();
+        avgU.zero();
+        avgV.zero();
+
         cosOceanAngle = std::cos(radians(params.oceanTurningAngle));
         sinOceanAngle = std::sin(radians(params.oceanTurningAngle));
     }
@@ -107,7 +111,7 @@ public:
         prepareIteration({ { hiceName, hice }, { ciceName, cice } });
 
         // The timestep for the brittle solver is the solver subtimestep
-        deltaT = tst.step.seconds() / nSteps;
+        deltaT = tst.step.seconds() / params.nSteps;
 
         avgU.zero();
         avgV.zero();
@@ -239,8 +243,8 @@ protected:
             v(i) *= rDenom;
 
             // Calculate the contribution to the average velocity
-            avgU(i) += u(i) / nSteps;
-            avgV(i) += v(i) / nSteps;
+            avgU(i) += u(i) / params.nSteps;
+            avgV(i) += v(i) / params.nSteps;
         }
     }
 };

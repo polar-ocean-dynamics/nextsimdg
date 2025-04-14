@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 06 Dec 2024
+ * @date 14 Jan 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -52,37 +52,16 @@ void CGDynamicsKernel<DGadvection>::initialise(
 template <int DGadvection>
 void CGDynamicsKernel<DGadvection>::setData(const std::string& name, const ModelArray& data)
 {
-    if (name == uName) {
-        // FIXME take into account possibility to restart form CG
-        // CGModelArray::ma2cg(data, u);
-        DGVector<DGadvection> utmp(*smesh);
-        DGModelArray::ma2dg(data, utmp);
-        Nextsim::Interpolations::DG2CG(*smesh, u, utmp);
-    } else if (name == vName) {
-        // CGModelArray::ma2cg(data, v);
-        DGVector<DGadvection> vtmp(*smesh);
-        DGModelArray::ma2dg(data, vtmp);
-        Nextsim::Interpolations::DG2CG(*smesh, v, vtmp);
-    } else if (name == uWindName) {
-        DGVector<DGadvection> utmp(*smesh);
-        utmp.zero();
-        DGModelArray::ma2dg(data, utmp);
-        Nextsim::Interpolations::DG2CG(*smesh, uAtmos, utmp);
-    } else if (name == vWindName) {
-        DGVector<DGadvection> vtmp(*smesh);
-        vtmp.zero();
-        DGModelArray::ma2dg(data, vtmp);
-        Nextsim::Interpolations::DG2CG(*smesh, vAtmos, vtmp);
-    } else if (name == uOceanName) {
-        DGVector<DGadvection> utmp(*smesh);
-        utmp.zero();
-        DGModelArray::ma2dg(data, utmp);
-        Nextsim::Interpolations::DG2CG(*smesh, uOcean, utmp);
-    } else if (name == vOceanName) {
-        DGVector<DGadvection> vtmp(*smesh);
-        vtmp.zero();
-        DGModelArray::ma2dg(data, vtmp);
-        Nextsim::Interpolations::DG2CG(*smesh, vOcean, vtmp);
+    const std::map<std::string, CGVector<CGdegree>*> targetMap = {
+        { uName, &u },
+        { vName, &v },
+        { uWindName, &uAtmos },
+        { vWindName, &vAtmos },
+        { uOceanName, &uOcean },
+        { vOceanName, &vOcean },
+    };
+    if (targetMap.count(name)) {
+        ma2cg(data, *targetMap.at(name));
     } else {
         DynamicsKernel<DGadvection, DGstressComp>::setData(name, data);
     }
@@ -268,10 +247,14 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::prepareIteration(
     // DataMap as seaSurfaceHeight is always dG(0)
     ComputeGradientOfSeaSurfaceHeight(DynamicsKernel<DGadvection, DGstressComp>::seaSurfaceHeight);
 
-    // limit A to [0,1] and H to [0, ...)
+    /* limit A to [0,1] and H to [5 cm, ...)
+     * This limit on H is equivalent to assuming that ice thinner than 5 cm is always in free drift,
+     * which is reasonable. We need a limit of the order of cm here, so that the solver remains
+     * stable. With a limit of the order of mm, we need a much smaller time step to remain stable.
+     */
     cgA = cgA.cwiseMin(1.0);
-    cgA = cgA.cwiseMax(1.e-4);
-    cgH = cgH.cwiseMax(1.e-4);
+    cgA = cgA.cwiseMax(0.0);
+    cgH = cgH.cwiseMax(0.05);
 }
 
 template <int CG>
