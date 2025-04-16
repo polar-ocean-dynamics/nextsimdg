@@ -33,6 +33,9 @@ jobs:
   test-ubuntu-serial:
 
     runs-on: ubuntu-22.04
+
+    timeout-minutes: 10
+
     container:
       image: ghcr.io/nextsimhub/nextsimdg-dev-env:latest
 
@@ -82,6 +85,9 @@ jobs:
   test-ubuntu-mpi:
 
     runs-on: ubuntu-22.04
+
+    timeout-minutes: 10
+
     container:
       image: ghcr.io/nextsimhub/nextsimdg-dev-env:latest
 
@@ -118,6 +124,8 @@ jobs:
   test-mac-serial:
 
     runs-on: macos-latest
+
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v2
