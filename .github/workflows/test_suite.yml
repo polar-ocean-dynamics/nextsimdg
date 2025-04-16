@@ -32,7 +32,7 @@ jobs:
 
   test-ubuntu-serial:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     timeout-minutes: 10
 
@@ -84,7 +84,7 @@ jobs:
 
   test-ubuntu-mpi:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     timeout-minutes: 10
 
