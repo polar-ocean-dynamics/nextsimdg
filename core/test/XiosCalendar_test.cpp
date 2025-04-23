@@ -1,6 +1,7 @@
 /*!
  * @file    XiosCalendar_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
+ * @author  Adeleke Bankole <ab3191@cam.ac.uk>
  * @date    06 May 2025
  * @brief   Tests for XIOS calandars
  * @details
