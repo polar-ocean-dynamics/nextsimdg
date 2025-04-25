@@ -1,7 +1,7 @@
 /*!
  * @file ModelComponent.cpp
  *
- * @date Feb 28, 2022
+ * @date 25 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -14,7 +14,7 @@ namespace Nextsim {
 size_t ModelComponent::nOcean;
 std::vector<size_t> ModelComponent::oceanIndex;
 
-ModelComponent::ModelComponent() { noLandMask(); }
+ModelComponent::ModelComponent() = default;
 
 /*
  * This assumes that the HField array size has already been set in the restart
