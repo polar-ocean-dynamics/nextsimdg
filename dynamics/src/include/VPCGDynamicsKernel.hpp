@@ -1,8 +1,9 @@
 /*!
  * @file VPCGDynamicsKernel.hpp
  *
- * @date 19 Feb 2025
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 #ifndef VPCGDYNAMICSKERNEL_HPP
@@ -49,16 +50,19 @@ protected:
     using CGDynamicsKernel<DGadvection>::dStressX;
     using CGDynamicsKernel<DGadvection>::dStressY;
     using CGDynamicsKernel<DGadvection>::pmap;
+    using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
 
 public:
-    VPCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const DynamicsParameters& paramsIn)
-        : CGDynamicsKernel<DGadvection>()
+    VPCGDynamicsKernel(
+        StressUpdateStep<DGadvection, DGstressComp>& stressStepIn, const VPParameters& paramsIn)
+        : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const VPParameters&>(paramsIn))
+        , params(paramsIn)
     {
     }
+
     virtual ~VPCGDynamicsKernel() = default;
+
     void update(const TimestepTime& tst) override
     {
 
@@ -71,9 +75,9 @@ public:
 	    VTK::write_cg_velocity("Polynya/vel",vtkn, u,v,*smesh);
 	    VTK::write_cg("Polynya/cgl",vtkn, pmap->cglandmask,*smesh);
 	  }
-	
 
-      
+
+
         // Let DynamicsKernel handle the advection step
         DynamicsKernel<DGadvection, DGstressComp>::advectionAndLimits(tst);
 
@@ -101,24 +105,11 @@ public:
 
             applyBoundaries();
         }
+
+        updateIceOceanStress(u, v);
+
         // Finally, do the base class update
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
-    }
-
-    double getIceOceanStressElement(const std::string& name, const int i) const override
-    {
-        const double FOcean = params.COcean * params.rhoOcean;
-
-        double uOcnRel = u(i) - uOcean(i);
-        double vOcnRel = v(i) - vOcean(i);
-        double absocn = sqrt(SQR(uOcnRel) + SQR(vOcnRel));
-
-        if (name == uIOStressName)
-            return FOcean * absocn * uOcnRel;
-        else if (name == vIOStressName)
-            return FOcean * absocn * vOcnRel;
-        else
-            return std::numeric_limits<double>::quiet_NaN();
     }
 
 protected:
@@ -133,7 +124,6 @@ protected:
 
     void updateMomentum(const TimestepTime& tst) override
     {
-
         // Update the velocity
 
         const double FOcean = params.COcean * params.rhoOcean;
@@ -176,9 +166,6 @@ protected:
                     + dStressY(i) / pmap->lumpedcgmass(i)); // Internal stress term
         }
     }
-
-private:
-    VPCGDynamicsKernel();
 };
 
 } /* namespace Nextsim */
