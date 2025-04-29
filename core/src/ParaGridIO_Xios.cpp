@@ -1,12 +1,11 @@
 /*!
  * @file ParaGridIO_Xios.cpp
  *
- * @date 10 Dec 2024
+ * @date 29 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Joe Wallwork <jw2423@cam.ac.uk>
  */
 
-#ifdef USE_XIOS
 #include "include/ParaGridIO.hpp"
 
 #include "include/CommonRestartMetadata.hpp"
@@ -528,4 +527,3 @@ void ParaGridIO::closeAllFiles()
 }
 
 } /* namespace Nextsim */
-#endif /* USE_XIOS */
