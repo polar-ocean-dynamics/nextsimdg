@@ -1,7 +1,7 @@
 /*!
  * @file ConfigOutput_test.cpp
  *
- * @date 08 Apr 2025
+ * @date 29 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -16,6 +16,7 @@
 #include "DiagnosticOutputModule/include/ConfigOutput.hpp"
 
 #include "include/FileCallbackCloser.hpp"
+#include "include/Finalizer.hpp"
 #include "include/IStructure.hpp"
 #include "include/ModelArray.hpp"
 #include "include/ModelArrayRef.hpp"
@@ -200,6 +201,8 @@ TEST_CASE("Test periodic output")
     for (auto fileName : diagFiles) {
         std::filesystem::remove(fileName);
     }
+
+    Finalizer::finalize();
 }
 TEST_SUITE_END();
 }
