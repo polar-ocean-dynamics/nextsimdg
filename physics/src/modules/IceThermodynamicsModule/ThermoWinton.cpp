@@ -76,12 +76,19 @@ ModelState ThermoWinton::getStateDiagnostic() const
             getConfiguration()
     };
 
+    state.merge(getStatePrognostic());
     return state.merge(IIceThermodynamics::getStateDiagnostic());
 }
 
 ModelState ThermoWinton::getStatePrognostic() const
 {
-    return { { }, getConfiguration() };
+    ModelState state = {
+        {
+            { tInteriorName, tInternal },
+            { tBottomName, tBottom },
+        }, getConfiguration() };
+
+    return state.merge(IIceThermodynamics::getStatePrognostic());
 }
 
 ThermoWinton::HelpMap& ThermoWinton::getHelpText(HelpMap& map, bool getAll)
