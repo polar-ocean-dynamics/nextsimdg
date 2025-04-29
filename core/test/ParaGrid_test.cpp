@@ -19,7 +19,6 @@
 #include "include/ConfiguredModule.hpp"
 #include "include/Finalizer.hpp"
 #include "include/IStructure.hpp"
-#include "include/NZLevels.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/ParametricGrid.hpp"
