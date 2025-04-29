@@ -2,7 +2,7 @@
  * @file    Xios.hpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    09 Apr 2025
+ * @date    29 Apr 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -31,14 +31,17 @@ void enableXios();
 
 class Xios : public Configured<Xios> {
 private:
-    // Private constructor
+    //! Private constructor
     Xios(const std::string dt, const std::string contextId, const std::string startTime,
         const std::string calendarType);
+
+    //! Performs some one-time initialization for the class. Returns true.
+    static bool doOnce();
 
 public:
     ~Xios();
 
-    // Prevent copying
+    //! Prevent copying
     Xios(const Xios&) = delete;
 
     /*
@@ -58,7 +61,7 @@ public:
     /* Initialization and finalization */
     void close_context_definition();
     void context_finalize();
-    void finalize();
+    static void finalize();
     bool isInitialized();
 
     /* Configuration */
@@ -165,8 +168,7 @@ protected:
     bool isConfigured;
 
 private:
-    bool isEnabled;
-
+    inline static bool isEnabled = false;
     std::string clientId;
     std::string calendarType;
     std::string contextId;

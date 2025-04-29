@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    10 Dec 2024
+ * @date    29 Apr 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -18,6 +18,7 @@
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
 
+#include "include/Finalizer.hpp"
 #include "include/Xios.hpp"
 
 #include <boost/algorithm/string.hpp>
@@ -59,6 +60,14 @@ Xios::Xios(const std::string dt, const std::string contextid, const std::string 
     contextId = contextid;
     calendarType = calendartype;
     configure();
+    static bool doneOnce = doOnce();
+}
+
+bool Xios::doOnce()
+{
+    // Register the finalization function here
+    Finalizer::registerUnique(finalize);
+    return true;
 }
 
 //! Destructor
@@ -86,6 +95,7 @@ void Xios::finalize()
     if (isEnabled) {
         cxios_finalize();
     }
+    isEnabled = false;
 }
 
 /*!
