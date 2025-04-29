@@ -37,6 +37,12 @@ public:
         snowToIce.resize();
     }
 
+    ModelState getStatePrognostic() const override {
+        return { {
+            { tsurfName, tsurf },
+        }, getConfiguration() };
+    }
+
     ModelState getStateDiagnostic() const override
     {
         ModelState state = { {
@@ -45,6 +51,8 @@ public:
         },
                 getConfiguration()
         };
+        state.merge(getStatePrognostic());
+
         return state;
     }
 
