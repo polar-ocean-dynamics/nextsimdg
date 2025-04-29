@@ -29,7 +29,6 @@ TEST_SUITE_BEGIN("FiniteElementFluxes");
 TEST_CASE("Melting conditions")
 {
     ModelArray::setDimensions(ModelArray::Type::H, { 1, 1 });
-    ModelArray::setDimensions(ModelArray::Type::Z, { 1, 1, 1 });
 
     Module::Module<IFreezingPoint>::setImplementation("Nextsim::UnescoFreezing");
     Module::Module<IIceAlbedo>::setImplementation("Nextsim::CCSMIceAlbedo");
@@ -187,7 +186,6 @@ TEST_CASE("Melting conditions")
 TEST_CASE("Freezing conditions")
 {
     ModelArray::setDimensions(ModelArray::Type::H, { 1, 1 });
-    ModelArray::setDimensions(ModelArray::Type::Z, { 1, 1, 1 });
 
     Module::Module<IFreezingPoint>::setImplementation("Nextsim::UnescoFreezing");
     Module::Module<IIceAlbedo>::setImplementation("Nextsim::CCSMIceAlbedo");
