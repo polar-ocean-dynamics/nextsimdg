@@ -1,7 +1,7 @@
 /*!
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    08 Apr 2025
+ * @date    29 Apr 2025
  * @brief   Tests for XIOS axes
  * @details
  * This test is designed to test axis functionality of the C++ interface
@@ -12,6 +12,7 @@
 #undef INFO
 
 #include "StructureModule/include/ParametricGrid.hpp"
+#include "include/Finalizer.hpp"
 #include "include/Xios.hpp"
 
 using namespace doctest;
@@ -122,5 +123,6 @@ MPI_TEST_CASE("TestXiosFile", 2)
 
     xiosHandler.close_context_definition();
     xiosHandler.context_finalize();
+    Finalizer::finalize();
 }
 }

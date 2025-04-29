@@ -1,7 +1,7 @@
 /*!
  * @file    XiosRead_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    08 Apr 2025
+ * @date    29 Apr 2025
  * @brief   Tests for XIOS read functionality
  * @details
  * This test is designed to test the file reading functionality of the C++
@@ -12,6 +12,7 @@
 #undef INFO
 
 #include "StructureModule/include/ParametricGrid.hpp"
+#include "include/Finalizer.hpp"
 #include "include/ModelMetadata.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
@@ -127,6 +128,7 @@ MPI_TEST_CASE("TestXiosRead", 2)
         }
     }
     xiosHandler.context_finalize();
+    Finalizer::finalize();
 }
 
 }
