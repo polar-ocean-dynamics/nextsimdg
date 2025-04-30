@@ -53,6 +53,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xios_handler.createField("field_A");
     xios_handler.setFieldOperation("field_A", "instant");
     xios_handler.setFieldGridRef("field_A", "grid_1D");
+    xios_handler.setFieldReadAccess("field_A", false);
 
     // --- Tests for file API
     const std::string fileId = "output";
@@ -60,7 +61,16 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xios_handler.createFile(fileId);
     REQUIRE_THROWS_WITH(xios_handler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
-    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg when a field is added
+    // to be written (i.e., readAccess=false)
+    REQUIRE_THROWS_WITH(xios_handler.getFileName(fileId), "Xios: Undefined name for file 'output'");
+    {
+        // Add field
+        xios_handler.fileAddField(fileId, "field_A");
+        std::vector<std::string> fieldIds = xios_handler.fileGetFieldIds(fileId);
+        REQUIRE(fieldIds.size() == 1);
+        REQUIRE(fieldIds[0] == "field_A");
+    }
     REQUIRE(xios_handler.getFileName(fileId) == "xios_test_output");
     const std::string fileName = "diagnostic";
     xios_handler.setFileName(fileId, fileName);
@@ -71,7 +81,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xios_handler.setFileType(fileId, fileType);
     REQUIRE(xios_handler.getFileType(fileId) == fileType);
     // Output frequency
-    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg upon file creation
     REQUIRE(xios_handler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xios_handler.getCalendarTimestep();
     xios_handler.setFileOutputFreq(fileId, timestep);
@@ -89,11 +99,6 @@ MPI_TEST_CASE("TestXiosFile", 2)
     const std::string parAccess = "collective";
     xios_handler.setFileParAccess(fileId, parAccess);
     REQUIRE(xios_handler.getFileParAccess(fileId) == parAccess);
-    // Add field
-    xios_handler.fileAddField(fileId, "field_A");
-    std::vector<std::string> fieldIds = xios_handler.fileGetFieldIds(fileId);
-    REQUIRE(fieldIds.size() == 1);
-    REQUIRE(fieldIds[0] == "field_A");
 
     // Create a new file for each time unit to check more thoroughly that XIOS interprets output
     // frequency and split frequency correctly.

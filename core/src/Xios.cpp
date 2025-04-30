@@ -22,6 +22,7 @@
  *   time_step = ...
  *   [XiosOutput]
  *   period = ...
+ *   filename = ...
  */
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
@@ -1392,14 +1393,6 @@ void Xios::createFile(const std::string fileId)
     if (periodStr.length() > 0) {
         setFileOutputFreq(fileId, Duration(periodStr));
     }
-
-    // Set the output filename based on the model configuration
-    std::string outfileStr;
-    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
-        >> outfileStr;
-    if (outfileStr.length() > 0) {
-        setFileName(fileId, ((std::filesystem::path)outfileStr).replace_extension());
-    }
 }
 
 /*!
@@ -1642,6 +1635,16 @@ void Xios::fileAddField(const std::string fileId, const std::string fieldId)
 {
     xios::CField* field = getField(fieldId);
     cxios_xml_tree_add_fieldtofile(getFile(fileId), &field, fieldId.c_str(), fieldId.length());
+
+    // Set the output filename based on the model configuration
+    if (!getFieldReadAccess(fieldId)) {
+        std::string outfileStr;
+        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
+            >> outfileStr;
+        if (outfileStr.length() > 0) {
+            setFileName(fileId, ((std::filesystem::path)outfileStr).replace_extension());
+        }
+    }
 }
 
 /*!
