@@ -1,7 +1,7 @@
 /*!
  * @file ModelMetadata.cpp
  *
- * @date 10 Dec 2024
+ * @date 09 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -10,6 +10,9 @@
 #include "include/IStructure.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
+#ifdef USE_XIOS
+#include "include/Xios.hpp"
+#endif
 
 #ifdef USE_MPI
 #include <ncDim.h>
@@ -108,11 +111,11 @@ void ModelMetadata::setTime(const TimePoint& time)
 {
     m_time = time;
 #ifdef USE_XIOS
-    if (!xiosHandler->isInitialized()) {
+    Xios& xiosHandler = Xios::getInstance();
+    if (!xiosHandler.isInitialized()) {
         throw std::runtime_error("ModelMetadata: Xios handler has not been initialized");
     }
-    xiosHandler->setCalendarStep(0);
-    xiosHandler->setCalendarStart(time);
+    xiosHandler.setCalendarStart(time);
 #endif
 }
 
@@ -120,10 +123,11 @@ void ModelMetadata::incrementTime(const Duration& step)
 {
     m_time += step;
 #ifdef USE_XIOS
-    if (!xiosHandler->isInitialized()) {
+    Xios& xiosHandler = Xios::getInstance();
+    if (!xiosHandler.isInitialized()) {
         throw std::runtime_error("ModelMetadata: Xios handler has not been initialized");
     }
-    xiosHandler->incrementCalendar();
+    xiosHandler.incrementCalendar();
 #endif
 }
 

@@ -1,7 +1,7 @@
 /*!
  * @file ConfigOutput_test.cpp
  *
- * @date 11 Dec 2024
+ * @date 29 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -16,6 +16,7 @@
 #include "DiagnosticOutputModule/include/ConfigOutput.hpp"
 
 #include "include/FileCallbackCloser.hpp"
+#include "include/Finalizer.hpp"
 #include "include/IStructure.hpp"
 #include "include/ModelArray.hpp"
 #include "include/ModelArrayRef.hpp"
@@ -25,6 +26,9 @@
 #include "include/NZLevels.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
+#ifdef USE_XIOS
+#include "include/Xios.hpp"
+#endif
 
 #include <ncDim.h>
 #include <ncFile.h>
@@ -100,9 +104,8 @@ TEST_CASE("Test periodic output")
     ModelMetadata meta;
 #ifdef USE_XIOS
     enableXios();
-    Xios xiosHandler("P0-0T01:00:00", "test1");
+    Xios& xiosHandler = Xios::getInstance("P0-0T01:00:00", "test1");
     xiosHandler.setCalendarOrigin(TimePoint("1970-01-01T00:00:00Z"));
-    meta.setXiosHandler(&xiosHandler);
     xiosHandler.close_context_definition();
 #endif
     meta.setTime(TimePoint("2020-01-01T00:00:00Z"));
@@ -198,6 +201,8 @@ TEST_CASE("Test periodic output")
     for (auto fileName : diagFiles) {
         std::filesystem::remove(fileName);
     }
+
+    Finalizer::finalize();
 }
 TEST_SUITE_END();
 }
