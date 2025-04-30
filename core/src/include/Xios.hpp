@@ -136,6 +136,7 @@ public:
         ENABLED_KEY,
         START_TIME_KEY,
         TIME_STEP_KEY,
+        PERIOD_KEY,
     };
 
     /* Length of C-strings passed to XIOS */

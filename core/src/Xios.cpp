@@ -32,8 +32,9 @@
 
 namespace Nextsim {
 
-static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" },
-    { Xios::START_TIME_KEY, "model.start" }, { Xios::TIME_STEP_KEY, "model.time_step" } };
+static const std::map<int, std::string> keyMap
+    = { { Xios::ENABLED_KEY, "xios.enable" }, { Xios::START_TIME_KEY, "model.start" },
+          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "ConfigOutput.period" } };
 
 //! Enable XIOS and set the configuration file for it to read parameters from
 void enableXios(std::string configFileName)
@@ -43,7 +44,7 @@ void enableXios(std::string configFileName)
     config << "[xios]" << std::endl << "enable = true" << std::endl;
     Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
 
-    // Add the configuration file to read the timestep, start time, and output frequency from
+    // Add the configuration file to read the timestep, start time, and output period from
     Configurator::addFile(configFileName);
 }
 
@@ -146,8 +147,10 @@ void Xios::configureServer()
     cxios_create_calendar(clientCalendar);
     cxios_update_calendar_timestep(clientCalendar);
 
-    // Set default calendar origin and start
+    // Set default calendar origin
     setCalendarOrigin(TimePoint("1970-01-01T00:00:00Z")); // Unix epoch
+
+    // Set start time from configuration file
     setCalendarStart(TimePoint(startTime));
 }
 
@@ -1370,6 +1373,13 @@ void Xios::createFile(const std::string fileId)
     cxios_file_valid_id(&exists, fileId.c_str(), fileId.length());
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create file '" + fileId + "'");
+    }
+
+    // Set the output period based on the model configuration
+    std::string periodStr;
+    istringstream(Configured::getConfiguration(keyMap.at(PERIOD_KEY), std::string())) >> periodStr;
+    if (periodStr.length() > 0) {
+        setFileOutputFreq(fileId, Duration(periodStr));
     }
 }
 
