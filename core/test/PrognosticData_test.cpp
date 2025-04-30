@@ -1,7 +1,7 @@
 /*!
  * @file PrognosticData_test.cpp
  *
- * @date 7 Sep 2023
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -17,7 +17,6 @@
 #include "include/constants.hpp"
 
 #include <sstream>
-#include <iostream>
 
 extern template class Module::Module<Nextsim::IOceanBoundary>;
 
@@ -41,7 +40,8 @@ TEST_CASE("PrognosticData call order test")
     config << "lw_in = 330" << std::endl;
     config << "snow = 0" << std::endl;
     config << "rainfall = 0" << std::endl;
-    config << "wind_speed = 5" << std::endl;
+    config << "wind_u = 3" << std::endl;
+    config << "wind_v = 4" << std::endl;
 
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
