@@ -62,11 +62,6 @@ void enableXios(std::string configFileName)
             Logged::warning("Xios: Cannot open configuration file");
         }
     }
-    if (configStr.length() == 0) {
-        Logged::warning("Xios: Setting default start: 1970-01-01T00:00:00Z");
-        Logged::warning("Xios: Setting default time_step: P0-0T01:00:00");
-        configStr = "[model]\nstart=1970-01-01T00:00:00Z\ntime_step=P0-0T01:00:00\n";
-    }
     Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(configStr)));
 }
 
@@ -125,12 +120,20 @@ void Xios::configure()
     std::string startTimeStr;
     istringstream(Configured::getConfiguration(keyMap.at(START_TIME_KEY), std::string()))
         >> startTimeStr;
+    if (startTimeStr.length() == 0) {
+        Logged::warning("Xios: Setting default start: 1970-01-01T00:00:00Z");
+        startTimeStr = "1970-01-01T00:00:00Z";
+    }
     startTime = TimePoint(startTimeStr);
 
     // Extract the timestep from the model configuration
     std::string timeStepStr;
     istringstream(Configured::getConfiguration(keyMap.at(TIME_STEP_KEY), std::string()))
         >> timeStepStr;
+    if (timeStepStr.length() == 0) {
+        Logged::warning("Xios: Setting default time_step: P0-0T01:00:00");
+        timeStepStr = "P0-0T01:00:00";
+    }
     timestep = Duration(timeStepStr);
 
     if (isEnabled) {
