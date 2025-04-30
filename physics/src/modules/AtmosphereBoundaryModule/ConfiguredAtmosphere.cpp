@@ -1,7 +1,7 @@
 /*!
  * @file ConfiguredAtmosphere.cpp
  *
- * @date 20 Nov 2024
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -9,6 +9,8 @@
 
 #include "include/Finalizer.hpp"
 #include "include/NextsimModule.hpp"
+
+#include <cmath>
 
 namespace Nextsim {
 
@@ -19,7 +21,8 @@ double ConfiguredAtmosphere::sw0 = 0; // Night
 double ConfiguredAtmosphere::lw0 = 315.637; // Stefan-Boltzmann at 0˚C
 double ConfiguredAtmosphere::snowfall0 = 0; // No snow
 double ConfiguredAtmosphere::rain0 = 0; // No rain
-double ConfiguredAtmosphere::windspeed0 = 0; // Still
+double ConfiguredAtmosphere::uWind0 = 0; // Still
+double ConfiguredAtmosphere::vWind0 = 0; // Still
 
 static const std::string pfx = "ConfiguredAtmosphere";
 static const std::string tKey = pfx + ".t_air";
@@ -29,7 +32,8 @@ static const std::string swKey = pfx + ".sw_in";
 static const std::string lwKey = pfx + ".lw_in";
 static const std::string snowKey = pfx + ".snow";
 static const std::string rainKey = pfx + ".rainfall";
-static const std::string windKey = pfx + ".wind_speed";
+static const std::string uWindKey = pfx + ".wind_u";
+static const std::string vWindKey = pfx + ".wind_v";
 
 const static std::map<int, std::string> keyMap = {
     { ConfiguredAtmosphere::TAIR_KEY, tKey },
@@ -39,7 +43,8 @@ const static std::map<int, std::string> keyMap = {
     { ConfiguredAtmosphere::LW_KEY, lwKey },
     { ConfiguredAtmosphere::SNOW_KEY, snowKey },
     { ConfiguredAtmosphere::RAIN_KEY, rainKey },
-    { ConfiguredAtmosphere::WIND_KEY, windKey },
+    { ConfiguredAtmosphere::UWIND_KEY, uWindKey },
+    { ConfiguredAtmosphere::VWIND_KEY, vWindKey },
 };
 
 ConfiguredAtmosphere::ConfiguredAtmosphere()
@@ -70,8 +75,10 @@ ConfigurationHelp::HelpMap& ConfiguredAtmosphere::getHelpRecursive(HelpMap& map,
             "", "Snowfall mass flux (kg s⁻¹ m⁻²)." },
         { rainKey, ConfigType::NUMERIC, { "0", "2.998e8" }, ConfigurationHelp::toString(rain0), "",
             "Rainfall mass flux (kg s⁻¹ m⁻²)." },
-        { windKey, ConfigType::NUMERIC, { "0", "2.998e8" }, ConfigurationHelp::toString(windspeed0),
-            "", "Windspeed (m s⁻¹)." },
+        { uWindKey, ConfigType::NUMERIC, { "0", "2.998e8" }, ConfigurationHelp::toString(uWind0),
+            "m/s", "Component of wind in the x (eastward) direction (m s⁻¹)." },
+        { vWindKey, ConfigType::NUMERIC, { "0", "2.998e8" }, ConfigurationHelp::toString(vWind0),
+            "m/s", "Component of wind in the y (northward) direction (m s⁻¹)." },
     };
     Module::getHelpRecursive<IFluxCalculation>(map, getAll);
 
@@ -87,7 +94,8 @@ void ConfiguredAtmosphere::configure()
     lw0 = Configured::getConfiguration(keyMap.at(LW_KEY), lw0);
     snowfall0 = Configured::getConfiguration(keyMap.at(SNOW_KEY), snowfall0);
     rain0 = Configured::getConfiguration(keyMap.at(RAIN_KEY), rain0);
-    windspeed0 = Configured::getConfiguration(keyMap.at(WIND_KEY), windspeed0);
+    uWind0 = Configured::getConfiguration(keyMap.at(UWIND_KEY), uWind0);
+    vWind0 = Configured::getConfiguration(keyMap.at(VWIND_KEY), vWind0);
 
     Finalizer::registerUnique(Module::finalize<IFluxCalculation>);
     fluxImpl = &Module::getImplementation<IFluxCalculation>();
@@ -112,7 +120,10 @@ void ConfiguredAtmosphere::setData(const ModelState::DataMap& dm)
     lw_in = lw0;
     snow = snowfall0;
     rain = rain0;
-    wind = windspeed0;
+    wind = std::hypot(uWind0, vWind0);
+
+    uwind = uWind0;
+    vwind = vWind0;
 
     fluxImpl->setData(dm);
 }
