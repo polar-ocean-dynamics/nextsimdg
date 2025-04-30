@@ -1,7 +1,7 @@
 /*!
  * @file IceGrowth.cpp
  *
- * @date 20 Nov 2024
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -203,22 +203,22 @@ void IceGrowth::newIceFormation(size_t i, const TimestepTime& tst)
 {
     // Flux cooling the ocean from open water
     // TODO Add assimilation fluxes here
-    double coolingFlux = qow[i];
+    const double coolingFlux = qow[i];
     // Temperature change of the mixed layer during this timestep
-    double deltaTml = -coolingFlux / mixedLayerBulkHeatCapacity[i] * tst.step;
+    const double deltaTml = -coolingFlux / mixedLayerBulkHeatCapacity[i] * tst.step;
     // Initial temperature
-    double t0 = sst[i];
+    const double t0 = sst[i];
     // Freezing point temperature
-    double tf0 = tf[i];
+    const double tf0 = tf[i];
     // Final temperature
-    double t1 = t0 + deltaTml;
+    const double t1 = t0 + deltaTml;
 
     // deal with cooling below the freezing point
     if (t1 < tf0) {
         // Heat lost cooling the mixed layer to freezing point
-        double sensibleFlux = (tf0 - t0) / deltaTml * coolingFlux;
+        const double sensibleFlux = -(tf0 - t0) * mixedLayerBulkHeatCapacity[i] / tst.step;
         // Any heat beyond that is latent heat forming new ice
-        double latentFlux = coolingFlux - sensibleFlux;
+        const double latentFlux = coolingFlux - sensibleFlux;
 
         qow[i] = sensibleFlux;
         newice[i] = latentFlux * tst.step * (1 - cice[i]) / (Ice::Lf * Ice::rho);
@@ -260,7 +260,7 @@ void IceGrowth::lateralIceSpread(size_t i, const TimestepTime& tstep)
 
 void IceGrowth::applyLimits(size_t i, const TimestepTime& tstep)
 {
-    if ((0. < cice[i] && cice[i] < IceMinima::c()) || (0. < hice[i] && hice[i] < IceMinima::h())) {
+    if (cice[i] < IceMinima::c() || hice[i] < IceMinima::h()) {
         qow[i] += cice[i] * Water::Lf * (hice[i] * Ice::rho + hsnow[i] * Ice::rhoSnow) / tstep.step;
         hice[i] = 0;
         cice[i] = 0;

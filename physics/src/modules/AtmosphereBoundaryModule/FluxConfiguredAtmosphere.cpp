@@ -68,15 +68,15 @@ ConfigurationHelp::HelpMap& FluxConfiguredAtmosphere::getHelpRecursive(HelpMap& 
 }
 void FluxConfiguredAtmosphere::configure()
 {
-    qia0 = Configured::getConfiguration(keyMap.at(QIA_KEY), qia0);
-    dqia_dt0 = Configured::getConfiguration(keyMap.at(DQIA_DT_KEY), dqia_dt0);
-    qow0 = Configured::getConfiguration(keyMap.at(QOW_KEY), qow0);
-    subl0 = Configured::getConfiguration(keyMap.at(SUBL_KEY), subl0);
-    snowfall0 = Configured::getConfiguration(keyMap.at(SNOW_KEY), snowfall0);
-    rain0 = Configured::getConfiguration(keyMap.at(RAIN_KEY), rain0);
-    evap0 = Configured::getConfiguration(keyMap.at(EVAP_KEY), evap0);
-    u0 = Configured::getConfiguration(keyMap.at(WINDU_KEY), u0);
-    v0 = Configured::getConfiguration(keyMap.at(WINDV_KEY), v0);
+    qia0 = getConfiguration(keyMap.at(QIA_KEY), qia0);
+    dqia_dt0 = getConfiguration(keyMap.at(DQIA_DT_KEY), dqia_dt0);
+    qow0 = getConfiguration(keyMap.at(QOW_KEY), qow0);
+    subl0 = getConfiguration(keyMap.at(SUBL_KEY), subl0);
+    snowfall0 = getConfiguration(keyMap.at(SNOW_KEY), snowfall0);
+    rain0 = getConfiguration(keyMap.at(RAIN_KEY), rain0);
+    evap0 = getConfiguration(keyMap.at(EVAP_KEY), evap0);
+    u0 = getConfiguration(keyMap.at(WINDU_KEY), u0);
+    v0 = getConfiguration(keyMap.at(WINDV_KEY), v0);
 }
 
 void FluxConfiguredAtmosphere::setData(const ModelState::DataMap& dm)
