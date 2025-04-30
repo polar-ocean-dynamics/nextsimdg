@@ -1,9 +1,31 @@
 name: compile code and tests
 
 on:
+  # if you wish to skip running CI please don't change this section, instead
+  # prefix the following notation in the title of your commit message e.g.,
+  #
+  # [skip ci] my commit message
+  #
+  # For more information, please read the GitHub
+  # [documentation](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/skipping-workflow-runs)
+  #
+  # Note: You will not be able to merge into develop or main without running CI. To run CI either:
+  # - edit the last commit message using `git commit --amend` and remove the tag "[skip ci]" or,
+  # - create a new commit without a "[skip ci]" tag
   push:
     branches: [ main, develop ]
   pull_request:
+    paths:
+      - '.github/workflows/test_suite.yml'
+      - '**.cdl'
+      - '**.cfg'
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - '**.sh'
+      - '**.xml'
+      - '**CMakeLists.txt'
+  pull_request_review:
     branches: [ main, develop ]
 
 jobs:
@@ -26,12 +48,17 @@ jobs:
 
     - name: installs for python tests
       run: |
+        apt -y update
+        apt install -y python3.12-venv
+        python3 -m venv ~/nextsim
+        . $HOME/nextsim/bin/activate
         pip install numpy
         pip install netCDF4
 
     - name: run serial tests
       run: |
         . /opt/spack-environment/activate.sh
+        . $HOME/nextsim/bin/activate
         apt update
         apt install -y wget
         cd build

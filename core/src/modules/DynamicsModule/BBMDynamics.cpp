@@ -1,18 +1,18 @@
 /*!
  * @file BBMDynamics.cpp
  *
- * @date 20 Nov 2024
+ * @date 05 Dec 2024
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
 
 #include "include/BBMDynamics.hpp"
-
+#include "include/constants.hpp"
 #include "include/gridNames.hpp"
 
 namespace Nextsim {
 
-static const std::vector<std::string> namedFields = { hiceName, ciceName, uName, vName };
+static const std::vector<std::string> namedFields = { uName, vName };
 static const std::map<std::string, std::pair<ModelArray::Type, double>> defaultFields = {
     { damageName, { ModelArray::Type::H, 1.0 } },
 };
@@ -79,7 +79,7 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
 
     ModelArray coords = ms.at(coordsName);
     if (isSpherical) {
-        coords *= radians;
+        coords *= PhysicalConstants::deg2rad;
     }
     // TODO: Some encoding of the periodic edge boundary conditions
     kernel.initialise(coords, isSpherical, ms.at(maskName));
@@ -108,6 +108,10 @@ void BBMDynamics::setData(const ModelState::DataMap& ms)
             kernel.setData(fieldName, mask(data));
         }
     }
+
+    // Set the DG field data
+    kernel.setDGArray(hiceName, hiceDG.allComponents());
+    kernel.setDGArray(ciceName, ciceDG.allComponents());
 }
 
 void BBMDynamics::update(const TimestepTime& tst)
@@ -115,18 +119,17 @@ void BBMDynamics::update(const TimestepTime& tst)
     std::cout << tst.start << std::endl;
 
     // Fill the updated damage array with the initial value
-    damage = damage0.data();
+    damage = damage0;
 
     // set the updated ice thickness, concentration and damage
-    kernel.setData(hiceName, hice.data());
-    kernel.setData(ciceName, cice.data());
     kernel.setData(damageName, damage);
 
     // set the forcing velocities
-    kernel.setData(uWindName, uwind.data());
-    kernel.setData(vWindName, vwind.data());
-    kernel.setData(uOceanName, uocean.data());
-    kernel.setData(vOceanName, vocean.data());
+    kernel.setData(uWindName, uwind);
+    kernel.setData(vWindName, vwind);
+    kernel.setData(uOceanName, uocean);
+    kernel.setData(vOceanName, vocean);
+    kernel.setData(sshName, ssh);
 
     /*
      * Ice velocity components are stored in the dynamics, and not changed by the model outside the
@@ -135,12 +138,13 @@ void BBMDynamics::update(const TimestepTime& tst)
 
     kernel.update(tst);
 
-    hice.data() = kernel.getDG0Data(hiceName);
-    cice.data() = kernel.getDG0Data(ciceName);
     damage = kernel.getDG0Data(damageName);
 
     uice = kernel.getDG0Data(uName);
     vice = kernel.getDG0Data(vName);
+
+    taux = kernel.getDG0Data(uIOStressName);
+    tauy = kernel.getDG0Data(vIOStressName);
 }
 
 // All data for prognostic output
@@ -151,8 +155,6 @@ ModelState BBMDynamics::getState() const
 
     // Kernel prognostic fields
     state.merge({
-        { hiceName, kernel.getDGData(hiceName) },
-        { ciceName, kernel.getDGData(ciceName) },
         { damageName, kernel.getDGData(damageName) },
     });
 

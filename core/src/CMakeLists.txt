@@ -22,6 +22,7 @@ set(BaseSources
     "DevStep.cpp"
     "StructureFactory.cpp"
     "ModelArray.cpp"
+    "ModelArraySlice.cpp"
     "ModelComponent.cpp"
     "ModelMetadata.cpp"
     "NetcdfMetadataConfiguration.cpp"

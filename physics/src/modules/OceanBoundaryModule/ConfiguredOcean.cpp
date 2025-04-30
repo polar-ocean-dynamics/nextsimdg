@@ -1,7 +1,7 @@
 /*!
  * @file ConfiguredOcean.cpp
  *
- * @date 20 Nov 2024
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -40,6 +40,7 @@ static const std::map<int, std::string> keyMap = {
 ConfiguredOcean::ConfiguredOcean()
     : sstExt(ModelArray::Type::H)
     , sssExt(ModelArray::Type::H)
+    , slabOcean(m_couplingArrays)
 {
 }
 
@@ -96,6 +97,10 @@ void ConfiguredOcean::setData(const ModelState::DataMap& ms)
     tf = Module::getImplementation<IFreezingPoint>()(sssExt[0]);
     cpml = Water::rho * Water::cp * mld[0];
 
+    /* It's only the SSH gradient which has an effect, so being able to set a constant SSH is
+     * useless. */
+    ssh = 0.;
+
     slabOcean.setData(ms);
 
     Module::getImplementation<IIceOceanHeatFlux>().setData(ms);
@@ -108,8 +113,9 @@ void ConfiguredOcean::updateBefore(const TimestepTime& tst)
 
 void ConfiguredOcean::updateAfter(const TimestepTime& tst)
 {
+    mergeFluxes(tst);
     slabOcean.update(tst);
-    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
-    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();
+    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore());
+    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore());
 }
 } /* namespace Nextsim */

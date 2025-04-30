@@ -1,18 +1,19 @@
 /*!
  * @file TOPAZOcean.cpp
  *
- * @date 24 Sep 2024
+ * @date 10 Feb 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
 #include "include/TOPAZOcean.hpp"
 
 #include "include/Finalizer.hpp"
-#include "include/IIceOceanHeatFlux.hpp"
 #include "include/IFreezingPoint.hpp"
+#include "include/IIceOceanHeatFlux.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/constants.hpp"
+#include "include/gridNames.hpp"
 
 namespace Nextsim {
 
@@ -28,6 +29,7 @@ static const std::map<int, std::string> keyMap = {
 TOPAZOcean::TOPAZOcean()
     : sstExt(ModelArray::Type::H)
     , sssExt(ModelArray::Type::H)
+    , slabOcean(m_couplingArrays)
 {
 }
 
@@ -56,17 +58,21 @@ void TOPAZOcean::configure()
 
 void TOPAZOcean::updateBefore(const TimestepTime& tst)
 {
-    // TODO: Get more authoritative names for the forcings
-    std::set<std::string> forcings = { "sst", "sss", "mld", "u", "v" };
+    std::set<std::string> forcings = { sstName, sssName, mldName, uName, vName, sshName };
 
     ModelState state = ParaGridIO::readForcingTimeStatic(forcings, tst.start, filePath);
-    sstExt = state.data.at("sst");
-    sssExt = state.data.at("sss");
-    mld = state.data.at("mld");
-    u = state.data.at("u");
-    v = state.data.at("v");
+    sstExt = state.data.at(sstName);
+    sssExt = state.data.at(sssName);
+    mld = state.data.at(mldName);
+    u = state.data.at(uName);
+    v = state.data.at(vName);
+    if (state.data.count(sshName)) {
+        ssh = state.data.at(sshName);
+    } else {
+        ssh = 0.;
+    }
 
-    cpml = Water::rho * Water::cp * mld;
+    cpml = Water::rhoOcean * Water::cp * mld;
     overElements(
         std::bind(&TOPAZOcean::updateTf, this, std::placeholders::_1, std::placeholders::_2),
         TimestepTime());
@@ -76,9 +82,10 @@ void TOPAZOcean::updateBefore(const TimestepTime& tst)
 
 void TOPAZOcean::updateAfter(const TimestepTime& tst)
 {
+    mergeFluxes(tst);
     slabOcean.update(tst);
-    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore()).data();
-    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore()).data();
+    sst = ModelArrayRef<Protected::SLAB_SST, RO>(getStore());
+    sss = ModelArrayRef<Protected::SLAB_SSS, RO>(getStore());
 }
 
 void TOPAZOcean::setFilePath(const std::string& filePathIn) { filePath = filePathIn; }

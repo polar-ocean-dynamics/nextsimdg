@@ -1,9 +1,10 @@
 /*!
  * @file BrittleCGDynamicsKernel.hpp
  *
- * @date 19 Nov 2024
+ * @date 27 Mar 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
+ * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
 
 #ifndef BRITTLECGDYNAMICSKERNEL_HPP
@@ -14,16 +15,14 @@
 #include "BBMParameters.hpp"
 #include "ParametricMap.hpp"
 #include "StressUpdateStep.hpp"
+#include "include/constants.hpp"
+#include <cmath>
 
 namespace Nextsim {
-
-// Degrees to radians as a hex float
-static const double radians = 0x1.1df46a2529d39p-6;
 
 // The brittle momentum solver for CG velocity fields
 template <int DGadvection> class BrittleCGDynamicsKernel : public CGDynamicsKernel<DGadvection> {
 protected:
-    using DynamicsKernel<DGadvection, DGstressComp>::nSteps;
     using DynamicsKernel<DGadvection, DGstressComp>::s11;
     using DynamicsKernel<DGadvection, DGstressComp>::s12;
     using DynamicsKernel<DGadvection, DGstressComp>::s22;
@@ -41,6 +40,8 @@ protected:
 
     using CGDynamicsKernel<DGadvection>::u;
     using CGDynamicsKernel<DGadvection>::v;
+    using CGDynamicsKernel<DGadvection>::xGradSeaSurfaceHeight;
+    using CGDynamicsKernel<DGadvection>::yGradSeaSurfaceHeight;
     using CGDynamicsKernel<DGadvection>::uAtmos;
     using CGDynamicsKernel<DGadvection>::vAtmos;
     using CGDynamicsKernel<DGadvection>::uOcean;
@@ -53,15 +54,16 @@ protected:
     using CGDynamicsKernel<DGadvection>::dStressX;
     using CGDynamicsKernel<DGadvection>::dStressY;
     using CGDynamicsKernel<DGadvection>::pmap;
-
-    double cosOceanAngle, sinOceanAngle;
+    using CGDynamicsKernel<DGadvection>::updateIceOceanStress;
+    using CGDynamicsKernel<DGadvection>::cosOceanAngle;
+    using CGDynamicsKernel<DGadvection>::sinOceanAngle;
 
 public:
-    BrittleCGDynamicsKernel(StressUpdateStep<DGadvection, DGstressComp>& stressStepIn,
-        const DynamicsParameters& paramsIn)
-        : CGDynamicsKernel<DGadvection>()
+    BrittleCGDynamicsKernel(
+        StressUpdateStep<DGadvection, DGstressComp>& stressStepIn, const BBMParameters& paramsIn)
+        : CGDynamicsKernel<DGadvection>(paramsIn)
         , stressStep(stressStepIn)
-        , params(reinterpret_cast<const BBMParameters&>(paramsIn))
+        , params(paramsIn)
         , stresstransport(nullptr)
     {
     }
@@ -79,8 +81,10 @@ public:
         avgU.resize_by_mesh(*smesh);
         avgV.resize_by_mesh(*smesh);
 
-        cosOceanAngle = cos(radians * params.oceanTurningAngle);
-        sinOceanAngle = sin(radians * params.oceanTurningAngle);
+        // Set the fields to zero. Prognostic fields will be filled from the restart file.
+        damage.zero();
+        avgU.zero();
+        avgV.zero();
     }
 
     // The brittle rheologies use avgU and avgV to do the advection, not u and v, like mEVP
@@ -88,7 +92,6 @@ public:
 
     void update(const TimestepTime& tst) override
     {
-
         // Let DynamicsKernel handle the advection step
         advectionAndLimits(tst);
 
@@ -106,7 +109,7 @@ public:
         prepareIteration({ { hiceName, hice }, { ciceName, cice } });
 
         // The timestep for the brittle solver is the solver subtimestep
-        deltaT = tst.step.seconds() / nSteps;
+        deltaT = tst.step.seconds() / params.nSteps;
 
         avgU.zero();
         avgV.zero();
@@ -129,6 +132,9 @@ public:
 
             // Land mask
         }
+
+        updateIceOceanStress(avgU, avgV);
+
         // Finally, do the base class update
         DynamicsKernel<DGadvection, DGstressComp>::update(tst);
     }
@@ -182,6 +188,9 @@ protected:
 
 #pragma omp parallel for
         for (size_t i = 0; i < u.rows(); ++i) {
+            if (pmap->cglandmask(i) == 0)
+                continue;
+
             // FIXME dte_over_mass should include snow in the total mass
             const double dteOverMass = deltaT / (params.rhoIce * cgH(i));
             // Memoized initial velocity values
@@ -208,8 +217,10 @@ protected:
                 + cPrime * (vOcean(i) * cosOceanAngle + uOcean(i) * sinOceanAngle);
 
             // Stress gradient
-            const double gradX = dStressX(i) / pmap->lumpedcgmass(i);
-            const double gradY = dStressY(i) / pmap->lumpedcgmass(i);
+            const double gradX = dStressX(i) / pmap->lumpedcgmass(i)
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * xGradSeaSurfaceHeight(i);
+            const double gradY = dStressY(i) / pmap->lumpedcgmass(i)
+                - params.rhoIce * cgH(i) * PhysicalConstants::g * yGradSeaSurfaceHeight(i);
 
             u(i) = alpha * uIce + beta * vIce
                 + dteOverMass * (alpha * (gradX + tauX) + beta * (gradY + tauY));
@@ -220,8 +231,8 @@ protected:
             v(i) *= rDenom;
 
             // Calculate the contribution to the average velocity
-            avgU(i) += u(i) / nSteps;
-            avgV(i) += v(i) / nSteps;
+            avgU(i) += u(i) / params.nSteps;
+            avgV(i) += v(i) / params.nSteps;
         }
     }
 };

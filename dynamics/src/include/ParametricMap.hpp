@@ -1,6 +1,6 @@
 /*!
  * @file    ParametricMap.hpp
- * @date    Dec 13, 2022
+ * @date    19 Feb 2025
  * @author  Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -66,6 +66,10 @@ template <int CG, int DG> class ParametricMomentumMap {
 public:
     //! Vector to store the lumpes mass matrix. Is directly initialized when the mesh is known
     CGVector<CG> lumpedcgmass;
+    //! Vector to store the lumpes mass matrix in CG1. Neede to compute SeasurfaceGradient
+    CGVector<1> lumpedcg1mass;
+    //! Vector to store the landmask in the CG-degrees of freedom
+    CGVector<CG> cglandmask;
 
     /*!
      * These matrices realize the integration of (-div S, phi) = (S, nabla phi)
@@ -76,6 +80,17 @@ public:
     std::vector<Eigen::Matrix<Nextsim::FloatType, CGDOFS(CG), CG2DGSTRESS(CG)>,
         Eigen::aligned_allocator<Eigen::Matrix<Nextsim::FloatType, CGDOFS(CG), CG2DGSTRESS(CG)>>>
         divS1, divS2, divM;
+
+    /*!
+     * These matrices are used to compute the gradient of the sea surface height via
+     * ( gH, Phi) = ( d_[X/Y] SSH, Phi)
+     * where SSH is CG1-representation of seaSurfaceHeight
+     *
+     * Very similar to divS1 and divS2 but working in CG(1) vectors
+     */
+    std::vector<Eigen::Matrix<Nextsim::FloatType, 4, 4>,
+        Eigen::aligned_allocator<Eigen::Matrix<Nextsim::FloatType, 4, 4>>>
+        dX_SSH, dY_SSH;
 
     /*!
      * These matrices realize the integration of (E, \grad phi) scaled with the
@@ -115,6 +130,8 @@ public:
     void InitializeLumpedCGMassMatrix();
     //! initializes div-matrices for the stress update
     void InitializeDivSMatrices();
+    //! initializes the CG landmask
+    void InitializeCGLandmask();
 };
 
 }

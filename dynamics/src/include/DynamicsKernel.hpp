@@ -20,6 +20,7 @@
 #include "dgVisu.hpp"
 
 #include "DGModelArray.hpp"
+#include "dgVectorHolder.hpp"
 #include "include/ModelArray.hpp"
 #include "include/Time.hpp"
 #include "include/gridNames.hpp"
@@ -32,7 +33,7 @@
 
 namespace Nextsim {
 
-// forward define the class holding the potentially non-DG parts
+// forward declare the class holding the potentially non-DG parts
 template <int DGdegree> class DynamicsInternals;
 
 template <int DGadvection, int DGstress> class DynamicsKernel {
@@ -62,9 +63,7 @@ public:
         dgtransport = std::make_unique<Nextsim::DGTransport<DGadvection>>(*smesh);
         dgtransport->settimesteppingscheme("rk2");
 
-        // resize DG vectors
-        hice.resize_by_mesh(*smesh);
-        cice.resize_by_mesh(*smesh);
+        seaSurfaceHeight.resize_by_mesh(*smesh);
 
         e11.resize_by_mesh(*smesh);
         e12.resize_by_mesh(*smesh);
@@ -72,6 +71,14 @@ public:
         s11.resize_by_mesh(*smesh);
         s12.resize_by_mesh(*smesh);
         s22.resize_by_mesh(*smesh);
+
+        // Set initial values to zero. Prognostic fields will be filled from the restart file.
+        e11.zero();
+        e12.zero();
+        e22.zero();
+        s11.zero();
+        s12.zero();
+        s22.zero();
     }
 
     /*!
@@ -94,15 +101,24 @@ public:
     {
 
         // Special cases: hice, cice, (damage, stress) <- not yet implemented
-        if (name == hiceName) {
-            DGModelArray::ma2dg(data, hice);
-        } else if (name == ciceName) {
-            DGModelArray::ma2dg(data, cice);
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(std::string("Use setDGArray() to set the data for ") + name);
+        } else if (name == sshName) {
+            DGModelArray::ma2dg(data, seaSurfaceHeight);
         } else {
             // All other fields get shoved in a (labelled) bucket
             DGModelArray::ma2dg(data, advectedFields[name]);
             // …and have their type annotated
             fieldType[name] = data.getType();
+        }
+    }
+
+    void setDGArray(const std::string& name, ModelArray::DataType& dgData)
+    {
+        if (name == hiceName) {
+            hice = DGVectorHolder<DGadvection>(dgData);
+        } else if (name == ciceName) {
+            cice = DGVectorHolder<DGadvection>(dgData);
         }
     }
 
@@ -116,10 +132,9 @@ public:
     virtual ModelArray getDG0Data(const std::string& name) const
     {
         HField data(ModelArray::Type::H);
-        if (name == hiceName) {
-            return DGModelArray::dg2ma(hice, data);
-        } else if (name == ciceName) {
-            return DGModelArray::dg2ma(cice, data);
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(
+                std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Any other named field must exist
             return DGModelArray::dg2ma(advectedFields.at(name), data);
@@ -135,14 +150,9 @@ public:
     virtual ModelArray getDGData(const std::string& name) const
     {
 
-        if (name == hiceName) {
-            DGField data(ModelArray::Type::DG);
-            data.resize();
-            return DGModelArray::dg2ma(hice, data);
-        } else if (name == ciceName) {
-            DGField data(ModelArray::Type::DG);
-            data.resize();
-            return DGModelArray::dg2ma(cice, data);
+        if (name == hiceName || name == ciceName) {
+            throw std::runtime_error(
+                std::string("DynamicsKernel::getDG0Data: Use array sharing for ") + name);
         } else {
             // Use the stored array type to ensure the returned data has the correct type
             ModelArray::Type type = fieldType.at(name);
@@ -171,14 +181,15 @@ public:
 protected:
     std::unique_ptr<Nextsim::DGTransport<DGadvection>> dgtransport;
 
-    DGVector<DGadvection> hice;
-    DGVector<DGadvection> cice;
+    DGVectorHolder<DGadvection> hice;
+    DGVectorHolder<DGadvection> cice;
+
+    //! Vector storing the sea surface height (only dG(0) averages)
+    DGVector<1> seaSurfaceHeight;
 
     //! Vectors storing strain and stress components
     DGVector<DGstress> e11, e12, e22;
     DGVector<DGstress> s11, s12, s22;
-
-    size_t nSteps = 100;
 
     size_t stepNumber = 0;
 
