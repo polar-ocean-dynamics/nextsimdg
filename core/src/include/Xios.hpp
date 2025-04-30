@@ -137,6 +137,7 @@ public:
         START_TIME_KEY,
         TIME_STEP_KEY,
         PERIOD_KEY,
+        OUTPUT_FILENAME_KEY,
     };
 
     /* Length of C-strings passed to XIOS */

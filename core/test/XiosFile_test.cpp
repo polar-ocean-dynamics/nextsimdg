@@ -60,7 +60,8 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xios_handler.createFile(fileId);
     REQUIRE_THROWS_WITH(xios_handler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
-    REQUIRE_THROWS_WITH(xios_handler.getFileName(fileId), "Xios: Undefined name for file 'output'");
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg
+    REQUIRE(xios_handler.getFileName(fileId) == "xios_test_output.nc");
     const std::string fileName = "diagnostic";
     xios_handler.setFileName(fileId, fileName);
     REQUIRE(xios_handler.getFileName(fileId) == fileName);

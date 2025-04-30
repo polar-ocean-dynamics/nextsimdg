@@ -42,7 +42,8 @@ namespace Nextsim {
 
 static const std::map<int, std::string> keyMap
     = { { Xios::ENABLED_KEY, "xios.enable" }, { Xios::START_TIME_KEY, "model.start" },
-          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" } };
+          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" },
+          { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" } };
 
 //! Enable XIOS and set the configuration file for it to read parameters from
 void enableXios(std::string configFileName)
@@ -52,7 +53,8 @@ void enableXios(std::string configFileName)
     config << "[xios]" << std::endl << "enable = true" << std::endl;
     Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
 
-    // Add the configuration file to read the timestep, start time, and output period from
+    // Add the configuration file to read the timestep, start time, output period, and output
+    // filename from
     Configurator::addFile(configFileName);
 }
 
@@ -1388,6 +1390,14 @@ void Xios::createFile(const std::string fileId)
     istringstream(Configured::getConfiguration(keyMap.at(PERIOD_KEY), std::string())) >> periodStr;
     if (periodStr.length() > 0) {
         setFileOutputFreq(fileId, Duration(periodStr));
+    }
+
+    // Set the output filename based on the model configuration
+    std::string outfileStr;
+    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
+        >> outfileStr;
+    if (outfileStr.length() > 0) {
+        setFileName(fileId, outfileStr);
     }
 }
 
