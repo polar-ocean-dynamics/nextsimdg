@@ -38,9 +38,14 @@ static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.en
 //! Enable XIOS in the 'config'
 void enableXios(std::string configFileName)
 {
+    std::stringstream config;
+    config << "[xios]" << std::endl << "enable = true" << std::endl;
+    Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
+
+    // TODO: Hook up Configurator::addFile(configFileName) properly
+    Configurator::addFile(configFileName);
     std::string configStr;
     if (configFileName.length() > 0) {
-        // TODO: Use Configurator::addFile(configFile);
         std::ifstream ConfigFile;
         ConfigFile.open(configFileName);
         if (ConfigFile.is_open()) {
@@ -62,12 +67,7 @@ void enableXios(std::string configFileName)
         Logged::warning("Xios: Setting default time_step: P0-0T01:00:00");
         configStr = "[model]\nstart=1970-01-01T00:00:00Z\ntime_step=P0-0T01:00:00\n";
     }
-
-    std::stringstream config;
-    config << "[xios]" << std::endl << "enable = true" << std::endl;
-    // TODO: Configure from config files properly, rather than passing this string.
-    config << configStr << std::endl;
-    Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
+    Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(configStr)));
 }
 
 /*!
