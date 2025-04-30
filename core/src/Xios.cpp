@@ -20,7 +20,7 @@
  *   [model]
  *   start = ...
  *   time_step = ...
- *   [ConfigOutput]
+ *   [XiosOutput]
  *   period = ...
  */
 #include <boost/date_time/posix_time/time_parsers.hpp>
@@ -42,7 +42,7 @@ namespace Nextsim {
 
 static const std::map<int, std::string> keyMap
     = { { Xios::ENABLED_KEY, "xios.enable" }, { Xios::START_TIME_KEY, "model.start" },
-          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "ConfigOutput.period" } };
+          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" } };
 
 //! Enable XIOS and set the configuration file for it to read parameters from
 void enableXios(std::string configFileName)

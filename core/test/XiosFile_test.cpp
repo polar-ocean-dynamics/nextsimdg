@@ -70,7 +70,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xios_handler.setFileType(fileId, fileType);
     REQUIRE(xios_handler.getFileType(fileId) == fileType);
     // Output frequency
-    // NOTE: This is read from the ConfigOutput.period entry in xios_tests.cfg
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg
     REQUIRE(xios_handler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xios_handler.getCalendarTimestep();
     xios_handler.setFileOutputFreq(fileId, timestep);
