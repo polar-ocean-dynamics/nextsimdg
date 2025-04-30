@@ -67,8 +67,7 @@ void enableXios(std::string configFileName)
     config << "[xios]" << std::endl << "enable = true" << std::endl;
     // TODO: Configure from config files properly, rather than passing this string.
     config << configStr << std::endl;
-    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
-    Configurator::addStream(std::move(pcstream));
+    Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
 }
 
 /*!
