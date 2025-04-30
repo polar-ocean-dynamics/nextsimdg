@@ -1,7 +1,7 @@
 /*!
  * @file FluxConfiguredAtmosphere.hpp
  *
- * @date Sep 29, 2022
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -42,8 +42,8 @@ public:
     ConfigMap getConfiguration() const override;
 
 protected:
-    //! Performs the implementation specific updates. Does nothing.
-    void update(const TimestepTime&) override { }
+    //! Performs the implementation specific updates.
+    void update(const TimestepTime&) override;
 
 private:
     static double qia0;
