@@ -32,6 +32,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/format.hpp>
 #include <boost/format/group.hpp>
+#include <filesystem>
 #include <include/xios_c_interface.hpp>
 #include <iostream>
 #include <mpi.h>
@@ -1397,7 +1398,7 @@ void Xios::createFile(const std::string fileId)
     istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
         >> outfileStr;
     if (outfileStr.length() > 0) {
-        setFileName(fileId, outfileStr);
+        setFileName(fileId, ((std::filesystem::path)outfileStr).replace_extension());
     }
 }
 
