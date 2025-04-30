@@ -1,7 +1,7 @@
 /*!
  * @file    XiosCalendar_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    04 Dec 2024
+ * @date    30 Apr 2025
  * @brief   Tests for XIOS calandars
  * @details
  * This test is designed to test calendar functionality of the C++ interface
@@ -14,6 +14,9 @@
 #include "StructureModule/include/ParametricGrid.hpp"
 #include "include/Xios.hpp"
 
+const std::string testSourceDir = TEST_SOURCE_DIR;
+const std::string configFileName = testSourceDir + "/xios_tests.cfg";
+
 namespace Nextsim {
 
 /*!
@@ -25,9 +28,9 @@ namespace Nextsim {
  * `mpirun -n 2 ./testXiosCalendar_MPI2`
  *
  */
-MPI_TEST_CASE("TestXiosInitialization", 2)
+MPI_TEST_CASE("TestXiosCalendar", 2)
 {
-    enableXios();
+    enableXios(configFileName);
 
     // Initialize an Xios instance called xios_handler
     Xios xios_handler;
@@ -44,17 +47,17 @@ MPI_TEST_CASE("TestXiosInitialization", 2)
     REQUIRE(origin == xios_handler.getCalendarOrigin());
     REQUIRE(origin.format() == "2020-01-23T00:08:15Z");
     // Calendar start
-    REQUIRE(xios_handler.getCalendarStart().format() == "1970-01-01T00:00:00Z"); // Default
+    REQUIRE(xios_handler.getCalendarStart().format() == "2023-03-17T17:11:00Z"); // Set in config
     TimePoint start("2023-03-17T17:11:00Z");
     xios_handler.setCalendarStart(start);
     REQUIRE(start == xios_handler.getCalendarStart());
     REQUIRE(start.format() == "2023-03-17T17:11:00Z");
     // Timestep
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 3600.0); // Default
-    Duration timestep("P0-0T01:30:00");
-    REQUIRE(timestep.seconds() == 5400.0);
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 5400.0); // Set in config
+    Duration timestep("P0-0T01:00:00");
+    REQUIRE(timestep.seconds() == 3600.0);
     xios_handler.setCalendarTimestep(timestep);
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 5400.0);
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 3600.0);
 
     xios_handler.close_context_definition();
 
@@ -65,7 +68,7 @@ MPI_TEST_CASE("TestXiosInitialization", 2)
 
     // -- Tests that the timestep is set up correctly
     xios_handler.updateCalendar(1);
-    REQUIRE(xios_handler.getCurrentDate() == "2023-03-17T18:41:00Z");
+    REQUIRE(xios_handler.getCurrentDate() == "2023-03-17T18:11:00Z");
 
     xios_handler.context_finalize();
 }

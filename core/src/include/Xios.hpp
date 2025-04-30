@@ -2,7 +2,7 @@
  * @file    Xios.hpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    04 Dec 2024
+ * @date    30 Apr 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -27,13 +27,11 @@
 
 namespace Nextsim {
 
-void enableXios();
+void enableXios(std::string configFileName = "");
 
 class Xios : public Configured<Xios> {
 public:
-    Xios(const std::string dt = "P0-0T01:00:00", const std::string contextid = "nextSIM-DG",
-        const std::string starttime = "1970-01-01T00:00:00Z",
-        const std::string calendartype = "Gregorian");
+    Xios(const std::string contextId = "nextSIM-DG", const std::string calendarType = "Gregorian");
     ~Xios();
 
     /* Initialization and finalization */
@@ -136,6 +134,8 @@ public:
 
     enum {
         ENABLED_KEY,
+        START_TIME_KEY,
+        TIME_STEP_KEY,
     };
 
     /* Length of C-strings passed to XIOS */

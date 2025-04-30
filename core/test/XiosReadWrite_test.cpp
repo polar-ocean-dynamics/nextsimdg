@@ -1,7 +1,7 @@
 /*!
  * @file    XiosReadWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    04 Dec 2024
+ * @date    30 Apr 2025
  * @brief   Tests for XIOS write method
  * @details
  * This test is designed to test the read and write methods of the C++
@@ -17,6 +17,9 @@
 #include "include/Xios.hpp"
 
 #include <filesystem>
+
+const std::string testSourceDir = TEST_SOURCE_DIR;
+const std::string configFileName = testSourceDir + "/xios_tests.cfg";
 
 namespace Nextsim {
 
@@ -53,15 +56,18 @@ Xios setupXiosHandler(int dim, bool read)
     ParaGridIO* pio = new ParaGridIO(grid);
     grid.setIO(pio);
 
+    enableXios(configFileName);
+
     // Initialize an Xios instance called xios_handler
     // TODO: Create XIOS handler along with ParaGridIO instance
     std::string label;
+    std::string contextId;
     if (read) {
         label = "read";
     } else {
         label = "write";
     }
-    Xios xios_handler("P0-0T01:30:00", formatId(label, dim), "2023-03-17T17:11:00Z");
+    Xios xios_handler(formatId(label, dim));
     REQUIRE(xios_handler.isInitialized());
     const size_t size = xios_handler.getClientMPISize();
     REQUIRE(size == 2);

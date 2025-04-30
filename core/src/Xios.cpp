@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    09 Dec 2024
+ * @date    30 Apr 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -32,14 +32,41 @@
 
 namespace Nextsim {
 
-static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" } };
+static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" },
+    { Xios::START_TIME_KEY, "model.start" }, { Xios::TIME_STEP_KEY, "model.time_step" } };
 
 //! Enable XIOS in the 'config'
-void enableXios()
+void enableXios(std::string configFileName)
 {
-    Configurator::clearStreams();
+    std::string configStr;
+    if (configFileName.length() > 0) {
+        // TODO: Use Configurator::addFile(configFile);
+        std::ifstream ConfigFile;
+        ConfigFile.open(configFileName);
+        if (ConfigFile.is_open()) {
+            char mychar;
+            std::stringstream text;
+            while (ConfigFile) {
+                mychar = ConfigFile.get();
+                text << mychar;
+            }
+            ConfigFile.close();
+            configStr = text.str();
+            configStr = configStr.substr(0, configStr.length() - 1);
+        } else {
+            Logged::warning("Xios: Cannot open configuration file");
+        }
+    }
+    if (configStr.length() == 0) {
+        Logged::warning("Xios: Setting default start: 1970-01-01T00:00:00Z");
+        Logged::warning("Xios: Setting default time_step: P0-0T01:00:00");
+        configStr = "[model]\nstart=1970-01-01T00:00:00Z\ntime_step=P0-0T01:00:00\n";
+    }
+
     std::stringstream config;
     config << "[xios]" << std::endl << "enable = true" << std::endl;
+    // TODO: Configure from config files properly, rather than passing this string.
+    config << configStr << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 }
@@ -47,16 +74,10 @@ void enableXios()
 /*!
  * Constructor: Configure an XIOS server
  *
- * @param dt Timestep to use for the model
- * @param contextid ID for the XIOS context
- * @param starttime Datetime string for the start of the simulation
  * @param calendartype Type of calendar to use
  */
-Xios::Xios(const std::string dt, const std::string contextid, const std::string starttime,
-    const std::string calendartype)
+Xios::Xios(const std::string contextid, const std::string calendartype)
 {
-    timestep = Duration(dt);
-    startTime = TimePoint(starttime);
     contextId = contextid;
     calendarType = calendartype;
     configure();
@@ -100,6 +121,19 @@ void Xios::configure()
     // Check if XIOS is enabled in the nextSIM-DG configuration
     istringstream(Configured::getConfiguration(keyMap.at(ENABLED_KEY), std::string()))
         >> std::boolalpha >> isEnabled;
+
+    // Extract the start time from the model configuration
+    std::string startTimeStr;
+    istringstream(Configured::getConfiguration(keyMap.at(START_TIME_KEY), std::string()))
+        >> startTimeStr;
+    startTime = TimePoint(startTimeStr);
+
+    // Extract the timestep from the model configuration
+    std::string timeStepStr;
+    istringstream(Configured::getConfiguration(keyMap.at(TIME_STEP_KEY), std::string()))
+        >> timeStepStr;
+    timestep = Duration(timeStepStr);
+
     if (isEnabled) {
         configureServer();
     }

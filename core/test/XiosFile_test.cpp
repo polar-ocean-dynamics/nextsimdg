@@ -1,7 +1,7 @@
 /*!
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    03 Dec 2024
+ * @date    30 Apr 2025
  * @brief   Tests for XIOS axes
  * @details
  * This test is designed to test axis functionality of the C++ interface
@@ -16,6 +16,9 @@
 
 using namespace doctest;
 
+const std::string testSourceDir = TEST_SOURCE_DIR;
+const std::string configFileName = testSourceDir + "/xios_tests.cfg";
+
 namespace Nextsim {
 
 /*!
@@ -29,10 +32,10 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosFile", 2)
 {
-    enableXios();
+    enableXios(configFileName);
 
     // Initialize an Xios instance called xios_handler
-    Xios xios_handler("P0-0T01:30:00");
+    Xios xios_handler;
     REQUIRE(xios_handler.isInitialized());
     const size_t size = xios_handler.getClientMPISize();
     REQUIRE(size == 2);
