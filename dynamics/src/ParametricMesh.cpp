@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMesh.hpp
- * @date 14 Jan 2025
+ * @date 30 Apr 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -116,14 +116,14 @@ void ParametricMesh::readmesh(std::string fname)
                       << std::endl;
             abort();
         }
-	std::cerr << "ParametricMesh V2.0 is not longer fully supported. Dirichlet now uses the landmask information and Dirichlet data within the mesh file is ignored" << std::endl;
+        std::cerr << "ParametricMesh V2.0 is not longer fully supported. Dirichlet now uses the "
+                     "landmask information and Dirichlet data within the mesh file is ignored"
+                  << std::endl;
         size_t nd;
         IN >> nd;
-	double tmp;
-	for (int i=0;i<nd;++i)
-	      IN >> tmp >> tmp;
-		       
-	
+        double tmp;
+        for (int i = 0; i < nd; ++i)
+            IN >> tmp >> tmp;
 
         IN >> status;
         if (status != "periodic") {

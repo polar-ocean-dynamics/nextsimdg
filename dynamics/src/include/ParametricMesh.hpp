@@ -1,6 +1,6 @@
 /*!
  * @file ParametricMesh.hpp
- * @date 09 Jan 2025
+ * @date 30 Apr 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -377,7 +377,6 @@ public:
      * @param mask the ModelArray containing the mask to be used.
      */
     void landmaskFromModelArray(const ModelArray& mask);
-
 
     // Global access functions
 

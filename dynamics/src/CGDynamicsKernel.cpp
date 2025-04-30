@@ -1,7 +1,7 @@
 /*!
  * @file CGDynamicsKernel.cpp
  *
- * @date 27 Mar 2025
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Robert Jendersie <robert.jendersie@ovgu.de>
  */
@@ -397,13 +397,13 @@ template <int DGadvection> void CGDynamicsKernel<DGadvection>::stressDivergence(
 template <int DGadvection>
 void CGDynamicsKernel<DGadvection>::dirichletZero(CGVector<CGdegree>& v) const
 {
-  // TR 07.04.2025: Dirichlet Zero (u=v=0) holds on land and on the boundary betreen
-  // land and ice. Hence on all elements with landmask = 0, or, on cg nodes with
-  // cglandmask = 0
+    // TR 07.04.2025: Dirichlet Zero (u=v=0) holds on land and on the boundary betreen
+    // land and ice. Hence on all elements with landmask = 0, or, on cg nodes with
+    // cglandmask = 0
 #pragma omp parallel for
-  for (size_t i = 0; i < pmap->cglandmask.rows(); ++i)
-    if (pmap->cglandmask(i) == 0) // land
-      v(i) = 0;
+    for (size_t i = 0; i < pmap->cglandmask.rows(); ++i)
+        if (pmap->cglandmask(i) == 0) // land
+            v(i) = 0;
 }
 
 template <int DGadvection> void CGDynamicsKernel<DGadvection>::applyBoundaries()

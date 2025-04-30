@@ -1,6 +1,6 @@
 /*!
  * @file DGTransport.cpp
- * @date July 10, 2022
+ * @date 30 Apr 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -232,18 +232,16 @@ template <int DG> void DGTransport<DG>::reinitnormalvelocity()
     // only has one neighbor. Above, we sum both sides, weighted with 0.5. Therefore,
     // we must scale the outer edges with 2. This is only used for inflow/outflow
     // Neumann boundaries.
-#pragma omp parallel for 
-    for (size_t i=0;i<smesh.nx;++i)
-      {
-	normalvel_X.row(i) *= 2.0; // bottom
-	normalvel_X.row(i + smesh.nx * smesh.ny) *= 2.0; //top
-      }
-#pragma omp parallel for 
-    for (size_t i=0;i<smesh.ny;++i)
-      {
-	normalvel_Y.row(i * (smesh.nx+1)) *= 2.0; // left
-	normalvel_Y.row(i * (smesh.nx+1) + smesh.nx) *= 2.0; //right
-      }
+#pragma omp parallel for
+    for (size_t i = 0; i < smesh.nx; ++i) {
+        normalvel_X.row(i) *= 2.0; // bottom
+        normalvel_X.row(i + smesh.nx * smesh.ny) *= 2.0; // top
+    }
+#pragma omp parallel for
+    for (size_t i = 0; i < smesh.ny; ++i) {
+        normalvel_Y.row(i * (smesh.nx + 1)) *= 2.0; // left
+        normalvel_Y.row(i * (smesh.nx + 1) + smesh.nx) *= 2.0; // right
+    }
 }
 
 ////////////////////////////////////////////////// PREPARE
@@ -476,7 +474,7 @@ void DGTransport<DG>::DGTransportOperator(const ParametricMesh& smesh, const dou
     }
 
     // TR 07.04.2025
-    // 
+    //
     // Dirichlet: we do not need to do anything special in DGTransport. On Dirichlet
     // boundaries, the normal velocity is zero. Hence, any flux is zero.
 
@@ -485,35 +483,33 @@ void DGTransport<DG>::DGTransportOperator(const ParametricMesh& smesh, const dou
     // This can only appear on outer mesh-boundaries, whenever the element at the edge
     // is ice.
 
-    // TO DISCUSS: there can't be in/outflow and periodic on the same edge. We either need a structure
-    // for in/outflow or we say: either there is an in/outflow boundary or periodic. But not both..
-    if (smesh.periodic.size()==0)
-      {
+    // TO DISCUSS: there can't be in/outflow and periodic on the same edge. We either need a
+    // structure for in/outflow or we say: either there is an in/outflow boundary or periodic. But
+    // not both..
+    if (smesh.periodic.size() == 0) {
 #pragma omp parallel for
-    for (size_t i=0; i<smesh.nx; ++i)
-      {
-	const size_t element_lower = i;
-	const size_t edge_lower = i;
-	const size_t element_upper = i + smesh.nx * (smesh.ny-1);
-	const size_t edge_upper = i + smesh.nx * smesh.ny;
-	if (smesh.landmask[element_lower] == 1)
-	  boundary_lower(smesh, dt, phiup, phi, normalvel_X, element_lower, edge_lower);
-	if (smesh.landmask[element_upper] == 1)
-	  boundary_upper(smesh, dt, phiup, phi, normalvel_X, element_upper, edge_upper);
-      }
+        for (size_t i = 0; i < smesh.nx; ++i) {
+            const size_t element_lower = i;
+            const size_t edge_lower = i;
+            const size_t element_upper = i + smesh.nx * (smesh.ny - 1);
+            const size_t edge_upper = i + smesh.nx * smesh.ny;
+            if (smesh.landmask[element_lower] == 1)
+                boundary_lower(smesh, dt, phiup, phi, normalvel_X, element_lower, edge_lower);
+            if (smesh.landmask[element_upper] == 1)
+                boundary_upper(smesh, dt, phiup, phi, normalvel_X, element_upper, edge_upper);
+        }
 #pragma omp parallel for
-    for (size_t i=0; i<smesh.ny; ++i)
-      {
-	const size_t element_left = i * smesh.nx;
-	const size_t edge_left = i * (smesh.nx+1);
-	const size_t element_right = (i+1) * smesh.nx -1;
-	const size_t edge_right = i * (smesh.nx+1) + smesh.nx;
-	if (smesh.landmask[element_left] == 1)
-	  boundary_left(smesh, dt, phiup, phi, normalvel_Y, element_left, edge_left);
-	if (smesh.landmask[element_right] == 1)
-	  boundary_right(smesh, dt, phiup, phi, normalvel_Y, element_right, edge_right);
-      }
-      }
+        for (size_t i = 0; i < smesh.ny; ++i) {
+            const size_t element_left = i * smesh.nx;
+            const size_t edge_left = i * (smesh.nx + 1);
+            const size_t element_right = (i + 1) * smesh.nx - 1;
+            const size_t edge_right = i * (smesh.nx + 1) + smesh.nx;
+            if (smesh.landmask[element_left] == 1)
+                boundary_left(smesh, dt, phiup, phi, normalvel_Y, element_left, edge_left);
+            if (smesh.landmask[element_right] == 1)
+                boundary_right(smesh, dt, phiup, phi, normalvel_Y, element_right, edge_right);
+        }
+    }
 
 #pragma omp parallel for
     for (size_t eid = 0; eid < smesh.nelements; ++eid)
