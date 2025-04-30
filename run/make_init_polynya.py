@@ -18,7 +18,7 @@ nLayers = 3
 fname = f"init_polynya.nc"
 
 # The model expects everything in metres
-initializer = initMaker(fname, nfirst, nsecond, nLayers, res*1e3)
+initializer = initMaker(fname, nfirst, nsecond, nLayers, res*1e3, checkZeros=False)
 
 # Ice everywhere and all boundaries closed, except the x = 100 km end
 initializer.mask[:, :] = 1.
@@ -32,6 +32,9 @@ initializer.cice[:, :] = 0.9
 
 # Uniform thickness of 20 cm
 initializer.hice[:, :] = 0.2
+
+# Undamaged ice
+initializer.damage[:, :] = 1.
 
 # Ice and ocean temperature and salinity at the freezing point
 ice_salinity = 5  # should match Ice::s in constants.hpp
