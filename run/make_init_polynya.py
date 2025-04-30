@@ -3,11 +3,8 @@ from make_init_base import initMaker
 # Creates initial conditions for the Bjornsson et al. (2001) polynya case
 
 # Domain size [km]
-#x = 100
-#y = 50
-#res = 2
-x = 64
-y = 48
+x = 100
+y = 50
 res = 2
 
 
