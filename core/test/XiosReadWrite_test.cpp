@@ -61,7 +61,6 @@ Xios setupXiosHandler(int dim, bool read)
     // Initialize an Xios instance called xios_handler
     // TODO: Create XIOS handler along with ParaGridIO instance
     std::string label;
-    std::string contextId;
     if (read) {
         label = "read";
     } else {
