@@ -1,7 +1,7 @@
 /*!
  * @file FluxConfiguredAtmosphere.cpp
  *
- * @date 20 Nov 2024
+ * @date 30 Apr 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -91,6 +91,13 @@ void FluxConfiguredAtmosphere::setData(const ModelState::DataMap& dm)
     evap = evap0;
     uwind = u0;
     vwind = v0;
+}
+
+void FluxConfiguredAtmosphere::update(const TimestepTime& tst)
+{
+    /* The open water heat flux is reset by the thermodynamics, so that the (slab) ocean doesn't
+     * super cool. Therefore, we have to reset it here on every update */
+    qow = qow0;
 }
 
 } /* namespace Nextsim */
