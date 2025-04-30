@@ -35,34 +35,16 @@ namespace Nextsim {
 static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" },
     { Xios::START_TIME_KEY, "model.start" }, { Xios::TIME_STEP_KEY, "model.time_step" } };
 
-//! Enable XIOS in the 'config'
+//! Enable XIOS and set the configuration file for it to read parameters from
 void enableXios(std::string configFileName)
 {
+    // Enable XIOS in the 'config'
     std::stringstream config;
     config << "[xios]" << std::endl << "enable = true" << std::endl;
     Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
 
-    // TODO: Hook up Configurator::addFile(configFileName) properly
+    // Add the configuration file to read the timestep, start time, and output frequency from
     Configurator::addFile(configFileName);
-    std::string configStr;
-    if (configFileName.length() > 0) {
-        std::ifstream ConfigFile;
-        ConfigFile.open(configFileName);
-        if (ConfigFile.is_open()) {
-            char mychar;
-            std::stringstream text;
-            while (ConfigFile) {
-                mychar = ConfigFile.get();
-                text << mychar;
-            }
-            ConfigFile.close();
-            configStr = text.str();
-            configStr = configStr.substr(0, configStr.length() - 1);
-        } else {
-            Logged::warning("Xios: Cannot open configuration file");
-        }
-    }
-    Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(configStr)));
 }
 
 /*!
