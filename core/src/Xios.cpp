@@ -14,6 +14,14 @@
  * To enable XIOS in nextSIM-DG add the following lines to the config file.
  *   [xios]
  *   enable = true
+ *
+ * The start time, timestep, and output period will also be read from the
+ * following config file entries.
+ *   [model]
+ *   start = ...
+ *   time_step = ...
+ *   [ConfigOutput]
+ *   period = ...
  */
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
