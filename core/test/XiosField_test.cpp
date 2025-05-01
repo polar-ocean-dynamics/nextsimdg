@@ -3,9 +3,9 @@
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
  * @date    29 Apr 2025
- * @brief   Tests for XIOS axes
+ * @brief   Tests for XIOS fields
  * @details
- * This test is designed to test axis functionality of the C++ interface
+ * This test is designed to test field functionality of the C++ interface
  * for XIOS.
  *
  */
