@@ -2,10 +2,10 @@
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    06 May 2025
- * @brief   Tests for XIOS axes
+ * @date    23 Apr 2025
+ * @brief   Tests for XIOS file
  * @details
- * This test is designed to test axis functionality of the C++ interface
+ * This test is designed to test file functionality of the C++ interface
  * for XIOS.
  *
  */
