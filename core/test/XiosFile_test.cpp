@@ -22,7 +22,7 @@ using namespace doctest;
 namespace Nextsim {
 
 /*!
- * TestXiosInitialization
+ * TestXiosFile
  *
  * This function tests the file functionality of the C++ interface for XIOS. It
  * needs to be run with 2 ranks i.e.,
