@@ -22,19 +22,19 @@ namespace Nextsim {
  * TestXiosAxis
  *
  * This function tests the axis functionality of the C++ interface for XIOS. It
- * needs to be run with 1 rank i.e.,
+ * needs to be run with 3 ranks i.e.,
  *
- * `mpirun -n 1 ./testXiosAxis_MPI1`
+ * `mpirun -n 3 ./testXiosAxis_MPI3`
  *
  */
-MPI_TEST_CASE("TestXiosAxis", 1)
+MPI_TEST_CASE("TestXiosAxis", 3)
 {
     enableXios();
 
     // Get the Xios singleton instance and check it's initialized
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
-    REQUIRE(xiosHandler.getClientMPISize() == 1);
+    REQUIRE(xiosHandler.getClientMPISize() == 3);
 
     // --- Tests for axis API
     const std::string axisId = { "axis_A" };

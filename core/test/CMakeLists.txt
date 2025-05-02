@@ -47,13 +47,13 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosCalendar_MPI4 PRIVATE nextsimlib doctest::doctest)
 
-        add_executable(testXiosAxis_MPI1 "XiosAxis_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosAxis_MPI1 PRIVATE USE_XIOS)
+        add_executable(testXiosAxis_MPI3 "XiosAxis_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosAxis_MPI3 PRIVATE USE_XIOS)
         target_include_directories(
-            testXiosAxis_MPI1
+            testXiosAxis_MPI3
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
         )
-        target_link_libraries(testXiosAxis_MPI1 PRIVATE nextsimlib doctest::doctest)
+        target_link_libraries(testXiosAxis_MPI3 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosDomain_MPI2 "XiosDomain_test.cpp" "MainMPI.cpp")
         target_compile_definitions(testXiosDomain_MPI2 PRIVATE USE_XIOS)
