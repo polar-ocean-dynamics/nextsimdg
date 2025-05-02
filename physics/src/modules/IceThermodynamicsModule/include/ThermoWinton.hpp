@@ -1,7 +1,7 @@
 /*!
  * @file ThermoWinton.hpp
  *
- * @date 24 Sep 2024
+ * @date 02 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -35,7 +35,7 @@ public:
     static HelpMap& getHelpRecursive(HelpMap& map, bool getAll);
 
     void setData(const ModelState::DataMap&) override;
-    void update(const TimestepTime& tsTime) override;
+    void update(const TimestepTime& tst) override;
 
     size_t getNZLevels() const override;
 
