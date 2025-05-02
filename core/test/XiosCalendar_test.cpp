@@ -23,12 +23,12 @@ namespace Nextsim {
  * TestXiosCalendar
  *
  * This function tests the calendar functionality of the C++ interface for XIOS. It
- * needs to be run with 3 ranks i.e.,
+ * needs to be run with 4 ranks i.e.,
  *
- * `mpirun -n 3 ./testXiosCalendar_MPI3`
+ * `mpirun -n 4 ./testXiosCalendar_MPI4`
  *
  */
-MPI_TEST_CASE("TestXiosCalendar", 3)
+MPI_TEST_CASE("TestXiosCalendar", 4)
 {
     // Enable XIOS in the 'config' and provide parameters to configure it
     enableXios();
@@ -44,7 +44,7 @@ MPI_TEST_CASE("TestXiosCalendar", 3)
     // Get the Xios singleton instance and check it's initialized
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
-    REQUIRE(xiosHandler.getClientMPISize() == 3);
+    REQUIRE(xiosHandler.getClientMPISize() == 4);
 
     // --- Tests for calendar API
     // Calendar type
