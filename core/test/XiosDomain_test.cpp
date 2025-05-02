@@ -22,12 +22,12 @@ namespace Nextsim {
  * TestXiosDomain
  *
  * This function tests the domain functionality of the C++ interface for XIOS. It
- * needs to be run with 1 rank i.e.,
+ * needs to be run with 3 ranks i.e.,
  *
- * `mpirun -n 1 ./testXiosDomain_MPI1`
+ * `mpirun -n 3 ./testXiosDomain_MPI3`
  *
  */
-MPI_TEST_CASE("TestXiosDomain", 1)
+MPI_TEST_CASE("TestXiosDomain", 3)
 {
     enableXios();
 
@@ -35,7 +35,7 @@ MPI_TEST_CASE("TestXiosDomain", 1)
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
     const size_t size = xiosHandler.getClientMPISize();
-    REQUIRE(size == 1);
+    REQUIRE(size == 3);
     const size_t rank = xiosHandler.getClientMPIRank();
 
     // --- Tests for domain API
