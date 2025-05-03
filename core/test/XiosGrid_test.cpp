@@ -21,12 +21,12 @@ namespace Nextsim {
  * TestXiosGrid
  *
  * This function tests the grid functionality of the C++ interface for XIOS. It
- * needs to be run with 1 rank i.e.,
+ * needs to be run with 3 ranks i.e.,
  *
- * `mpirun -n 1 ./testXiosGrid_MPI1`
+ * `mpirun -n 3 ./testXiosGrid_MPI3`
  *
  */
-MPI_TEST_CASE("TestXiosGrid", 1)
+MPI_TEST_CASE("TestXiosGrid", 3)
 {
     enableXios();
 
@@ -34,7 +34,7 @@ MPI_TEST_CASE("TestXiosGrid", 1)
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
     const size_t size = xiosHandler.getClientMPISize();
-    REQUIRE(size == 1);
+    REQUIRE(size == 3);
     const size_t rank = xiosHandler.getClientMPIRank();
 
     // Create a 4x2 horizontal domain with a partition halving the x-extent
