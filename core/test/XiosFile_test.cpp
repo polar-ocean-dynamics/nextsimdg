@@ -25,12 +25,12 @@ namespace Nextsim {
  * TestXiosFile
  *
  * This function tests the file functionality of the C++ interface for XIOS. It
- * needs to be run with 1 rank i.e.,
+ * needs to be run with 3 ranks i.e.,
  *
- * `mpirun -n 1 ./testXiosFile_MPI1`
+ * `mpirun -n 3 ./testXiosFile_MPI3`
  *
  */
-MPI_TEST_CASE("TestXiosFile", 1)
+MPI_TEST_CASE("TestXiosFile", 3)
 {
     // Enable XIOS in the 'config' and provide parameters to configure it
     enableXios();
@@ -48,7 +48,7 @@ MPI_TEST_CASE("TestXiosFile", 1)
     Xios& xiosHandler = Xios::getInstance("P0-0T01:30:00");
     REQUIRE(xiosHandler.isInitialized());
     const size_t size = xiosHandler.getClientMPISize();
-    REQUIRE(size == 1);
+    REQUIRE(size == 3);
     const size_t rank = xiosHandler.getClientMPIRank();
 
     // Create a simple axis with two points
