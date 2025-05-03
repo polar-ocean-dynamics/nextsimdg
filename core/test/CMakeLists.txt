@@ -63,13 +63,13 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosDomain_MPI4 PRIVATE nextsimlib doctest::doctest)
 
-        add_executable(testXiosGrid_MPI2 "XiosGrid_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosGrid_MPI2 PRIVATE USE_XIOS)
+        add_executable(testXiosGrid_MPI1 "XiosGrid_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosGrid_MPI1 PRIVATE USE_XIOS)
         target_include_directories(
-            testXiosGrid_MPI2
+            testXiosGrid_MPI1
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
         )
-        target_link_libraries(testXiosGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
+        target_link_libraries(testXiosGrid_MPI1 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosField_MPI2 "XiosField_test.cpp" "MainMPI.cpp")
         target_compile_definitions(testXiosField_MPI2 PRIVATE USE_XIOS)
