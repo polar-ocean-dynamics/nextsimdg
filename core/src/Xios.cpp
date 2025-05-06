@@ -1407,15 +1407,6 @@ void Xios::createFile(const std::string fileId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create file '" + fileId + "'");
     }
-
-    // Set the output period based on the model configuration
-    std::string periodStr;
-    // TODO: Account for both reading and writing
-    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_PERIOD_KEY), std::string()))
-        >> periodStr;
-    if (periodStr.length() > 0) {
-        setFileOutputFreq(fileId, Duration(periodStr));
-    }
 }
 
 /*!
@@ -1670,6 +1661,19 @@ void Xios::fileAddField(const std::string fileId, const std::string fieldId)
     }
     if (filenameStr.length() > 0) {
         setFileName(fileId, ((std::filesystem::path)filenameStr).replace_extension());
+    }
+
+    // Set the input or output period based on the model configuration
+    std::string periodStr;
+    if (getFieldReadAccess(fieldId)) {
+        istringstream(Configured::getConfiguration(keyMap.at(INPUT_PERIOD_KEY), std::string()))
+            >> periodStr;
+    } else {
+        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_PERIOD_KEY), std::string()))
+            >> periodStr;
+    }
+    if (periodStr.length() > 0) {
+        setFileOutputFreq(fileId, Duration(periodStr));
     }
 }
 

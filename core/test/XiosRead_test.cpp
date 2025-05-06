@@ -37,8 +37,8 @@ MPI_TEST_CASE("TestXiosRead", 2)
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
     config << "time_step = P0-0T01:30:00" << std::endl;
     config << "[XiosInput]" << std::endl;
-    config << "period = P0-0T03:00:00" << std::endl;
-    config << "filename = xios_test_input" << std::endl; // TODO: USEME
+    config << "period = P0-0T01:30:00" << std::endl;
+    config << "filename = xios_test_input" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 
@@ -97,7 +97,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     std::string fileId = "xios_test_input";
     xiosHandler.createFile(fileId);
     xiosHandler.setFileType(fileId, "one_file");
-    xiosHandler.setFileOutputFreq(fileId, timestep);
     xiosHandler.setFileMode(fileId, "read");
     xiosHandler.setFileParAccess(fileId, "collective");
     xiosHandler.fileAddField(fileId, "field_2D");

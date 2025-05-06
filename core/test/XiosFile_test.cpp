@@ -91,7 +91,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.setFileType(fileId, fileType);
     REQUIRE(xiosHandler.getFileType(fileId) == fileType);
     // Output frequency
-    // NOTE: This is read from the XiosOutput.period entry upon file creation
+    // NOTE: This is read from the XiosOutput.period entry when a field is added to the file
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFileOutputFreq(fileId, timestep);

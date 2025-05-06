@@ -37,7 +37,7 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
     config << "time_step = P0-0T01:30:00" << std::endl;
     config << "[XiosOutput]" << std::endl;
-    config << "period = P0-0T03:00:00" << std::endl;
+    config << "period = P0-0T01:30:00" << std::endl;
     config << "filename = xios_test_output" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
@@ -97,7 +97,6 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     std::string fileId = "xios_test_output";
     xiosHandler.createFile(fileId);
     xiosHandler.setFileType(fileId, "one_file");
-    xiosHandler.setFileOutputFreq(fileId, timestep);
     xiosHandler.setFileMode(fileId, "write");
     xiosHandler.setFileSplitFreq(fileId, Duration("P0-0T03:00:00"));
     xiosHandler.fileAddField(fileId, "field_2D");
