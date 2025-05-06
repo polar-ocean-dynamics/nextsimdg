@@ -15,9 +15,6 @@
 #include "include/Configurator.hpp"
 #include "include/Xios.hpp"
 
-const std::string testSourceDir = TEST_SOURCE_DIR;
-const std::string configFileName = testSourceDir + "/xios_tests.cfg";
-
 namespace Nextsim {
 
 /*!

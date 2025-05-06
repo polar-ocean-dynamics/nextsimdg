@@ -91,12 +91,7 @@ if(ENABLE_MPI)
         )
 
         add_executable(testXiosCalendar_MPI2 "XiosCalendar_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosCalendar_MPI2
-            PRIVATE
-                USE_XIOS
-                TEST_BUILD_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-                TEST_SOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"
-        )
+        target_compile_definitions(testXiosCalendar_MPI2 PRIVATE USE_XIOS)
         target_include_directories(
             testXiosCalendar_MPI2
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
@@ -136,12 +131,7 @@ if(ENABLE_MPI)
         target_link_libraries(testXiosField_MPI2 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosFile_MPI2 "XiosFile_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosFile_MPI2
-            PRIVATE
-                USE_XIOS
-                TEST_BUILD_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-                TEST_SOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"
-        )
+        target_compile_definitions(testXiosFile_MPI2 PRIVATE USE_XIOS)
         target_include_directories(
             testXiosFile_MPI2
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
@@ -149,12 +139,7 @@ if(ENABLE_MPI)
         target_link_libraries(testXiosFile_MPI2 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosReadWrite_MPI2 "XiosReadWrite_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosReadWrite_MPI2
-            PRIVATE
-                USE_XIOS
-                TEST_BUILD_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-                TEST_SOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"
-        )
+        target_compile_definitions(testXiosReadWrite_MPI2 PRIVATE USE_XIOS)
         target_include_directories(
             testXiosReadWrite_MPI2
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"

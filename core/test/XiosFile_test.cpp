@@ -17,9 +17,6 @@
 
 using namespace doctest;
 
-const std::string testSourceDir = TEST_SOURCE_DIR;
-const std::string configFileName = testSourceDir + "/xios_tests.cfg";
-
 namespace Nextsim {
 
 /*!
@@ -41,6 +38,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     config << "time_step = P0-0T01:30:00" << std::endl;
     config << "[XiosOutput]" << std::endl;
     config << "period = P0-0T03:00:00" << std::endl;
+    config << "filename = xios_test_output" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 
