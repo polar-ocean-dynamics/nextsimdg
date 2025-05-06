@@ -17,13 +17,16 @@
  *   enable = true
  *
  * The start time, timestep, and output period will also be read from the
- * following config file entries.
+ * following config file entries. (Values shown below are the defaults, while
+ * ellipses imply that no default is set.)
  *   [model]
- *   start = ...
- *   time_step = ...
+ *   start = 1970-01-01T00:00:00Z
+ *   time_step = P0-0T01:00:00
  *   [XiosOutput]
  *   period = ...
  *   filename = ...
+ *   fields = ...
+ *   read_mode = ...
  */
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS

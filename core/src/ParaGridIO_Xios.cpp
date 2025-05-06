@@ -1,7 +1,7 @@
 /*!
  * @file ParaGridIO_Xios.cpp
  *
- * @date 29 Apr 2025
+ * @date 06 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Joe Wallwork <jw2423@cam.ac.uk>
  */
@@ -13,6 +13,9 @@
 #include "include/Finalizer.hpp"
 #include "include/Logged.hpp"
 #include "include/MissingData.hpp"
+#ifdef USE_XIOS
+#include "include/Xios.hpp"
+#endif
 #include "include/NZLevels.hpp"
 #include "include/gridNames.hpp"
 
@@ -76,8 +79,14 @@ ParaGridIO::ParaGridIO(ParametricGrid& grid)
 
 bool ParaGridIO::doOnce()
 {
-    // TODO: Setup XIOS in this method
+    Xios& xiosHandler = Xios::getInstance();
 
+    // TODO: Setup XIOS in this method.
+    // * We can read the file name from the XiosConfig.
+    // * We can read the field names from the XiosConfig, too.
+    // * We should add an entry to XiosConfig for read vs. write.
+
+    // TODO: Register XIOS finalization and drop the following in that case.
     // Register the finalization function here
     Finalizer::registerUnique(closeAllFiles);
     // Since it should only ever run once, do further one-off initialization: allow distant
