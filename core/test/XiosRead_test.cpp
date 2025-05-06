@@ -107,7 +107,7 @@ MPI_TEST_CASE("TestXiosRead", 2)
     // Create HField instances to read the data into
     HField field_2D(ModelArray::Type::H);
     field_2D.resize();
-    HField field_3D(ModelArray::Type::Z);
+    ZField field_3D(ModelArray::Type::Z);
     field_3D.resize();
 
     // Check calendar step is zero initially
