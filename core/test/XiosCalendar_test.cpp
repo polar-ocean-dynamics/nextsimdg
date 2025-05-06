@@ -33,7 +33,7 @@ MPI_TEST_CASE("TestXiosCalendar", 2)
     std::stringstream config;
     config << "[model]" << std::endl;
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
-    config << "time_step = P0-0T01:30:00" << std::endl;
+    config << "time_step = P0-0T01:00:00" << std::endl;
     config << "[XiosOutput]" << std::endl;
     config << "period = P0-0T03:00:00" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
@@ -60,11 +60,11 @@ MPI_TEST_CASE("TestXiosCalendar", 2)
     REQUIRE(start == xios_handler.getCalendarStart());
     REQUIRE(start.format() == "2023-03-17T17:11:00Z");
     // Timestep
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 5400.0); // Set in config
-    Duration timestep("P0-0T01:00:00");
-    REQUIRE(timestep.seconds() == 3600.0);
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 3600.0); // Set in config
+    Duration timestep("P0-0T01:30:00");
+    REQUIRE(timestep.seconds() == 5400.0);
     xios_handler.setCalendarTimestep(timestep);
-    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 3600.0);
+    REQUIRE(xios_handler.getCalendarTimestep().seconds() == 5400.0);
 
     xios_handler.close_context_definition();
 
@@ -75,7 +75,7 @@ MPI_TEST_CASE("TestXiosCalendar", 2)
 
     // -- Tests that the timestep is set up correctly
     xios_handler.updateCalendar(1);
-    REQUIRE(xios_handler.getCurrentDate() == "2023-03-17T18:11:00Z");
+    REQUIRE(xios_handler.getCurrentDate() == "2023-03-17T18:41:00Z");
 
     xios_handler.context_finalize();
 }

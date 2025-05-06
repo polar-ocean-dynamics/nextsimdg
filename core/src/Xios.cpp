@@ -47,7 +47,7 @@ static const std::map<int, std::string> keyMap
           { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" },
           { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" } };
 
-//! Enable XIOS in the 'config'.
+//! Enable XIOS in the 'config'
 void enableXios()
 {
     std::stringstream config;
