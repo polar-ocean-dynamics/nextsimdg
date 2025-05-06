@@ -113,6 +113,14 @@ if(ENABLE_MPI)
             PRIVATE ${MODEL_INCLUDE_DIR} "${ModulesRoot}/StructureModule"
         )
         target_link_libraries(testRectGrid_MPI3 PRIVATE nextsimlib doctest::doctest)
+
+        add_executable(testConfigOutput_MPI2 "ConfigOutput_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(
+            testConfigOutput_MPI2
+            PRIVATE USE_MPI TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
+        )
+        target_include_directories(testConfigOutput_MPI2 PRIVATE ${MODEL_INCLUDE_DIR})
+        target_link_libraries(testConfigOutput_MPI2 PRIVATE nextsimlib doctest::doctest)
     endif()
 
     # Generate partition files needed for MPI test from respective cdl files
@@ -147,14 +155,6 @@ if(ENABLE_MPI)
         PRIVATE ${MODEL_INCLUDE_DIR} "${ModulesRoot}/StructureModule"
     )
     target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
-
-    add_executable(testConfigOutput_MPI2 "ConfigOutput_test.cpp" "MainMPI.cpp")
-    target_compile_definitions(
-        testConfigOutput_MPI2
-        PRIVATE USE_MPI TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-    )
-    target_include_directories(testConfigOutput_MPI2 PRIVATE ${MODEL_INCLUDE_DIR})
-    target_link_libraries(testConfigOutput_MPI2 PRIVATE nextsimlib doctest::doctest)
 else()
     add_executable(testRectGrid "RectGrid_test.cpp")
     target_compile_definitions(testRectGrid PRIVATE TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")

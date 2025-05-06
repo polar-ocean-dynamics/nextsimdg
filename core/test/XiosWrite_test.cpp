@@ -1,7 +1,7 @@
 /*!
  * @file    XiosWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    29 Apr 2025
+ * @date    06 May 2025
  * @brief   Tests for XIOS write functionality
  * @details
  * This test is designed to test the file writing functionality of the C++
@@ -30,10 +30,26 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosWrite", 2)
 {
+    // Enable XIOS in the 'config' and provide parameters to configure it
     enableXios();
+    std::stringstream config;
+    config << "[model]" << std::endl;
+    config << "start = 2023-03-17T17:11:00Z" << std::endl;
+    config << "time_step = P0-0T01:30:00" << std::endl;
+    config << "[XiosOutput]" << std::endl;
+    config << "period = P0-0T03:00:00" << std::endl;
+    config << "filename = xios_test_output" << std::endl;
+    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
+    Configurator::addStream(std::move(pcstream));
+
+    // Create ParametricGrid and ParaGridIO instances
+    Module::setImplementation<IStructure>("Nextsim::ParametricGrid");
+    ParametricGrid grid;
+    ParaGridIO* pio = new ParaGridIO(grid);
+    grid.setIO(pio);
 
     // Create Xios singleton instance and check it's initialized
-    Xios& xiosHandler = Xios::getInstance("P0-0T01:30:00", "test", "2023-03-17T17:11:00Z");
+    Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
     const size_t size = xiosHandler.getClientMPISize();
     REQUIRE(size == 2);

@@ -2,7 +2,7 @@
  * @file    Xios.hpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    29 Apr 2025
+ * @date    06 May 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -32,8 +32,7 @@ void enableXios();
 class Xios : public Configured<Xios> {
 private:
     //! Private constructor
-    Xios(const std::string dt, const std::string contextId, const std::string startTime,
-        const std::string calendarType);
+    Xios(const std::string contextId = "nextSIM-DG", const std::string calendarType = "Gregorian");
 
     //! Performs some one-time initialization for the class. Returns true.
     static bool doOnce();
@@ -49,12 +48,10 @@ public:
      *
      * NOTE: The arguments will only be used the first time this is called.
      */
-    inline static Xios& getInstance(const std::string dt = "P0-0T01:00:00",
-        const std::string contextId = "nextSIM-DG",
-        const std::string startTime = "1970-01-01T00:00:00Z",
-        const std::string calendarType = "Gregorian")
+    inline static Xios& getInstance(
+        const std::string contextId = "nextSIM-DG", const std::string calendarType = "Gregorian")
     {
-        static Xios instance = Xios(dt, contextId, startTime, calendarType);
+        static Xios instance = Xios(contextId, calendarType);
         return instance;
     };
 
@@ -159,6 +156,10 @@ public:
 
     enum {
         ENABLED_KEY,
+        START_TIME_KEY,
+        TIME_STEP_KEY,
+        PERIOD_KEY,
+        OUTPUT_FILENAME_KEY,
     };
 
     /* Length of C-strings passed to XIOS */

@@ -1,7 +1,7 @@
 /*!
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    29 Apr 2025
+ * @date    06 May 2025
  * @brief   Tests for XIOS axes
  * @details
  * This test is designed to test axis functionality of the C++ interface
@@ -12,6 +12,7 @@
 #undef INFO
 
 #include "StructureModule/include/ParametricGrid.hpp"
+#include "include/Configurator.hpp"
 #include "include/Finalizer.hpp"
 #include "include/Xios.hpp"
 
@@ -30,7 +31,17 @@ namespace Nextsim {
  */
 MPI_TEST_CASE("TestXiosFile", 2)
 {
+    // Enable XIOS in the 'config' and provide parameters to configure it
     enableXios();
+    std::stringstream config;
+    config << "[model]" << std::endl;
+    config << "start = 2023-03-17T17:11:00Z" << std::endl;
+    config << "time_step = P0-0T01:30:00" << std::endl;
+    config << "[XiosOutput]" << std::endl;
+    config << "period = P0-0T03:00:00" << std::endl;
+    config << "filename = xios_test_output" << std::endl;
+    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
+    Configurator::addStream(std::move(pcstream));
 
     // Get the Xios singleton instance and check it's initialized
     Xios& xiosHandler = Xios::getInstance("P0-0T01:30:00");
@@ -51,6 +62,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createField("field_A");
     xiosHandler.setFieldOperation("field_A", "instant");
     xiosHandler.setFieldGridRef("field_A", "grid_1D");
+    xiosHandler.setFieldReadAccess("field_A", false);
 
     // --- Tests for file API
     const std::string fileId = "output";
@@ -58,7 +70,17 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createFile(fileId);
     REQUIRE_THROWS_WITH(xiosHandler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg when a field is added
+    // to be written (i.e., readAccess=false)
     REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined name for file 'output'");
+    {
+        // Add field
+        xiosHandler.fileAddField(fileId, "field_A");
+        std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
+        REQUIRE(fieldIds.size() == 1);
+        REQUIRE(fieldIds[0] == "field_A");
+    }
+    REQUIRE(xiosHandler.getFileName(fileId) == "xios_test_output");
     const std::string fileName = "diagnostic";
     xiosHandler.setFileName(fileId, fileName);
     REQUIRE(xiosHandler.getFileName(fileId) == fileName);
@@ -68,8 +90,8 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.setFileType(fileId, fileType);
     REQUIRE(xiosHandler.getFileType(fileId) == fileType);
     // Output frequency
-    REQUIRE_THROWS_WITH(xiosHandler.getFileOutputFreq(fileId),
-        "Xios: Undefined output frequency for file 'output'");
+    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg upon file creation
+    REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFileOutputFreq(fileId, timestep);
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 1.5 * 60 * 60);
@@ -86,11 +108,6 @@ MPI_TEST_CASE("TestXiosFile", 2)
     const std::string parAccess = "collective";
     xiosHandler.setFileParAccess(fileId, parAccess);
     REQUIRE(xiosHandler.getFileParAccess(fileId) == parAccess);
-    // Add field
-    xiosHandler.fileAddField(fileId, "field_A");
-    std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
-    REQUIRE(fieldIds.size() == 1);
-    REQUIRE(fieldIds[0] == "field_A");
 
     // Create a new file for each time unit to check more thoroughly that XIOS interprets output
     // frequency and split frequency correctly.
