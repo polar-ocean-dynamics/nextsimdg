@@ -1745,6 +1745,24 @@ std::vector<std::string> Xios::fileGetFieldIds(const std::string fileId)
     return fieldIds;
 }
 
+// Check whether a fieldId exists in a string of field names separated by commas
+bool checkField(const std::string fieldId, const std::string fieldsStr)
+{
+    bool found = false;
+    if (fieldsStr.length() > 0) {
+        const char delim = ',';
+        std::istringstream iss(fieldsStr);
+        std::string item;
+        while (std::getline(iss, item, delim)) {
+            if (item == fieldId) {
+                found = true;
+                break;
+            }
+        }
+    }
+    return found;
+}
+
 /*!
  * Associate a field with a file
  *
@@ -1754,6 +1772,23 @@ std::vector<std::string> Xios::fileGetFieldIds(const std::string fileId)
 void Xios::fileAddField(const std::string fileId, const std::string fieldId)
 {
     xios::CField* field = getField(fieldId);
+
+    // Determine whether the field has read access
+    std::string inputFieldsStr;
+    istringstream(Configured::getConfiguration(keyMap.at(INPUT_FIELD_NAMES_KEY), std::string()))
+        >> inputFieldsStr;
+    bool readAccess = checkField(fieldId, inputFieldsStr);
+    std::string outputFieldsStr;
+    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FIELD_NAMES_KEY), std::string()))
+        >> outputFieldsStr;
+    bool writeAccess = checkField(fieldId, outputFieldsStr);
+    if ((!readAccess && !writeAccess) || (readAccess && writeAccess)) {
+        throw std::runtime_error("Xios: Invalid read/write access for field '" + fieldId + "'");
+        // TODO: Refactor to allow a field to be both read and written
+    }
+    setFieldReadAccess(fieldId, readAccess);
+
+    // Add the field to the file
     cxios_xml_tree_add_fieldtofile(getFile(fileId), &field, fieldId.c_str(), fieldId.length());
 }
 
