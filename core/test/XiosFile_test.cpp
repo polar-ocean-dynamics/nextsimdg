@@ -71,8 +71,8 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createFile(fileId);
     REQUIRE_THROWS_WITH(xiosHandler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
-    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg when a field is added
-    // to be written (i.e., readAccess=false)
+    // NOTE: This is read from the XiosOutput.filename entry when a field is added to be written
+    // (i.e., readAccess=false)
     REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined name for file 'output'");
     {
         // Add field
@@ -91,7 +91,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.setFileType(fileId, fileType);
     REQUIRE(xiosHandler.getFileType(fileId) == fileType);
     // Output frequency
-    // NOTE: This is read from the XiosOutput.period entry in xios_tests.cfg upon file creation
+    // NOTE: This is read from the XiosOutput.period entry upon file creation
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFileOutputFreq(fileId, timestep);
