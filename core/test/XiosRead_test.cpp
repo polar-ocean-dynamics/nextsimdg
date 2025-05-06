@@ -36,8 +36,9 @@ MPI_TEST_CASE("TestXiosRead", 2)
     config << "[model]" << std::endl;
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
     config << "time_step = P0-0T01:30:00" << std::endl;
-    config << "[XiosOutput]" << std::endl;
+    config << "[XiosInput]" << std::endl;
     config << "period = P0-0T03:00:00" << std::endl;
+    config << "filename = xios_test_input" << std::endl; // TODO: USEME
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 

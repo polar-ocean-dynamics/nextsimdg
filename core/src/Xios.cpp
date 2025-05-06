@@ -22,11 +22,14 @@
  *   [model]
  *   start = 1970-01-01T00:00:00Z
  *   time_step = P0-0T01:00:00
+ *   [XiosInput]
+ *   period = ...
+ *   filename = ...
+ *   field_names = ...
  *   [XiosOutput]
  *   period = ...
  *   filename = ...
- *   fields = ...
- *   read_mode = ...
+ *   field_names = ...
  */
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
@@ -47,10 +50,14 @@
 
 namespace Nextsim {
 
-static const std::map<int, std::string> keyMap
-    = { { Xios::ENABLED_KEY, "xios.enable" }, { Xios::START_TIME_KEY, "model.start" },
-          { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" },
-          { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" } };
+static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" },
+    { Xios::START_TIME_KEY, "model.start" }, { Xios::TIME_STEP_KEY, "model.time_step" },
+    { Xios::OUTPUT_PERIOD_KEY, "XiosOutput.period" },
+    { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" },
+    { Xios::OUTPUT_FIELD_NAMES_KEY, "XiosOutput.field_names" },
+    { Xios::INPUT_PERIOD_KEY, "XiosInput.period" },
+    { Xios::INPUT_FILENAME_KEY, "XiosInput.filename" },
+    { Xios::INPUT_FIELD_NAMES_KEY, "XiosInput.field_names" } };
 
 //! Enable XIOS in the 'config'
 void enableXios()
@@ -1403,7 +1410,9 @@ void Xios::createFile(const std::string fileId)
 
     // Set the output period based on the model configuration
     std::string periodStr;
-    istringstream(Configured::getConfiguration(keyMap.at(PERIOD_KEY), std::string())) >> periodStr;
+    // TODO: Account for both reading and writing
+    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_PERIOD_KEY), std::string()))
+        >> periodStr;
     if (periodStr.length() > 0) {
         setFileOutputFreq(fileId, Duration(periodStr));
     }
@@ -1650,14 +1659,17 @@ void Xios::fileAddField(const std::string fileId, const std::string fieldId)
     xios::CField* field = getField(fieldId);
     cxios_xml_tree_add_fieldtofile(getFile(fileId), &field, fieldId.c_str(), fieldId.length());
 
-    // Set the output filename based on the model configuration
-    if (!getFieldReadAccess(fieldId)) {
-        std::string outfileStr;
+    // Set the filename for the field based on the model configuration
+    std::string filenameStr;
+    if (getFieldReadAccess(fieldId)) {
+        istringstream(Configured::getConfiguration(keyMap.at(INPUT_FILENAME_KEY), std::string()))
+            >> filenameStr;
+    } else {
         istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
-            >> outfileStr;
-        if (outfileStr.length() > 0) {
-            setFileName(fileId, ((std::filesystem::path)outfileStr).replace_extension());
-        }
+            >> filenameStr;
+    }
+    if (filenameStr.length() > 0) {
+        setFileName(fileId, ((std::filesystem::path)filenameStr).replace_extension());
     }
 }
 

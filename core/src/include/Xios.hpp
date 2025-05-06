@@ -159,8 +159,13 @@ public:
         ENABLED_KEY,
         START_TIME_KEY,
         TIME_STEP_KEY,
-        PERIOD_KEY,
+        READ_MODE_KEY,
+        OUTPUT_PERIOD_KEY,
         OUTPUT_FILENAME_KEY,
+        OUTPUT_FIELD_NAMES_KEY,
+        INPUT_PERIOD_KEY,
+        INPUT_FILENAME_KEY,
+        INPUT_FIELD_NAMES_KEY,
     };
 
     /* Length of C-strings passed to XIOS */
