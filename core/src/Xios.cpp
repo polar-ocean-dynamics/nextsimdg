@@ -2,7 +2,7 @@
  * @file    Xios.cpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    30 Apr 2025
+ * @date    06 May 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -47,17 +47,12 @@ static const std::map<int, std::string> keyMap
           { Xios::TIME_STEP_KEY, "model.time_step" }, { Xios::PERIOD_KEY, "XiosOutput.period" },
           { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" } };
 
-//! Enable XIOS and set the configuration file for it to read parameters from
-void enableXios(std::string configFileName)
+//! Enable XIOS in the 'config'.
+void enableXios()
 {
-    // Enable XIOS in the 'config'
     std::stringstream config;
     config << "[xios]" << std::endl << "enable = true" << std::endl;
     Configurator::addStream(std::unique_ptr<std::istream>(new std::stringstream(config.str())));
-
-    // Add the configuration file to read the timestep, start time, output period, and output
-    // filename from
-    Configurator::addFile(configFileName);
 }
 
 /*!

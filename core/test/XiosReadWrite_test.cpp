@@ -1,7 +1,7 @@
 /*!
  * @file    XiosReadWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    30 Apr 2025
+ * @date    06 May 2025
  * @brief   Tests for XIOS write method
  * @details
  * This test is designed to test the read and write methods of the C++
@@ -12,6 +12,7 @@
 #undef INFO
 
 #include "StructureModule/include/ParametricGrid.hpp"
+#include "include/Configurator.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/ParaGridIO.hpp"
 #include "include/Xios.hpp"
@@ -46,6 +47,17 @@ std::string formatId(const std::string label, const int dim)
  */
 Xios setupXiosHandler(int dim, bool read)
 {
+    // Enable XIOS in the 'config' and provide parameters to configure it
+    enableXios();
+    std::stringstream config;
+    config << "[model]" << std::endl;
+    config << "start = 2023-03-17T17:11:00Z" << std::endl;
+    config << "time_step = P0-0T01:30:00" << std::endl;
+    config << "[XiosOutput]" << std::endl;
+    config << "period = P0-0T03:00:00" << std::endl;
+    std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
+    Configurator::addStream(std::move(pcstream));
+
     if ((dim != 2) && (dim != 3)) {
         throw std::invalid_argument("Test only implemented for 2D and 3D cases");
     }
@@ -55,8 +67,6 @@ Xios setupXiosHandler(int dim, bool read)
     ParametricGrid grid;
     ParaGridIO* pio = new ParaGridIO(grid);
     grid.setIO(pio);
-
-    enableXios(configFileName);
 
     // Initialize an Xios instance called xios_handler
     // TODO: Create XIOS handler along with ParaGridIO instance

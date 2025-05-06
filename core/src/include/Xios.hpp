@@ -2,7 +2,7 @@
  * @file    Xios.hpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    30 Apr 2025
+ * @date    06 May 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -27,7 +27,7 @@
 
 namespace Nextsim {
 
-void enableXios(std::string configFileName = "");
+void enableXios();
 
 class Xios : public Configured<Xios> {
 public:
