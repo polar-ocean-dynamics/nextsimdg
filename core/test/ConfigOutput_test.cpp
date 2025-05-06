@@ -7,6 +7,7 @@
 
 #ifdef USE_MPI
 #include <doctest/extensions/doctest_mpi.h>
+#undef INFO
 #else
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
@@ -15,6 +16,7 @@
 #include "DiagnosticOutputModule/include/ConfigOutput.hpp"
 
 #include "include/FileCallbackCloser.hpp"
+#include "include/Finalizer.hpp"
 #include "include/IStructure.hpp"
 #include "include/ModelArray.hpp"
 #include "include/ModelArrayRef.hpp"
@@ -24,6 +26,9 @@
 #include "include/NZLevels.hpp"
 #include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
+#ifdef USE_XIOS
+#include "include/Xios.hpp"
+#endif
 
 #include <ncDim.h>
 #include <ncFile.h>
@@ -97,6 +102,12 @@ TEST_CASE("Test periodic output")
     ModelComponent::getStore().registerArray(Protected::T_ICE, &tice);
 
     ModelMetadata meta;
+#ifdef USE_XIOS
+    enableXios();
+    Xios& xiosHandler = Xios::getInstance("P0-0T01:00:00", "test1");
+    xiosHandler.setCalendarOrigin(TimePoint("1970-01-01T00:00:00Z"));
+    xiosHandler.close_context_definition();
+#endif
     meta.setTime(TimePoint("2020-01-01T00:00:00Z"));
 
 #ifdef USE_MPI
@@ -190,6 +201,8 @@ TEST_CASE("Test periodic output")
     for (auto fileName : diagFiles) {
         std::filesystem::remove(fileName);
     }
+
+    Finalizer::finalize();
 }
 TEST_SUITE_END();
 }

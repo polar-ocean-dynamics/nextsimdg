@@ -27,6 +27,7 @@
 #include <boost/date_time/posix_time/time_parsers.hpp>
 #if USE_XIOS
 
+#include "include/Finalizer.hpp"
 #include "include/Xios.hpp"
 
 #include <boost/algorithm/string.hpp>
@@ -65,6 +66,14 @@ Xios::Xios(const std::string contextid, const std::string calendartype)
     contextId = contextid;
     calendarType = calendartype;
     configure();
+    static bool doneOnce = doOnce();
+}
+
+bool Xios::doOnce()
+{
+    // Register the finalization function here
+    Finalizer::registerUnique(finalize);
+    return true;
 }
 
 //! Destructor
@@ -92,6 +101,7 @@ void Xios::finalize()
     if (isEnabled) {
         cxios_finalize();
     }
+    isEnabled = false;
 }
 
 /*!
@@ -300,6 +310,18 @@ void Xios::setCalendarTimestep(const Duration timestep)
 }
 
 /*!
+ * Update XIOS calendar iteration/step number to some value
+ *
+ * @param Step number to update to
+ */
+void Xios::setCalendarStep(const int stepNumber) { cxios_update_calendar(stepNumber); }
+
+/*!
+ * Increment XIOS' calendar iteration/step number by one.
+ */
+void Xios::incrementCalendar() { setCalendarStep(getCalendarStep() + 1); }
+
+/*!
  * Get calendar type
  *
  * @return calendar type
@@ -374,13 +396,6 @@ std::string Xios::getCurrentDate(const bool isoFormat)
     cxios_get_current_date(&xiosDate);
     return convertXiosDatetimeToString(xiosDate, isoFormat);
 }
-
-/*!
- * Update XIOS calendar iteration/step number
- *
- * @param current step number
- */
-void Xios::updateCalendar(const int stepNumber) { cxios_update_calendar(stepNumber); }
 
 /*!
  * Get the axis_definition group
