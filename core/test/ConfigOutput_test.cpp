@@ -1,7 +1,7 @@
 /*!
  * @file ConfigOutput_test.cpp
  *
- * @date 24 Sep 2024
+ * @date 06 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -21,8 +21,8 @@
 #include "include/ModelComponent.hpp"
 #include "include/ModelMetadata.hpp"
 #include "include/ModelState.hpp"
-#include "include/NextsimModule.hpp"
 #include "include/NZLevels.hpp"
+#include "include/NextsimModule.hpp"
 #include "include/gridNames.hpp"
 
 #include <ncDim.h>
@@ -177,7 +177,7 @@ TEST_CASE("Test periodic output")
     REQUIRE(timeDim.getSize() == hr_day);
 
     std::multimap<std::string, netCDF::NcVar> vars(dataGroup.getVars());
-    REQUIRE(vars.size() == fields.size() + 1); // +1 for the time variable
+    REQUIRE(vars.size() == fields.size() + 1 + 4); // +1 for the time variable + 4 for the coords
     for (auto field : fields) {
         REQUIRE(vars.count(field) == 1);
     }
