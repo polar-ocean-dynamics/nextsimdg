@@ -2,7 +2,7 @@
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    23 Apr 2025
+ * @date    07 May 2025
  * @brief   Tests for XIOS file
  * @details
  * This test is designed to test file functionality of the C++ interface
@@ -41,6 +41,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     config << "[XiosOutput]" << std::endl;
     config << "period = P0-0T03:00:00" << std::endl;
     config << "filename = xios_test_output" << std::endl;
+    config << "field_names = field_A" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 
