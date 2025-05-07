@@ -1456,6 +1456,37 @@ void Xios::createFile(const std::string fileId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create file '" + fileId + "'");
     }
+
+    // Determine whether the file is configured for reading or writing
+    std::string inputFilenameStr;
+    istringstream(Configured::getConfiguration(keyMap.at(INPUT_FILENAME_KEY), std::string()))
+        >> inputFilenameStr;
+    bool readAccess = ((inputFilenameStr.length() > 0) && (inputFilenameStr == fileId));
+    std::string outputFilenameStr;
+    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
+        >> outputFilenameStr;
+    bool writeAccess = ((outputFilenameStr.length() > 0) && (outputFilenameStr == fileId));
+
+    // Check that the filename is in the XiosOutput or XiosInput config section, except during unit
+    // testing (with fileId beginning with 'unittest')
+    if (!(fileId.rfind("unittest", 0) == 0)) {
+        if (!(readAccess || writeAccess)) {
+            throw std::runtime_error("Xios: File '" + fileId
+                + "' cannot be found in the XiosInput or XiosOutput config sections");
+        }
+    }
+
+    // Check that the filename is not in both the XiosOutput and XiosInput config sections
+    if (readAccess && writeAccess) {
+        throw std::runtime_error("Xios: File '" + fileId
+            + "' found in both the XiosInput and XiosOutput config sections");
+        // TODO: Refactor to allow a field to be both read and written
+    }
+    if (readAccess) {
+        setFileMode(fileId, "read");
+    } else {
+        setFileMode(fileId, "write");
+    }
 }
 
 /*!
