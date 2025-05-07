@@ -1,7 +1,7 @@
 /*!
  * @file ParaGridIO_Xios.cpp
  *
- * @date 06 May 2025
+ * @date 07 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Joe Wallwork <jw2423@cam.ac.uk>
  */
@@ -84,7 +84,7 @@ bool ParaGridIO::doOnce()
     // TODO: Setup XIOS in this method.
     // * We can read the file name from the XiosConfig.
     // * We can read the field names from the XiosConfig, too.
-    // * We should add an entry to XiosConfig for read vs. write.
+    // * We can determine the read access for the fields from the XiosConfig, too.
 
     // TODO: Register XIOS finalization and drop the following in that case.
     // Register the finalization function here
