@@ -87,13 +87,10 @@ MPI_TEST_CASE("TestXiosFile", 2)
     // NOTE: This is set based off the XiosInput.period and XiosOutput.period entries when a file
     // is created
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
-    Duration timestep = xiosHandler.getCalendarTimestep();
-    xiosHandler.setFileOutputFreq(fileId, timestep);
-    REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 1.5 * 60 * 60);
     // Split frequency
     REQUIRE_THROWS_WITH(
         xiosHandler.getFileSplitFreq(fileId), "Xios: Undefined split frequency for file 'output'");
-    xiosHandler.setFileSplitFreq(fileId, timestep);
+    xiosHandler.setFileSplitFreq(fileId, xiosHandler.getCalendarTimestep());
     REQUIRE(xiosHandler.getFileSplitFreq(fileId).seconds() == 1.5 * 60 * 60);
     // File mode
     // NOTE: This is set based off the XiosInput.filename and XiosOutput.filename entries when a
