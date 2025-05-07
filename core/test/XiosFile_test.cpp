@@ -109,6 +109,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     // Create a new file for each time unit to check more thoroughly that XIOS interprets output
     // frequency and split frequency correctly.
     // (If we reused the same file then the XIOS interface would raise warnings.)
+    // TODO: Can we get rid of some of this to allow setFileOutputFreq to be privatised?
     xiosHandler.createFile("unittest_year");
     xiosHandler.setFileOutputFreq("unittest_year", Duration("P1-0T00:00:00"));
     xiosHandler.setFileSplitFreq("unittest_year", Duration("P2-0T00:00:00"));
