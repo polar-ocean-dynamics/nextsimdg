@@ -139,7 +139,6 @@ public:
     void setFileType(const std::string fileId, const std::string fileType);
     void setFileOutputFreq(const std::string fileId, const Duration outputFreq);
     void setFileSplitFreq(const std::string fileId, const Duration splitFreq);
-    void setFileMode(const std::string fileId, const std::string mode);
     void setFileParAccess(const std::string fileId, const std::string parAccess);
     std::string getFileName(const std::string fileId);
     std::string getFileType(const std::string fileId);
@@ -215,6 +214,7 @@ private:
     /* File */
     xios::CFileGroup* getFileGroup();
     xios::CFile* getFile(const std::string fileId);
+    void setFileMode(const std::string fileId, const std::string mode);
 };
 
 }
