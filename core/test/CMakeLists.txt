@@ -121,40 +121,42 @@ if(ENABLE_MPI)
         )
         target_include_directories(testConfigOutput_MPI2 PRIVATE ${MODEL_INCLUDE_DIR})
         target_link_libraries(testConfigOutput_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        # Generate partition files needed for MPI test from respective cdl files
+        add_custom_command(
+            OUTPUT partition_metadata_3.nc
+            COMMAND
+                ncgen -b -o partition_metadata_3.nc
+                ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_3.cdl
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_3.cdl
+        )
+        add_custom_command(
+            OUTPUT partition_metadata_2.nc
+            COMMAND
+                ncgen -b -o partition_metadata_2.nc
+                ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_2.cdl
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_2.cdl
+        )
+        add_custom_target(
+            generate_partition_files
+            ALL
+            DEPENDS partition_metadata_3.nc partition_metadata_2.nc
+        )
+
+        add_executable(testParaGrid_MPI2 "ParaGrid_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(
+            testParaGrid_MPI2
+            PRIVATE
+                USE_MPI
+                TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
+                TEST_FILE_SOURCE=\"${CMAKE_CURRENT_SOURCE_DIR}\"
+        )
+        target_include_directories(
+            testParaGrid_MPI2
+            PRIVATE ${MODEL_INCLUDE_DIR} "${ModulesRoot}/StructureModule"
+        )
+        target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
     endif()
-
-    # Generate partition files needed for MPI test from respective cdl files
-    add_custom_command(
-        OUTPUT partition_metadata_3.nc
-        COMMAND
-            ncgen -b -o partition_metadata_3.nc ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_3.cdl
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_3.cdl
-    )
-    add_custom_command(
-        OUTPUT partition_metadata_2.nc
-        COMMAND
-            ncgen -b -o partition_metadata_2.nc ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_2.cdl
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/partition_metadata_2.cdl
-    )
-    add_custom_target(
-        generate_partition_files
-        ALL
-        DEPENDS partition_metadata_3.nc partition_metadata_2.nc
-    )
-
-    add_executable(testParaGrid_MPI2 "ParaGrid_test.cpp" "MainMPI.cpp")
-    target_compile_definitions(
-        testParaGrid_MPI2
-        PRIVATE
-            USE_MPI
-            TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-            TEST_FILE_SOURCE=\"${CMAKE_CURRENT_SOURCE_DIR}\"
-    )
-    target_include_directories(
-        testParaGrid_MPI2
-        PRIVATE ${MODEL_INCLUDE_DIR} "${ModulesRoot}/StructureModule"
-    )
-    target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
 else()
     add_executable(testRectGrid "RectGrid_test.cpp")
     target_compile_definitions(testRectGrid PRIVATE TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")
