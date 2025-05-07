@@ -38,6 +38,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     config << "[model]" << std::endl;
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
     config << "time_step = P0-0T01:30:00" << std::endl;
+    config << "field_names = field_B" << std::endl;
     config << "[XiosOutput]" << std::endl;
     config << "period = P0-0T03:00:00" << std::endl;
     config << "filename = xios_test_output" << std::endl;
@@ -64,7 +65,6 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createField("field_A");
     xiosHandler.setFieldOperation("field_A", "instant");
     xiosHandler.setFieldGridRef("field_A", "grid_1D");
-    xiosHandler.setFieldReadAccess("field_A", false);
 
     // --- Tests for file API
     const std::string fileId = "output";
@@ -75,10 +75,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     // NOTE: This is read from the XiosOutput.filename entry when a field is added
     REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined name for file 'output'");
     {
-        // Add field
-        xiosHandler.createField("field_B");
-        REQUIRE_THROWS_WITH(xiosHandler.fileAddField(fileId, "field_B"),
-            "Xios: Invalid read/write access for field 'field_B'");
+        // Check a field can be added
         xiosHandler.fileAddField(fileId, "field_A");
         std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
         REQUIRE(fieldIds.size() == 1);

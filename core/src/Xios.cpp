@@ -1148,6 +1148,34 @@ xios::CField* Xios::getField(const std::string fieldId)
     return field;
 }
 
+// Check whether a fieldId exists in a string of field names separated by commas, as determined by
+// the map key
+bool Xios::checkField(const std::string fieldId, const bool reading)
+{
+    std::string fieldsStr;
+    if (reading) {
+        istringstream(Configured::getConfiguration(keyMap.at(INPUT_FIELD_NAMES_KEY), std::string()))
+            >> fieldsStr;
+    } else {
+        istringstream(
+            Configured::getConfiguration(keyMap.at(OUTPUT_FIELD_NAMES_KEY), std::string()))
+            >> fieldsStr;
+    }
+    bool found = false;
+    if (fieldsStr.length() > 0) {
+        const char delim = ',';
+        std::istringstream iss(fieldsStr);
+        std::string item;
+        while (std::getline(iss, item, delim)) {
+            if (item == fieldId) {
+                found = true;
+                break;
+            }
+        }
+    }
+    return found;
+}
+
 /*!
  * Create a field with some ID
  *
@@ -1155,11 +1183,29 @@ xios::CField* Xios::getField(const std::string fieldId)
  */
 void Xios::createField(const std::string fieldId)
 {
+    // Check if the field already exists
     bool exists;
     cxios_field_valid_id(&exists, fieldId.c_str(), fieldId.length());
     if (exists) {
         throw std::runtime_error("Xios: Field '" + fieldId + "' already exists");
     }
+
+    // Check that the field is in the XiosOutput or XiosInput config
+    bool readAccess = checkField(fieldId, true);
+    bool writeAccess = checkField(fieldId, false);
+    if (!(readAccess || writeAccess)) {
+        throw std::runtime_error("Xios: Field '" + fieldId
+            + "' cannot be found in the XiosInput or XiosOutput config sections");
+    }
+
+    // Determine whether the field has read access
+    if (readAccess && writeAccess) {
+        throw std::runtime_error("Xios: Field '" + fieldId
+            + "' found in both the XiosInput and XiosOutput config sections");
+        // TODO: Refactor to allow a field to be both read and written
+    }
+
+    // Attempt to create the field
     xios::CField* field = NULL;
     cxios_xml_tree_add_field(getFieldGroup(), &field, fieldId.c_str(), fieldId.length());
     if (!field) {
@@ -1169,6 +1215,9 @@ void Xios::createField(const std::string fieldId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create field '" + fieldId + "'");
     }
+
+    // Set read access based on the config
+    setFieldReadAccess(fieldId, readAccess);
 }
 
 /*!
@@ -1639,24 +1688,6 @@ std::vector<std::string> Xios::fileGetFieldIds(const std::string fileId)
     return fieldIds;
 }
 
-// Check whether a fieldId exists in a string of field names separated by commas
-bool checkField(const std::string fieldId, const std::string fieldsStr)
-{
-    bool found = false;
-    if (fieldsStr.length() > 0) {
-        const char delim = ',';
-        std::istringstream iss(fieldsStr);
-        std::string item;
-        while (std::getline(iss, item, delim)) {
-            if (item == fieldId) {
-                found = true;
-                break;
-            }
-        }
-    }
-    return found;
-}
-
 /*!
  * Associate a field with a file
  *
@@ -1666,23 +1697,6 @@ bool checkField(const std::string fieldId, const std::string fieldsStr)
 void Xios::fileAddField(const std::string fileId, const std::string fieldId)
 {
     xios::CField* field = getField(fieldId);
-
-    // Determine whether the field has read access
-    std::string inputFieldsStr;
-    istringstream(Configured::getConfiguration(keyMap.at(INPUT_FIELD_NAMES_KEY), std::string()))
-        >> inputFieldsStr;
-    bool readAccess = checkField(fieldId, inputFieldsStr);
-    std::string outputFieldsStr;
-    istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FIELD_NAMES_KEY), std::string()))
-        >> outputFieldsStr;
-    bool writeAccess = checkField(fieldId, outputFieldsStr);
-    if ((!readAccess && !writeAccess) || (readAccess && writeAccess)) {
-        throw std::runtime_error("Xios: Invalid read/write access for field '" + fieldId + "'");
-        // TODO: Refactor to allow a field to be both read and written
-    }
-    setFieldReadAccess(fieldId, readAccess);
-
-    // Add the field to the file
     cxios_xml_tree_add_fieldtofile(getFile(fileId), &field, fieldId.c_str(), fieldId.length());
 
     // Set the filename for the field based on the model configuration
