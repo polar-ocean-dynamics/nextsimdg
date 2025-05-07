@@ -72,11 +72,13 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createFile(fileId);
     REQUIRE_THROWS_WITH(xiosHandler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
-    // NOTE: This is read from the XiosOutput.filename entry when a field is added to be written
-    // (i.e., readAccess=false)
+    // NOTE: This is read from the XiosOutput.filename entry when a field is added
     REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined name for file 'output'");
     {
         // Add field
+        xiosHandler.createField("field_B");
+        REQUIRE_THROWS_WITH(xiosHandler.fileAddField(fileId, "field_B"),
+            "Xios: Invalid read/write access for field 'field_B'");
         xiosHandler.fileAddField(fileId, "field_A");
         std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
         REQUIRE(fieldIds.size() == 1);
