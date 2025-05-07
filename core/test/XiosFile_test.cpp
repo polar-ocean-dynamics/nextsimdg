@@ -72,15 +72,8 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.createFile(fileId);
     REQUIRE_THROWS_WITH(xiosHandler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
-    // NOTE: This is read from the XiosOutput.filename entry when a field is added
-    REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined name for file 'output'");
-    {
-        // Check a field can be added
-        xiosHandler.fileAddField(fileId, "field_A");
-        std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
-        REQUIRE(fieldIds.size() == 1);
-        REQUIRE(fieldIds[0] == "field_A");
-    }
+    // NOTE: This is set based off the XiosInput.filename and XiosOutput.filename entries when a
+    // file is created
     REQUIRE(xiosHandler.getFileName(fileId) == "output");
     const std::string fileName = "diagnostic";
     xiosHandler.setFileName(fileId, fileName);
@@ -91,7 +84,8 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.setFileType(fileId, fileType);
     REQUIRE(xiosHandler.getFileType(fileId) == fileType);
     // Output frequency
-    // NOTE: This is read from the XiosOutput.period entry when a field is added to the file
+    // NOTE: This is set based off the XiosInput.period and XiosOutput.period entries when a file
+    // is created
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFileOutputFreq(fileId, timestep);
@@ -109,6 +103,11 @@ MPI_TEST_CASE("TestXiosFile", 2)
     const std::string parAccess = "collective";
     xiosHandler.setFileParAccess(fileId, parAccess);
     REQUIRE(xiosHandler.getFileParAccess(fileId) == parAccess);
+    // Check a field can be added
+    xiosHandler.fileAddField(fileId, "field_A");
+    std::vector<std::string> fieldIds = xiosHandler.fileGetFieldIds(fileId);
+    REQUIRE(fieldIds.size() == 1);
+    REQUIRE(fieldIds[0] == "field_A");
 
     // Create a new file for each time unit to check more thoroughly that XIOS interprets output
     // frequency and split frequency correctly.

@@ -1487,6 +1487,32 @@ void Xios::createFile(const std::string fileId)
     } else {
         setFileMode(fileId, "write");
     }
+
+    // Set the filename for the field based on the model configuration
+    std::string filenameStr;
+    if (readAccess) {
+        istringstream(Configured::getConfiguration(keyMap.at(INPUT_FILENAME_KEY), std::string()))
+            >> filenameStr;
+    } else {
+        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
+            >> filenameStr;
+    }
+    if (filenameStr.length() > 0) {
+        setFileName(fileId, ((std::filesystem::path)filenameStr).replace_extension());
+    }
+
+    // Set the input or output period based on the model configuration
+    std::string periodStr;
+    if (readAccess) {
+        istringstream(Configured::getConfiguration(keyMap.at(INPUT_PERIOD_KEY), std::string()))
+            >> periodStr;
+    } else {
+        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_PERIOD_KEY), std::string()))
+            >> periodStr;
+    }
+    if (periodStr.length() > 0) {
+        setFileOutputFreq(fileId, Duration(periodStr));
+    }
 }
 
 /*!
@@ -1729,32 +1755,6 @@ void Xios::fileAddField(const std::string fileId, const std::string fieldId)
 {
     xios::CField* field = getField(fieldId);
     cxios_xml_tree_add_fieldtofile(getFile(fileId), &field, fieldId.c_str(), fieldId.length());
-
-    // Set the filename for the field based on the model configuration
-    std::string filenameStr;
-    if (getFieldReadAccess(fieldId)) {
-        istringstream(Configured::getConfiguration(keyMap.at(INPUT_FILENAME_KEY), std::string()))
-            >> filenameStr;
-    } else {
-        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
-            >> filenameStr;
-    }
-    if (filenameStr.length() > 0) {
-        setFileName(fileId, ((std::filesystem::path)filenameStr).replace_extension());
-    }
-
-    // Set the input or output period based on the model configuration
-    std::string periodStr;
-    if (getFieldReadAccess(fieldId)) {
-        istringstream(Configured::getConfiguration(keyMap.at(INPUT_PERIOD_KEY), std::string()))
-            >> periodStr;
-    } else {
-        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_PERIOD_KEY), std::string()))
-            >> periodStr;
-    }
-    if (periodStr.length() > 0) {
-        setFileOutputFreq(fileId, Duration(periodStr));
-    }
 }
 
 /*!
