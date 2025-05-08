@@ -83,7 +83,10 @@ jobs:
 
   test-ubuntu-mpi-noxios:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
     container:
       image: ghcr.io/nextsimhub/nextsimdg-dev-env:latest
 
