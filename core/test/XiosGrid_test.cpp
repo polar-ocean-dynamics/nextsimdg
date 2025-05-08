@@ -29,7 +29,6 @@ namespace Nextsim {
 MPI_TEST_CASE("TestXiosGrid", 4)
 {
     enableXios();
-D
     // Get the Xios singleton instance and check it's initialized
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
