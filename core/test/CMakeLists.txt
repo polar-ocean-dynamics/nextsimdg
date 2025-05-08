@@ -47,13 +47,13 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosCalendar_MPI1 PRIVATE nextsimlib doctest::doctest)
 
-        add_executable(testXiosAxis_MPI4 "XiosAxis_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosAxis_MPI4 PRIVATE USE_XIOS)
+        add_executable(testXiosAxis_MPI3 "XiosAxis_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosAxis_MPI3 PRIVATE USE_XIOS)
         target_include_directories(
-            testXiosAxis_MPI4
+            testXiosAxis_MPI3
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
         )
-        target_link_libraries(testXiosAxis_MPI4 PRIVATE nextsimlib doctest::doctest)
+        target_link_libraries(testXiosAxis_MPI3 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosDomain_MPI4 "XiosDomain_test.cpp" "MainMPI.cpp")
         target_compile_definitions(testXiosDomain_MPI4 PRIVATE USE_XIOS)
@@ -71,13 +71,13 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosGrid_MPI4 PRIVATE nextsimlib doctest::doctest)
 
-        add_executable(testXiosField_MPI4 "XiosField_test.cpp" "MainMPI.cpp")
-        target_compile_definitions(testXiosField_MPI4 PRIVATE USE_XIOS)
+        add_executable(testXiosField_MPI3 "XiosField_test.cpp" "MainMPI.cpp")
+        target_compile_definitions(testXiosField_MPI3 PRIVATE USE_XIOS)
         target_include_directories(
-            testXiosField_MPI4
+            testXiosField_MPI3
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
         )
-        target_link_libraries(testXiosField_MPI4 PRIVATE nextsimlib doctest::doctest)
+        target_link_libraries(testXiosField_MPI3 PRIVATE nextsimlib doctest::doctest)
 
         add_executable(testXiosFile_MPI4 "XiosFile_test.cpp" "MainMPI.cpp")
         target_compile_definitions(testXiosFile_MPI4 PRIVATE USE_XIOS)
