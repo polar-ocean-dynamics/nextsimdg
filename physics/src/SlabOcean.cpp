@@ -52,16 +52,16 @@ ModelState SlabOcean::getStatePrognostic() const
                  { sstSlabName, sstSlab },
                  { sssSlabName, sssSlab },
              },
-        getConfiguration()
-    };
+        getConfiguration() };
 }
 
 ModelState SlabOcean::getStateDiagnostic() const
 {
     ModelState state = { {
-            { "Q_slab", qdw },
-            { "F_slab", fdw },
-    }, { } };
+                             { "Q_slab", qdw },
+                             { "F_slab", fdw },
+                         },
+        {} };
 
     return state.merge(getStatePrognostic());
 }
