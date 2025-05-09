@@ -73,13 +73,13 @@ void IceGrowth::setData(const ModelState::DataMap& ms)
 ModelState IceGrowth::getStateDiagnostic() const
 {
     ModelState state = { {
-                 { "hice_updated", hice },
-                 { "cice_updated", cice },
-                 { "hsnow_updated", hsnow },
-                 { "hice_initial", hice0 },
-                 { "cice_initial", cice0 },
-                 { "hsnow_initial", hsnow0 },
-             },
+                             { "hice_updated", hice },
+                             { "cice_updated", cice },
+                             { "hsnow_updated", hsnow },
+                             { "hice_initial", hice0 },
+                             { "cice_initial", cice0 },
+                             { "hsnow_initial", hsnow0 },
+                         },
         getConfiguration() };
     state.merge(iLateral->getStateDiagnostic());
     state.merge(iVertical->getStateDiagnostic());
