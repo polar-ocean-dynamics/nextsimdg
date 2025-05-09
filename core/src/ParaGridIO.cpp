@@ -298,36 +298,31 @@ void ParaGridIO::dumpModelState(
         dimMap.at(entry.second).push_back(ncFromMAMap.at(entry.first));
     }
 
-    std::set<std::string> restartFields = { hiceName, ciceName, hsnowName, tsurfName, sstName,
-        sssName, maskName, coordsName, xName, yName, longitudeName, latitudeName, gridAzimuthName,
-        uName, vName, damageName }; // TODO and others
-    // If the above fields are found in the supplied ModelState, output them
+    // Assume that all fields in the supplied ModelState are necessary, and so write them to file.
     for (auto entry : state.data) {
-        if (restartFields.count(entry.first)) {
-            // Get the type, then relevant vector of NetCDF dimensions
-            ModelArray::Type type = entry.second.getType();
-            std::vector<size_t> start;
-            std::vector<size_t> count;
-            if (ModelArray::hasDoF(type)) {
-                auto ncomps = entry.second.nComponents();
-                start.push_back(0);
-                count.push_back(ncomps);
-            }
-            for (ModelArray::Dimension dt : entry.second.typeDimensions.at(type)) {
-                auto dim = entry.second.definedDimensions.at(dt);
-                start.push_back(dim.start);
-                count.push_back(dim.localLength);
-            }
-            // dims are looped in [dg], x, y, [z] order so start and count
-            // order must be reveresed to match order netcdf expects
-            std::reverse(start.begin(), start.end());
-            std::reverse(count.begin(), count.end());
-
-            std::vector<netCDF::NcDim>& ncDims = dimMap.at(type);
-            netCDF::NcVar var(dataGroup.addVar(entry.first, netCDF::ncDouble, ncDims));
-            var.putAtt(mdiName, netCDF::ncDouble, MissingData::value());
-            var.putVar(start, count, entry.second.getData());
+        // Get the type, then relevant vector of NetCDF dimensions
+        ModelArray::Type type = entry.second.getType();
+        std::vector<size_t> start;
+        std::vector<size_t> count;
+        if (ModelArray::hasDoF(type)) {
+            auto ncomps = entry.second.nComponents();
+            start.push_back(0);
+            count.push_back(ncomps);
         }
+        for (ModelArray::Dimension dt : entry.second.typeDimensions.at(type)) {
+            auto dim = entry.second.definedDimensions.at(dt);
+            start.push_back(dim.start);
+            count.push_back(dim.localLength);
+        }
+        // dims are looped in [dg], x, y, [z] order so start and count
+        // order must be reveresed to match order netcdf expects
+        std::reverse(start.begin(), start.end());
+        std::reverse(count.begin(), count.end());
+
+        std::vector<netCDF::NcDim>& ncDims = dimMap.at(type);
+        netCDF::NcVar var(dataGroup.addVar(entry.first, netCDF::ncDouble, ncDims));
+        var.putAtt(mdiName, netCDF::ncDouble, MissingData::value());
+        var.putVar(start, count, entry.second.getData());
     }
 
     ncFile.close();
