@@ -160,15 +160,10 @@ public:
     /*!
      * @brief Returns all data and configuration from this component.
      *
-     * @details The ModelState consists of two components, a map between field
-     * names and ModelArray data arrays, and a map of configuration variables
-     * and their values. The state returned by this function contains all
+     * @details The state returned by this function contains all
      * available data in this component and all components that it calls.
      */
-    virtual ModelState getStateDiagnostic() const
-    {
-        return getStatePrognostic();
-    }
+    virtual ModelState getStateDiagnostic() const { return getStatePrognostic(); }
     /*!
      * @brief Returns a ModelState from this component at a specified level of detail.
      *
@@ -177,26 +172,18 @@ public:
      * NOTICE, and only levels such as INFO, DEBUG and TRACE should be used,
      * and should provide extra diagnostic fields.
      */
-    virtual ModelState getStateDiagnostic(const OutputLevel&) const
-    {
-        return getStateDiagnostic();
-    }
+    virtual ModelState getStateDiagnostic(const OutputLevel&) const { return getStateDiagnostic(); }
 
     /*!
      * @brief Returns the state of the ModelComponent.
      *
-     * @details Returns the state of the ModelComponene and any ModelComponents
-     * it depends on. Unless overridden, the ModelState consists of no data
-     * fields and the contents of the configuration obtained from the
-     * getConfiguration() virtual method.
+     * @details Returns the state of the ModelComponent and any ModelComponents
+     * it depends on.
      *
-     * @details Used to traverse the current tree of ModelComponents and return
-     * the overall model state for diagnostic output.
+     * @details The state returned by this function contains all the
+     * data necessary to restart this component and all components that it calls.
      */
-    virtual ModelState getStatePrognostic() const
-    {
-        return { { }, getConfiguration()};
-    }
+    virtual ModelState getStatePrognostic() const { return { {}, getConfiguration() }; }
 
     /*!
      * @brief Returns the ModelArrayRef backing store for column physics fields.
@@ -238,10 +225,7 @@ protected:
     /*!
      * @brief Returns a map of the configuration used by the component.
      */
-    virtual ConfigMap getConfiguration() const
-    {
-        return { };
-    }
+    virtual ConfigMap getConfiguration() const { return {}; }
 
 protected:
     static ModelArray& oceanMaskSingleton()
