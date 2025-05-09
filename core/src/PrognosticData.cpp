@@ -180,12 +180,13 @@ ModelState PrognosticData::getStateDiagnostic() const
 ModelState PrognosticData::getStatePrognostic() const
 {
     ModelState state = { {
-            { "mask", ModelArray(oceanMask()) }, // make a copy
-            { "hice", hiceAdvection },
-            { "cice", ciceAdvection },
-            { "hsnow", mask(m_snow) },
-            { "tice", mask(m_tice) },
-    }, ModelComponent::getConfiguration() };
+                             { "mask", ModelArray(oceanMask()) }, // make a copy
+                             { "hice", hiceAdvection },
+                             { "cice", ciceAdvection },
+                             { "hsnow", mask(m_snow) },
+                             { "tice", mask(m_tice) },
+                         },
+        ModelComponent::getConfiguration() };
 
     // Get the prognostic data from the dynamics, including the full dynamics state
     state.merge(pDynamics->getStatePrognostic());
