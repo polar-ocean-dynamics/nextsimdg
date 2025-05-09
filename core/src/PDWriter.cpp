@@ -19,7 +19,6 @@ void PrognosticData::writeRestartFile(
     Logged::notice(std::string("  Writing state-based restart file: ") + filePath + '\n');
 
     ModelState state = getStatePrognostic();
-//    state.merge(ConfiguredModule::getAllModuleConfigurations());
     state.merge(ModelConfig::getConfig());
 
     ModelMetadata meta(metadata);
