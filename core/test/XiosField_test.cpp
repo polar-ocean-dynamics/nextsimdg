@@ -1,10 +1,11 @@
 /*!
  * @file    XiosField_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
+ * @author  Adeleke Bankole <ab3191@cam.ac.uk>
  * @date    29 Apr 2025
- * @brief   Tests for XIOS axes
+ * @brief   Tests for XIOS fields
  * @details
- * This test is designed to test axis functionality of the C++ interface
+ * This test is designed to test field functionality of the C++ interface
  * for XIOS.
  *
  */
@@ -21,12 +22,12 @@ namespace Nextsim {
  * TestXiosField
  *
  * This function tests the field functionality of the C++ interface for XIOS. It
- * needs to be run with 2 ranks i.e.,
+ * needs to be run with 3 ranks i.e.,
  *
- * `mpirun -n 2 ./testXiosField_MPI2`
+ * `mpirun -n 3 ./testXiosField_MPI3`
  *
  */
-MPI_TEST_CASE("TestXiosField", 2)
+MPI_TEST_CASE("TestXiosField", 3)
 {
     enableXios();
 
@@ -34,7 +35,7 @@ MPI_TEST_CASE("TestXiosField", 2)
     Xios& xiosHandler = Xios::getInstance();
     REQUIRE(xiosHandler.isInitialized());
     const size_t size = xiosHandler.getClientMPISize();
-    REQUIRE(size == 2);
+    REQUIRE(size == 3);
     const size_t rank = xiosHandler.getClientMPIRank();
 
     // Create an axis with two points

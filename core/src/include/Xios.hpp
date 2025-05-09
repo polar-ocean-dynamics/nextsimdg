@@ -2,7 +2,8 @@
  * @file    Xios.hpp
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    06 May 2025
+ * @author  Adeleke Bankole <ab3191@cam.ac.uk>
+ * @date    22 Apr 2025
  * @brief   XIOS interface header
  * @details
  *
