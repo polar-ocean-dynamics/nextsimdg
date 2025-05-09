@@ -213,7 +213,11 @@ class initMaker:
         damage[:, :] = damage[:, :] * mask[:, :]
         u[:, :] = u[:, :] * mask[:, :]
         v[:, :] = v[:, :] * mask[:, :]
-        tice[:, :, :] = tice[:, :, :] * mask[:, :]
+        tsurf[:, :] *= mask[:, :]
+        if hasattr(self, "tintr"):
+            tintr[:, :] *= mask[:, :]
+        if hasattr(self, "tbott"):
+            tbott[:, :] *= mask[:, :]
         grid_azimuth[:, :] = grid_azimuth[:, :] * mask[:, :]
         sss[:, :] = sss[:, :] * mask[:, :]
         sst[:, :] = sst[:, :] * mask[:, :]
