@@ -92,7 +92,7 @@ MPI_TEST_CASE("TestXiosRead", 2)
 
     xiosHandler.close_context_definition();
 
-    // Create HField instances to read the data into
+    // Create HField and ZField instances to read the data into
     HField field_2D(ModelArray::Type::H);
     field_2D.resize();
 
