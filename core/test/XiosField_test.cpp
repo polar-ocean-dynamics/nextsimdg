@@ -79,6 +79,7 @@ MPI_TEST_CASE("TestXiosField", 3)
     xiosHandler.setFieldGridRef(fieldId, gridRef);
     REQUIRE(xiosHandler.getFieldGridRef(fieldId) == gridRef);
     // Read access
+    // NOTE: This is set automatically (see above note)
     REQUIRE(!xiosHandler.getFieldReadAccess(fieldId));
     xiosHandler.setFieldGridRef("field_C", gridRef); // NOTE: must be set to get read access
     REQUIRE(xiosHandler.getFieldReadAccess("field_C"));
