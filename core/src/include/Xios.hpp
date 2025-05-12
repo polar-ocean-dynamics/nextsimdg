@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    07 May 2025
+ * @date    12 May 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -204,6 +204,7 @@ private:
     xios::CFieldGroup* getFieldGroup();
     xios::CField* getField(const std::string fieldId);
     void setFieldReadAccess(const std::string fieldId, const bool readAccess);
+    std::vector<std::string> configGetFieldNames(const bool reading);
     bool checkField(const std::string fieldId, const bool reading);
 
     /* Grid */
