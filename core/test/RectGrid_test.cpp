@@ -76,7 +76,7 @@ TEST_CASE("Write and read a ModelState-based RectGrid restart file")
                              { "hice", hice },
                              { "cice", cice },
                              { "hsnow", hsnow },
-                             { "tice", tice },
+                             { "tsurf", tice },
                          },
         {} };
 
@@ -169,7 +169,7 @@ TEST_CASE("Write and read a ModelState-based RectGrid restart file")
     REQUIRE(ms.data.at("hice")(targetX, targetY) == 1.0201);
 #endif
 
-    HField ticeIn = ms.data.at("tice");
+    HField ticeIn = ms.data.at("tsurf");
 
 #ifdef USE_MPI
     REQUIRE(ticeIn(targetX, targetY, 0U)
