@@ -69,7 +69,7 @@ TEST_CASE("Test periodic output")
     config << "[ConfigOutput]" << std::endl;
     config << "period = 3600" << std::endl; // Output every hour
     config << "start = 2020-01-11T00:00:00Z" << std::endl; // start after 10 days
-    config << "field_names = " << hiceName << "," << ciceName << "," << ticeName << std::endl;
+    config << "field_names = " << hiceName << "," << ciceName << "," << tsurfName << "," << "top_melt" << std::endl;
     config << "filename = diag%m%d.nc" << std::endl;
     config << "file_period = 86400" << std::endl; // Files every day
 
@@ -81,17 +81,21 @@ TEST_CASE("Test periodic output")
     HField hice(ModelArray::Type::H);
     HField cice(ModelArray::Type::H);
     HField hsnow(ModelArray::Type::H);
-    HField tice(ModelArray::Type::H);
+    HField tsurf(ModelArray::Type::H);
+
+    // An internal diagnostic field, not made available through the data store
+    HField topMelt(ModelArray::Type::H);
 
     hice.resize();
     cice.resize();
     hsnow.resize();
-    tice.resize();
+    tsurf.resize();
+    topMelt.resize();
 
     ModelComponent::getStore().registerArray(Protected::H_ICE, &hice);
     ModelComponent::getStore().registerArray(Protected::C_ICE, &cice);
     ModelComponent::getStore().registerArray(Protected::H_SNOW, &hsnow);
-    ModelComponent::getStore().registerArray(Protected::T_ICE, &tice);
+    ModelComponent::getStore().registerArray(Protected::T_SURF, &tsurf);
 
     ModelMetadata meta;
     // Set up the coordinates, but use arrays filled with zeros
@@ -124,7 +128,9 @@ TEST_CASE("Test periodic output")
             hice(i, j) = 0 + 0.01 * (j * nx + (i + startX));
             cice(i, j) = 0.1 + 0.01 * (j * nx + (i + startX));
             hsnow(i, j) = 0.2 + 0.01 * (j * nx + (i + startX));
-            tice(i, j) = 0.4 + 0.01 * (j * nx + (i + startX));
+            tsurf(i, j) = 0.4 + 0.01 * (j * nx + (i + startX));
+            topMelt(i, j) = 0.6 + 0.01 * (j * nx + (i + startX));
+
         }
     }
     std::vector<std::string> diagFiles;
@@ -139,15 +145,15 @@ TEST_CASE("Test periodic output")
         hice += dayIncr;
         cice += dayIncr;
         hsnow += dayIncr;
-        tice += dayIncr;
+        tsurf += dayIncr;
         for (size_t hour = 0; hour < hr_day; ++hour) {
             double hourIncr = 1;
             hice += hourIncr;
             cice += hourIncr;
             hsnow += hourIncr;
-            ModelState state;
+            ModelState state = { { { "top_melt", topMelt } }, { } };
 
-            ido.outputState(meta);
+            ido.outputState(state, meta);
             meta.incrementTime(Duration(3600.));
         }
     }
@@ -166,7 +172,7 @@ TEST_CASE("Test periodic output")
     REQUIRE(!std::filesystem::exists(pfx + "10" + sfx));
 
     const std::string specFile = diagFiles[5];
-    std::set<std::string> fields = { "hice", "cice", "tice" };
+    std::set<std::string> fields = { "hice", "cice", "tsurf", "top_melt" };
 
     // Read the netCDF file directly
     netCDF::NcFile ncFile(specFile, netCDF::NcFile::read);
