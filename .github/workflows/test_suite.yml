@@ -92,12 +92,11 @@ jobs:
         make -j 4
 
     - name: run MPI tests
-      # set enviornment variables for MPI tests to run in docker container
-      env:
-        OMPI_ALLOW_RUN_AS_ROOT=1
-        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-        OMPI_MCA_rmaps_base_oversubscribe=1
       run: |
+        # set enviornment variables for MPI tests to run in docker container
+        export OMPI_ALLOW_RUN_AS_ROOT=1
+        export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+        export OMPI_MCA_rmaps_base_oversubscribe=1
         . /opt/spack-environment/activate.sh
         apt update
         apt install -y wget
@@ -125,20 +124,16 @@ jobs:
         make -j 4
 
     - name: run MPI tests
-      # set enviornment variables for MPI tests to run in docker container
-      env:
-        OMPI_ALLOW_RUN_AS_ROOT=1
-        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-        OMPI_MCA_rmaps_base_oversubscribe=1
       run: |
+        # set enviornment variables for MPI tests to run in docker container
+        export OMPI_ALLOW_RUN_AS_ROOT=1
+        export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+        export OMPI_MCA_rmaps_base_oversubscribe=1
         . /opt/spack-environment/activate.sh
         apt update
         apt install -y wget
         cd build
         (cd core/test && wget "ftp://ftp.nersc.no/nextsim/netCDF/partition_metadata_1.nc")
-        echo "OMPI_ALLOW_RUN_AS_ROOT = $OMPI_ALLOW_RUN_AS_ROOT"
-        echo "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM = $OMPI_ALLOW_RUN_AS_ROOT_CONFIRM"
-        echo "OMPI_MCA_rmaps_base_oversubscribe = $OMPI_MCA_rmaps_base_oversubscribe"
         ctest -V
 
   test-mac-serial:
