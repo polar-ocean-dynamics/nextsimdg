@@ -241,6 +241,6 @@ If you want to run a subset of tests, you can use the `-R` option with a regular
 
 .. code-block:: console
 
-    ctest -R XIOS
+    ctest -R Xios
 
 For more information on `ctest` options, you can refer to the official `ctest` documentation.
