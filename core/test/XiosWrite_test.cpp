@@ -94,7 +94,6 @@ MPI_TEST_CASE("TestXiosWrite", 2)
 
     // Create an file for writing of field data
     std::string fileId = "xios_test_output";
-    xiosHandler.createFile(fileId);
     xiosHandler.setFileType(fileId, "one_file");
     xiosHandler.setFileSplitFreq(fileId, Duration("P0-0T03:00:00"));
     xiosHandler.fileAddField(fileId, "field_2D");

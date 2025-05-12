@@ -76,10 +76,26 @@ void enableXios()
  */
 Xios::Xios(const std::string contextid, const std::string calendartype)
 {
+    static bool firstTime = true;
     contextId = contextid;
     calendarType = calendartype;
     configure();
     static bool doneOnce = doOnce();
+
+    // Create the input and output files (if found in the config)
+    if (firstTime) {
+        for (int key : { INPUT_FILENAME_KEY, OUTPUT_FILENAME_KEY }) {
+            std::string filenameStr;
+            istringstream(Configured::getConfiguration(keyMap.at(key), std::string()))
+                >> filenameStr;
+            if (filenameStr.length() > 0) {
+                filenameStr = ((std::filesystem::path)filenameStr).replace_extension();
+                createFile(filenameStr);
+                setFileName(filenameStr, filenameStr);
+            }
+        }
+    }
+    firstTime = false;
 }
 
 bool Xios::doOnce()

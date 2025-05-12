@@ -135,7 +135,6 @@ public:
 
     /* File */
     void createFile(const std::string fileId);
-    void setFileName(const std::string fileId, const std::string fileName);
     void setFileType(const std::string fileId, const std::string fileType);
     void setFileOutputFreq(const std::string fileId, const Duration outputFreq);
     void setFileSplitFreq(const std::string fileId, const Duration splitFreq);
@@ -215,6 +214,7 @@ private:
     /* File */
     xios::CFileGroup* getFileGroup();
     xios::CFile* getFile(const std::string fileId);
+    void setFileName(const std::string fileId, const std::string fileName);
     void setFileMode(const std::string fileId, const std::string mode);
 };
 

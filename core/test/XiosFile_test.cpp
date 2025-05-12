@@ -67,16 +67,16 @@ MPI_TEST_CASE("TestXiosFile", 2)
 
     // --- Tests for file API
     const std::string fileId = "output";
-    REQUIRE_THROWS_WITH(xiosHandler.getFileName(fileId), "Xios: Undefined file 'output'");
-    xiosHandler.createFile(fileId);
+    REQUIRE_THROWS_WITH(
+        xiosHandler.getFileName("unittest_undef"), "Xios: Undefined file 'unittest_undef'");
+    // File creation
+    // NOTE: This is called based on the XiosInput.filename and XiosOutput.filename entries upon
+    // initialization
     REQUIRE_THROWS_WITH(xiosHandler.createFile(fileId), "Xios: File 'output' already exists");
     // File name
     // NOTE: This is set based off the XiosInput.filename and XiosOutput.filename entries when a
     // file is created
-    REQUIRE(xiosHandler.getFileName(fileId) == "output");
-    const std::string fileName = "diagnostic";
-    xiosHandler.setFileName(fileId, fileName);
-    REQUIRE(xiosHandler.getFileName(fileId) == fileName);
+    REQUIRE(xiosHandler.getFileName(fileId) == fileId);
     // File type
     REQUIRE_THROWS_WITH(xiosHandler.getFileType(fileId), "Xios: Undefined type for file 'output'");
     const std::string fileType = "one_file";
@@ -86,13 +86,10 @@ MPI_TEST_CASE("TestXiosFile", 2)
     // NOTE: This is set based off the XiosInput.period and XiosOutput.period entries when a file
     // is created
     REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 3.0 * 60 * 60);
-    Duration timestep = xiosHandler.getCalendarTimestep();
-    xiosHandler.setFileOutputFreq(fileId, timestep);
-    REQUIRE(xiosHandler.getFileOutputFreq(fileId).seconds() == 1.5 * 60 * 60);
     // Split frequency
     REQUIRE_THROWS_WITH(
         xiosHandler.getFileSplitFreq(fileId), "Xios: Undefined split frequency for file 'output'");
-    xiosHandler.setFileSplitFreq(fileId, timestep);
+    xiosHandler.setFileSplitFreq(fileId, xiosHandler.getCalendarTimestep());
     REQUIRE(xiosHandler.getFileSplitFreq(fileId).seconds() == 1.5 * 60 * 60);
     // File mode
     // NOTE: This is set based off the XiosInput.filename and XiosOutput.filename entries when a

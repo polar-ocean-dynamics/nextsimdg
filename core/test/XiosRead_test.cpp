@@ -94,7 +94,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
 
     // Create an file for reading of field data
     std::string fileId = "xios_test_input";
-    xiosHandler.createFile(fileId);
     xiosHandler.setFileType(fileId, "one_file");
     xiosHandler.setFileParAccess(fileId, "collective");
     xiosHandler.fileAddField(fileId, "field_2D");
