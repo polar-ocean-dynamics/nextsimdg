@@ -306,6 +306,7 @@ public:
     {
         return ModelArraySlice(const_cast<ModelArray&>(data), slice);
     }
+
 private:
     Slice slice;
     const ModelArray& data;
