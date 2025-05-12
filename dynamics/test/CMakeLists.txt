@@ -102,4 +102,12 @@ if(NOT ENABLE_MPI)
         PRIVATE "${CoreDir}" "${SRC_DIR}" "${CoreDir}/${ModelArrayStructure}"
     )
     target_link_libraries(testAdvectionPeriodicBC LINK_PUBLIC doctest::doctest Eigen3::Eigen)
+
+    add_test(NAME testDGModelArray COMMAND testDGModelArray)
+    add_test(NAME testDGVectorHolder COMMAND testDGVectorHolder)
+    add_test(NAME testCGModelArray COMMAND testCGModelArray)
+    add_test(NAME testParametricMesh COMMAND testParametricMesh)
+    add_test(NAME testParametricMeshArea COMMAND testParametricMeshArea)
+    add_test(NAME testAdvection COMMAND testAdvection)
+    add_test(NAME testAdvectionPeriodicBC COMMAND testAdvectionPeriodicBC)
 endif()

@@ -37,6 +37,11 @@ if(ENABLE_MPI)
         PRIVATE USE_MPI TEST_FILES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"
     )
     target_link_libraries(testTOPAZOcn_MPI1 PRIVATE nextsimlib doctest::doctest)
+
+    # In the MPI tests it's important to include the "-ns" flag which tells doctest to fail if test has been skipped.
+    # Without this, the test will technically pass if we run with fewer ranks than requested.
+    add_test(NAME testERA5Atm_MPI1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 testERA5Atm_MPI1 -ns)
+    add_test(NAME testTOPAZOcn_MPI1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 testTOPAZOcn_MPI1 -ns)
 else()
     add_executable(testERA5Atm "ERA5Atm_test.cpp")
     target_compile_definitions(testERA5Atm PRIVATE TEST_FILES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\")
@@ -118,4 +123,19 @@ else()
         PRIVATE "${ModulesRoot}/DamageHealingModule" "${ModulesRoot}/DamageHealingModule"
     )
     target_link_libraries(testDamageHealing PRIVATE nextsimlib doctest::doctest)
+
+    add_test(NAME testERA5Atm COMMAND testERA5Atm)
+    add_test(NAME testTOPAZOcn COMMAND testTOPAZOcn)
+    add_test(NAME testIceGrowth COMMAND testIceGrowth)
+    add_test(NAME testThermoWinton COMMAND testThermoWinton)
+    add_test(NAME testFEFluxes COMMAND testFEFluxes)
+    add_test(NAME testBIOHFluxes COMMAND testBIOHFluxes)
+    add_test(NAME testSpecHum COMMAND testSpecHum)
+    add_test(NAME testThermoIce0 COMMAND testThermoIce0)
+    add_test(NAME testIceMinima COMMAND testIceMinima)
+    add_test(NAME testConstantOcn COMMAND testConstantOcn)
+    add_test(NAME testSlabOcn COMMAND testSlabOcn)
+    add_test(NAME testUniformOcean COMMAND testUniformOcean)
+    add_test(NAME testBenchmarkBoundaries COMMAND testBenchmarkBoundaries)
+    add_test(NAME testDamageHealing COMMAND testDamageHealing)
 endif()

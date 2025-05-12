@@ -102,6 +102,17 @@ if(ENABLE_MPI)
             PRIVATE "${MODEL_INCLUDE_DIR}" "${XIOS_INCLUDE_LIST}" "${ModulesRoot}/StructureModule"
         )
         target_link_libraries(testXiosWrite_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        # In the MPI tests it's important to include the "-ns" flag which tells doctest to fail if test has been skipped.
+        # Without this, the test will technically pass if we run with fewer ranks than requested.
+        add_test(NAME testXiosCalendar_MPI1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 testXiosCalendar_MPI1 -ns)
+        add_test(NAME testXiosAxis_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testXiosAxis_MPI3 -ns)
+        add_test(NAME testXiosDomain_MPI4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 testXiosDomain_MPI4 -ns)
+        add_test(NAME testXiosGrid_MPI4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 testXiosGrid_MPI4 -ns)
+        add_test(NAME testXiosField_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testXiosField_MPI3 -ns)
+        add_test(NAME testXiosFile_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosFile_MPI2 -ns)
+        add_test(NAME testXiosRead_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosRead_MPI2 -ns)
+        add_test(NAME testXiosWrite_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosWrite_MPI2 -ns)
     else()
         add_executable(testRectGrid_MPI3 "RectGrid_test.cpp" "MainMPI.cpp")
         target_compile_definitions(
@@ -156,7 +167,14 @@ if(ENABLE_MPI)
             PRIVATE ${MODEL_INCLUDE_DIR} "${ModulesRoot}/StructureModule"
         )
         target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
+
+        # In the MPI tests it's important to include the "-ns" flag which tells doctest to fail if test has been skipped.
+        # Without this, the test will technically pass if we run with fewer ranks than requested.
+        add_test(NAME testRectGrid_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testRectGrid_MPI3 -ns)
+        add_test(NAME testParaGrid_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testParaGrid_MPI2 -ns)
+        add_test(NAME testConfigOutput_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testConfigOutput_MPI2 -ns)
     endif()
+
 else()
     add_executable(testRectGrid "RectGrid_test.cpp")
     target_compile_definitions(testRectGrid PRIVATE TEST_FILES_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")
@@ -281,6 +299,25 @@ else()
     )
     target_include_directories(testModelArraySlice PRIVATE "../src" "${MODEL_INCLUDE_DIR}")
     target_link_libraries(testModelArraySlice PRIVATE doctest::doctest Eigen3::Eigen)
+
+    add_test(NAME testRectGrid COMMAND testRectGrid)
+    add_test(NAME testParaGrid COMMAND testParaGrid)
+    add_test(NAME testConfigOutput COMMAND testConfigOutput)
+    add_test(NAME testIterator COMMAND testIterator)
+    add_test(NAME testCommandLineParser COMMAND testCommandLineParser)
+    add_test(NAME testConfigurator COMMAND testConfigurator)
+    add_test(NAME testConfiguredModule COMMAND testConfiguredModule)
+    add_test(NAME testTimeClasses COMMAND testTimeClasses)
+    add_test(NAME testModelComponent COMMAND testModelComponent)
+    add_test(NAME testModelArrayRef COMMAND testModelArrayRef)
+    add_test(NAME testPrognosticData COMMAND testPrognosticData)
+    add_test(NAME testPrognosticDataIO COMMAND testPrognosticDataIO)
+    add_test(NAME testMonthlyCubicBSpline COMMAND testMonthlyCubicBSpline)
+    add_test(NAME testFileCallbackCloser COMMAND testFileCallbackCloser)
+    add_test(NAME testFinalizer COMMAND testFinalizer)
+    add_test(NAME testModelArray COMMAND testModelArray)
+    add_test(NAME testSlice COMMAND testSlice)
+    add_test(NAME testModelArraySlice COMMAND testModelArraySlice)
 
     # The help config test needs access to the full binary
     file(CREATE_LINK ${NEXTSIM_BINARY_PATH} ${CMAKE_CURRENT_BINARY_DIR}/nextsim SYMBOLIC)
