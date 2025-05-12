@@ -101,6 +101,7 @@ Xios::Xios(const std::string contextid, const std::string calendartype)
     for (bool readAccess : { true, false }) {
         for (std::string fieldName : configGetFieldNames(readAccess)) {
             createField(fieldName);
+            setFieldName(fieldName, fieldName);
         }
     }
 

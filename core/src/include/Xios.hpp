@@ -123,7 +123,6 @@ public:
 
     /* Field */
     void createField(const std::string fieldId);
-    void setFieldName(const std::string fieldId, const std::string name);
     void setFieldOperation(const std::string fieldId, const std::string operation);
     void setFieldGridRef(const std::string fieldId, const std::string gridRef);
     void setFieldFreqOffset(const std::string fieldId, const Duration freqOffset);
@@ -203,6 +202,7 @@ private:
     /* Field */
     xios::CFieldGroup* getFieldGroup();
     xios::CField* getField(const std::string fieldId);
+    void setFieldName(const std::string fieldId, const std::string name);
     void setFieldReadAccess(const std::string fieldId, const bool readAccess);
     std::vector<std::string> configGetFieldNames(const bool reading);
     bool configCheckField(const std::string fieldId, const bool reading);

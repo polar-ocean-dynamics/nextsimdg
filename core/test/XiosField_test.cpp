@@ -64,11 +64,8 @@ MPI_TEST_CASE("TestXiosField", 3)
     REQUIRE_THROWS_WITH(xiosHandler.createField("field_B"),
         "Xios: Field 'field_B' cannot be found in the XiosInput or XiosOutput config sections");
     // Field name
-    REQUIRE_THROWS_WITH(
-        xiosHandler.getFieldName(fieldId), "Xios: Undefined name for field 'field_A'");
-    const std::string fieldName = "test_field";
-    xiosHandler.setFieldName(fieldId, fieldName);
-    REQUIRE(xiosHandler.getFieldName(fieldId) == fieldName);
+    // NOTE: This is set to the fieldId when a field is created
+    REQUIRE(xiosHandler.getFieldName(fieldId) == fieldId);
     // Operation
     REQUIRE_THROWS_WITH(
         xiosHandler.getFieldOperation(fieldId), "Xios: Undefined operation for field 'field_A'");
