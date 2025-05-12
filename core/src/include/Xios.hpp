@@ -205,7 +205,7 @@ private:
     xios::CField* getField(const std::string fieldId);
     void setFieldReadAccess(const std::string fieldId, const bool readAccess);
     std::vector<std::string> configGetFieldNames(const bool reading);
-    bool checkField(const std::string fieldId, const bool reading);
+    bool configCheckField(const std::string fieldId, const bool reading);
 
     /* Grid */
     xios::CGridGroup* getGridGroup();
