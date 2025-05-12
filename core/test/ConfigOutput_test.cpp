@@ -99,6 +99,18 @@ TEST_CASE("Test periodic output")
     ModelComponent::getStore().registerArray(Protected::T_ICE, &tice);
 
     ModelMetadata meta;
+    // Set up the coordinates, but use arrays filled with zeros
+    HField latlonData(ModelArray::Type::H);
+    latlonData = 0.;
+    VertexField coordsData(ModelArray::Type::VERTEX);
+    coordsData = 0.;
+    ModelState modelCoordinates = { {
+             { longitudeName, latlonData },
+             { latitudeName, latlonData },
+             { gridAzimuthName, latlonData },
+             { coordsName, coordsData },
+    }, { } };
+    meta.extractCoordinates(modelCoordinates);
     meta.setTime(TimePoint("2020-01-01T00:00:00Z"));
 
 #ifdef USE_MPI
