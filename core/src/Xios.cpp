@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    07 May 2025
+ * @date    12 May 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -1148,9 +1148,8 @@ xios::CField* Xios::getField(const std::string fieldId)
     return field;
 }
 
-// Check whether a fieldId exists in a string of field names separated by commas, as determined by
-// the map key
-bool Xios::checkField(const std::string fieldId, const bool reading)
+// Extract the field_names entry from the XiosInput or XiosOutput section of the config
+std::vector<std::string> Xios::configGetFieldNames(const bool reading)
 {
     std::string fieldsStr;
     if (reading) {
@@ -1161,16 +1160,28 @@ bool Xios::checkField(const std::string fieldId, const bool reading)
             Configured::getConfiguration(keyMap.at(OUTPUT_FIELD_NAMES_KEY), std::string()))
             >> fieldsStr;
     }
-    bool found = false;
+    std::vector<std::string> fieldNames;
     if (fieldsStr.length() > 0) {
         const char delim = ',';
         std::istringstream iss(fieldsStr);
         std::string item;
         while (std::getline(iss, item, delim)) {
-            if (item == fieldId) {
-                found = true;
-                break;
-            }
+            fieldNames.push_back(item);
+        }
+    }
+    return fieldNames;
+}
+
+// Check whether a fieldId exists in a string of field names separated by commas, as determined by
+// the map key
+bool Xios::checkField(const std::string fieldId, const bool reading)
+{
+    std::vector<std::string> fieldNames = configGetFieldNames(reading);
+    bool found = false;
+    for (std::string fieldName : fieldNames) {
+        if (fieldName == fieldId) {
+            found = true;
+            break;
         }
     }
     return found;
