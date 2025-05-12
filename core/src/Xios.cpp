@@ -50,14 +50,16 @@
 
 namespace Nextsim {
 
+static const std::string xOutputPfx = "XiosOutput";
+static const std::string xInputPfx = "XiosInput";
 static const std::map<int, std::string> keyMap = { { Xios::ENABLED_KEY, "xios.enable" },
     { Xios::START_TIME_KEY, "model.start" }, { Xios::TIME_STEP_KEY, "model.time_step" },
-    { Xios::OUTPUT_PERIOD_KEY, "XiosOutput.period" },
-    { Xios::OUTPUT_FILENAME_KEY, "XiosOutput.filename" },
-    { Xios::OUTPUT_FIELD_NAMES_KEY, "XiosOutput.field_names" },
-    { Xios::INPUT_PERIOD_KEY, "XiosInput.period" },
-    { Xios::INPUT_FILENAME_KEY, "XiosInput.filename" },
-    { Xios::INPUT_FIELD_NAMES_KEY, "XiosInput.field_names" } };
+    { Xios::OUTPUT_PERIOD_KEY, xOutputPfx + ".period" },
+    { Xios::OUTPUT_FILENAME_KEY, xOutputPfx + ".filename" },
+    { Xios::OUTPUT_FIELD_NAMES_KEY, xOutputPfx + ".field_names" },
+    { Xios::INPUT_PERIOD_KEY, xInputPfx + ".period" },
+    { Xios::INPUT_FILENAME_KEY, xInputPfx + ".filename" },
+    { Xios::INPUT_FIELD_NAMES_KEY, xInputPfx + ".field_names" } };
 
 //! Enable XIOS in the 'config'
 void enableXios()
