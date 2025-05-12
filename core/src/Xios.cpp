@@ -1174,7 +1174,7 @@ std::vector<std::string> Xios::configGetFieldNames(const bool reading)
 
 // Check whether a fieldId exists in a string of field names separated by commas, as determined by
 // the map key
-bool Xios::checkField(const std::string fieldId, const bool reading)
+bool Xios::configCheckField(const std::string fieldId, const bool reading)
 {
     std::vector<std::string> fieldNames = configGetFieldNames(reading);
     bool found = false;
@@ -1202,8 +1202,8 @@ void Xios::createField(const std::string fieldId)
     }
 
     // Check that the field is in the XiosOutput or XiosInput config
-    bool readAccess = checkField(fieldId, true);
-    bool writeAccess = checkField(fieldId, false);
+    bool readAccess = configCheckField(fieldId, true);
+    bool writeAccess = configCheckField(fieldId, false);
     if (!(readAccess || writeAccess)) {
         throw std::runtime_error("Xios: Field '" + fieldId
             + "' cannot be found in the XiosInput or XiosOutput config sections");
