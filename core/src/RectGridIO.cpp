@@ -157,8 +157,7 @@ void RectGridIO::dumpModelState(const ModelState& state, const ModelMetadata& me
     int nx = ModelArray::dimensions(Type::H)[0];
     int ny = ModelArray::dimensions(Type::H)[1];
 
-    std::vector<std::string> dimensionNames
-        = { "xdim", "ydim", "t", "component", "u", "v", "w" };
+    std::vector<std::string> dimensionNames = { "xdim", "ydim", "t", "component", "u", "v", "w" };
 
     // Create the dimension data, since it has to be in the same group as the
     // data or the parent group
