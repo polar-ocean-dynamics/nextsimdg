@@ -1,7 +1,7 @@
 /*!
  * @file ParaGridIO_Xios.cpp
  *
- * @date 07 May 2025
+ * @date 12 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Joe Wallwork <jw2423@cam.ac.uk>
  */
@@ -80,9 +80,10 @@ ParaGridIO::ParaGridIO(ParametricGrid& grid)
 bool ParaGridIO::doOnce()
 {
     Xios& xiosHandler = Xios::getInstance();
+    // NOTE: getInstance will automatically create XIOS input and output files if the
+    // XiosInput.filename and XiosOutput.filename parameters are set in the config.
 
     // TODO: Setup XIOS in this method.
-    // * We can read the file name from the XiosConfig.
     // * We can read the field names from the XiosConfig, too.
     // * We can determine the read access for the fields from the XiosConfig, too.
 
