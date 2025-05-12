@@ -103,16 +103,25 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosWrite_MPI2 PRIVATE nextsimlib doctest::doctest)
 
-        # In the MPI tests it's important to include the "-ns" flag which tells doctest to fail if test has been skipped.
-        # Without this, the test will technically pass if we run with fewer ranks than requested.
-        add_test(NAME testXiosCalendar_MPI1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 testXiosCalendar_MPI1 -ns)
-        add_test(NAME testXiosAxis_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testXiosAxis_MPI3 -ns)
-        add_test(NAME testXiosDomain_MPI4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 testXiosDomain_MPI4 -ns)
-        add_test(NAME testXiosGrid_MPI4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 testXiosGrid_MPI4 -ns)
-        add_test(NAME testXiosField_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testXiosField_MPI3 -ns)
-        add_test(NAME testXiosFile_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosFile_MPI2 -ns)
-        add_test(NAME testXiosRead_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosRead_MPI2 -ns)
-        add_test(NAME testXiosWrite_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testXiosWrite_MPI2 -ns)
+        # In the MPI tests it's important to include the "-ns" flag which tells
+        # doctest to fail if test has been skipped. Without this, the test will
+        # technically pass if we run with fewer ranks than requested.
+        add_test(NAME testXiosCalendar_MPI1 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 1 testXiosCalendar_MPI1 -ns)
+        add_test(NAME testXiosAxis_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 3 testXiosAxis_MPI3 -ns)
+        add_test(NAME testXiosDomain_MPI4 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 4 testXiosDomain_MPI4 -ns)
+        add_test(NAME testXiosGrid_MPI4 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 4 testXiosGrid_MPI4 -ns)
+        add_test(NAME testXiosField_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 3 testXiosField_MPI3 -ns)
+        add_test(NAME testXiosFile_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosFile_MPI2 -ns)
+        add_test(NAME testXiosRead_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosRead_MPI2 -ns)
+        add_test(NAME testXiosWrite_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosWrite_MPI2 -ns)
     else()
         add_executable(testRectGrid_MPI3 "RectGrid_test.cpp" "MainMPI.cpp")
         target_compile_definitions(
@@ -168,11 +177,15 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
 
-        # In the MPI tests it's important to include the "-ns" flag which tells doctest to fail if test has been skipped.
-        # Without this, the test will technically pass if we run with fewer ranks than requested.
-        add_test(NAME testRectGrid_MPI3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 testRectGrid_MPI3 -ns)
-        add_test(NAME testParaGrid_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testParaGrid_MPI2 -ns)
-        add_test(NAME testConfigOutput_MPI2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 testConfigOutput_MPI2 -ns)
+        # In the MPI tests it's important to include the "-ns" flag which tells
+        # doctest to fail if test has been skipped. Without this, the test will
+        # technically pass if we run with fewer ranks than requested.
+        add_test(NAME testRectGrid_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 3 testRectGrid_MPI3 -ns)
+        add_test(NAME testParaGrid_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 2 testParaGrid_MPI2 -ns)
+        add_test(NAME testConfigOutput_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
+            ${MPIEXEC_NUMPROC_FLAG} 2 testConfigOutput_MPI2 -ns)
     endif()
 
 else()
