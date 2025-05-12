@@ -61,7 +61,7 @@ MPI_TEST_CASE("TestXiosFile", 2)
     xiosHandler.gridAddAxis("grid_1D", "axis_A");
 
     // Create a field on the 1D grid
-    xiosHandler.createField("field_A");
+    // NOTE: field_A is automatically created
     xiosHandler.setFieldOperation("field_A", "instant");
     xiosHandler.setFieldGridRef("field_A", "grid_1D");
 

@@ -2,7 +2,7 @@
  * @file    XiosField_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    07 May 2025
+ * @date    12 May 2025
  * @brief   Tests for XIOS fields
  * @details
  * This test is designed to test field functionality of the C++ interface
@@ -33,9 +33,9 @@ MPI_TEST_CASE("TestXiosField", 3)
     enableXios();
     std::stringstream config;
     config << "[XiosInput]" << std::endl;
-    config << "field_names = field_C,field_D" << std::endl;
+    config << "field_names = field_C" << std::endl;
     config << "[XiosOutput]" << std::endl;
-    config << "field_names = field_A,field_C" << std::endl;
+    config << "field_names = field_A" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 
@@ -55,16 +55,14 @@ MPI_TEST_CASE("TestXiosField", 3)
     xiosHandler.gridAddAxis("grid_1D", "axis_A");
 
     // --- Tests for field API
+    // Field creation
+    // NOTE: Fields are automatically created with the appropriate read access based off the
+    // XiosInput.field_names and XiosOutput.field_names entries in the config upon initialization.
     const std::string fieldId = "field_A";
-    REQUIRE_THROWS_WITH(xiosHandler.getFieldName(fieldId), "Xios: Undefined field 'field_A'");
-    xiosHandler.createField(fieldId);
     REQUIRE_THROWS_WITH(xiosHandler.createField(fieldId), "Xios: Field 'field_A' already exists");
     // Disallow creation of fields that aren't in either config section
     REQUIRE_THROWS_WITH(xiosHandler.createField("field_B"),
         "Xios: Field 'field_B' cannot be found in the XiosInput or XiosOutput config sections");
-    // Disallow fields that're in both config sections (for now)
-    REQUIRE_THROWS_WITH(xiosHandler.createField("field_C"),
-        "Xios: Field 'field_C' found in both the XiosInput and XiosOutput config sections");
     // Field name
     REQUIRE_THROWS_WITH(
         xiosHandler.getFieldName(fieldId), "Xios: Undefined name for field 'field_A'");
@@ -85,9 +83,8 @@ MPI_TEST_CASE("TestXiosField", 3)
     REQUIRE(xiosHandler.getFieldGridRef(fieldId) == gridRef);
     // Read access
     REQUIRE(!xiosHandler.getFieldReadAccess(fieldId));
-    xiosHandler.createField("field_D");
-    xiosHandler.setFieldGridRef("field_D", gridRef);
-    REQUIRE(xiosHandler.getFieldReadAccess("field_D"));
+    xiosHandler.setFieldGridRef("field_C", gridRef); // NOTE: must be set to get read access
+    REQUIRE(xiosHandler.getFieldReadAccess("field_C"));
     // Frequency offset
     Duration freqOffset = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset(fieldId, freqOffset);

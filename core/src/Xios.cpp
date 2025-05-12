@@ -95,6 +95,15 @@ Xios::Xios(const std::string contextid, const std::string calendartype)
             }
         }
     }
+
+    // Create all fields found in the config based off the field names found in the
+    // XiosInput.field_names and XiosOutput.field_names entries in the config.
+    for (bool readAccess : { true, false }) {
+        for (std::string fieldName : configGetFieldNames(readAccess)) {
+            createField(fieldName);
+        }
+    }
+
     firstTime = false;
 }
 
