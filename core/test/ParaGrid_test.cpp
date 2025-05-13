@@ -574,7 +574,8 @@ TEST_CASE("Check if a file with the old dimension names can be read")
     ModelState ms = gridIn.getModelState(inputFilename);
 #endif
 
-    REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[0] == nx);
+    auto localNX = ModelArray::definedDimensions.at(ModelArray::Dimension::X).localLength;
+    REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[0] == localNX);
     REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[1] == ny);
 
     Finalizer::finalize();
