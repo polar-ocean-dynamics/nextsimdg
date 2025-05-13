@@ -16,7 +16,6 @@
 #ifdef USE_XIOS
 #include "include/Xios.hpp"
 #endif
-#include "include/NZLevels.hpp"
 #include "include/gridNames.hpp"
 
 #include <ncDim.h>
