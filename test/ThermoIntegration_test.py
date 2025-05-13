@@ -102,13 +102,11 @@ ks = 0.31
 
         nfirst = 1
         nsecond = 1
-        nLayers = 3
         ncg = 1
         n_dg = 1
         n_dgstress = 1
         n_coords = 2
 
-        nLay = datagrp.createDimension("zdim", nLayers)
         yDim = datagrp.createDimension("ydim", nfirst)
         xDim = datagrp.createDimension("xdim", nsecond)
         yVertexDim = datagrp.createDimension("yvertex", nfirst + 1)
@@ -121,7 +119,6 @@ ks = 0.31
 
         field_dims = ("ydim", "xdim")
         coord_dims = ("yvertex", "xvertex", "ncoords")
-        zfield_dims = ("zdim", "ydim", "xdim")
 
         # Array coordinates
         node_lon = np.zeros((nfirst + 1, nsecond + 1))
@@ -165,8 +162,12 @@ ks = 0.31
         sss[:, :] = ocean_salinity
         sst = datagrp.createVariable("sst", "f8", field_dims)
         sst[:, :] = ocean_temperature
-        tice = datagrp.createVariable("tice", "f8", zfield_dims)
-        tice[:, :, :] = ice_salinity * mu
+        tsurf = datagrp.createVariable("tsurf", "f8", field_dims)
+        tsurf[:, :] = ice_salinity * mu
+        tintr = datagrp.createVariable("tinterior", "f8", field_dims)
+        tintr[:, :] = ice_salinity * mu
+        tbott = datagrp.createVariable("tbottom", "f8", field_dims)
+        tbott[:, :] = ice_salinity * mu
         # Ice is at rest
         u = datagrp.createVariable("u", "f8", field_dims)
         u[:, :] = 0
