@@ -12,7 +12,6 @@ Code at the end of the file.
 def get_data(name):
     nx = 154
     ny = 121
-    nz = 3
     ncoords = 2
     if name == "nx":
         return nx
@@ -65077,11 +65076,9 @@ def get_data(name):
             ]).reshape((ny, nx))
 if __name__ == "__main__":
 
-    
     # Grid dimensions
     nx = get_data("nx")
     ny = get_data("ny")
-    nLayers = get_data("nz")
     ncg = 1
     n_dg = 1
     n_dgstress = 3
