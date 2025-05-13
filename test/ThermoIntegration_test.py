@@ -41,7 +41,9 @@ class SingleColumnThermo(unittest.TestCase):
         root = netCDF4.Dataset(cls.diagnostics_file, "r", format="NETCDF4")
         cls.hice = np.squeeze(np.array(root.groups["data"].variables["hice"][:].data))
         cls.hsnow = np.squeeze(np.array(root.groups["data"].variables["hsnow"][:].data))
-        cls.tice = np.array(root.groups["data"].variables["tice"][:].data)
+        cls.tsurf = np.array(root.groups["data"].variables["tsurf"][:].data)
+        cls.tintr = np.array(root.groups["data"].variables["tinterior"][:].data)
+        cls.tbott = np.array(root.groups["data"].variables["tbottom"][:].data)
 
     @classmethod
     def __make_cfg_file(cls):
@@ -62,7 +64,7 @@ IceThermodynamicsModule = Nextsim::ThermoWinton
 
 [ConfigOutput]
 start = 2010-01-01T00:00:00Z
-field_names = hsnow,hice,tice
+field_names = hsnow,hice,tsurf,tinterior,tbottom
 
 [FluxConfiguredOcean]
 qio = 2
@@ -231,10 +233,11 @@ ks = 0.31
         mean = [-17.6250, -7.6068, -3.7998]
         max = [0.0000, -1.1336, -1.5975]
         min = [-33.1612, -14.8637, -6.1424]
-        for i in range(3):
-            self.assertAlmostEqual(max[i], self.tice[:, i].max(), 4, "Max T" + str(i) + " not ~= " + str(max[i]) + " m")
-            self.assertAlmostEqual(min[i], self.tice[:, i].min(), 3, "Min T" + str(i) + " not ~= " + str(min[i]) + " m")
-            self.assertAlmostEqual(mean[i], self.tice[:, i].mean(), 3,
+        #for i in range(3):
+        for i, t_level in enumerate((self.tsurf, self.tintr, self.tbott)):
+            self.assertAlmostEqual(max[i], t_level.max(), 4, "Max T" + str(i) + " not ~= " + str(max[i]) + " m")
+            self.assertAlmostEqual(min[i], t_level.min(), 3, "Min T" + str(i) + " not ~= " + str(min[i]) + " m")
+            self.assertAlmostEqual(mean[i], t_level.mean(), 3,
                                    "Mean T" + str(i) + " not ~= " + str(mean[i]) + " m")
 
 
