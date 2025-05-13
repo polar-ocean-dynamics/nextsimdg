@@ -170,13 +170,7 @@ void RectGridIO::dumpModelState(const ModelState& state, const ModelMetadata& me
 #endif
     std::vector<netCDF::NcDim> dims2 = { yDim, xDim };
 #ifdef USE_MPI
-    // Set the origins and extensions for reading 3D data based
-    // on MPI decomposition
-    std::vector<size_t> start3 = { 0, static_cast<size_t>(metadata.localCornerY),
-        static_cast<size_t>(metadata.localCornerX) };
-    std::vector<size_t> size3 = { static_cast<size_t>(nz),
-        static_cast<size_t>(metadata.localExtentY), static_cast<size_t>(metadata.localExtentX) };
-    // Set the origins and extensions for reading 2D data based
+   // Set the origins and extensions for reading 2D data based
     // on MPI decomposition
     std::vector<size_t> start2(start3.begin() + 1, start3.end());
     std::vector<size_t> size2(size3.begin() + 1, size3.end());

@@ -226,7 +226,6 @@ TEST_CASE("Write and read a ModelState-based ParaGrid restart file")
 #ifdef USE_MPI
     ModelArray::setDimension(ModelArray::Dimension::X, 1, 1, 0);
     ModelArray::setDimension(ModelArray::Dimension::Y, 1, 1, 0);
-    ModelArray::setDimension(ModelArray::Dimension::Z, 1, 1, 0);
     ModelArray::setDimension(ModelArray::Dimension::XVERTEX, 1, 1, 0);
     ModelArray::setDimension(ModelArray::Dimension::YVERTEX, 1, 1, 0);
 #else

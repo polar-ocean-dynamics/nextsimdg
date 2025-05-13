@@ -62,7 +62,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     const size_t nz = 2;
     ModelArray::setDimension(ModelArray::Dimension::X, nx_glo, nx, 0);
     ModelArray::setDimension(ModelArray::Dimension::Y, ny_glo, ny, 0);
-    ModelArray::setDimension(ModelArray::Dimension::Z, nz, nz, 0);
 
     // Create a 4x2 horizontal domain with a partition halving the x-extent
     // TODO: Set local and global domain sizes upon calling ModelArray::setDimension for X and Y
@@ -74,8 +73,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     xiosHandler.setDomainLocalYStart("xy_domain", 0);
     xiosHandler.setDomainLocalXValues("xy_domain", { -1.0 + rank, -0.5 + rank });
     xiosHandler.setDomainLocalYValues("xy_domain", { -1.0, 1.0 });
-    xiosHandler.createAxis("z_axis");
-    xiosHandler.setAxisValues("z_axis", { 0.0, 1.0 });
 
     // Create fields on the two grids
     // TODO: Create fields along with HField
@@ -86,11 +83,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     xiosHandler.setFieldReadAccess("field_2D", true);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset("field_2D", timestep);
-    xiosHandler.createField("field_3D");
-    xiosHandler.setFieldOperation("field_3D", "instant");
-    xiosHandler.setFieldGridRef("field_3D", "grid_3D");
-    xiosHandler.setFieldReadAccess("field_3D", true);
-    xiosHandler.setFieldFreqOffset("field_3D", timestep);
 
     // Create an file for reading of field data
     std::string fileId = "xios_test_input";
@@ -100,7 +92,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     xiosHandler.setFileMode(fileId, "read");
     xiosHandler.setFileParAccess(fileId, "collective");
     xiosHandler.fileAddField(fileId, "field_2D");
-    xiosHandler.fileAddField(fileId, "field_3D");
 
     xiosHandler.close_context_definition();
 
@@ -127,19 +118,11 @@ MPI_TEST_CASE("TestXiosRead", 2)
         REQUIRE(xiosHandler.getCalendarStep() == ts);
         // Receive data from XIOS that is read from disk
         xiosHandler.read("field_2D", field_2D);
-        xiosHandler.read("field_3D", field_3D);
     }
 
     for (size_t j = 0; j < ny; ++j) {
         for (size_t i = 0; i < nx; ++i) {
             REQUIRE(field_2D(i, j) == doctest::Approx(i + nx * j));
-        }
-    }
-    for (size_t k = 0; k < nz; ++k) {
-        for (size_t j = 0; j < ny; ++j) {
-            for (size_t i = 0; i < nx; ++i) {
-                REQUIRE(field_3D(i, j, k) == doctest::Approx(i + nx * (j + ny * k)));
-            }
         }
     }
     xiosHandler.context_finalize();

@@ -156,8 +156,6 @@ TEST_CASE("Write and read a ModelState-based RectGrid restart file")
 #ifdef USE_MPI
     REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[0] == metadataIn.localExtentX);
     REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[1] == metadataIn.localExtentY);
-    REQUIRE(ModelArray::dimensions(ModelArray::Type::Z)[0] == metadataIn.localExtentX);
-    REQUIRE(ModelArray::dimensions(ModelArray::Type::Z)[1] == metadataIn.localExtentY);
 #else
     REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[0] == nx);
     REQUIRE(ModelArray::dimensions(ModelArray::Type::H)[1] == ny);
