@@ -17,8 +17,6 @@ def get_data(name):
         return nx
     elif name == "ny":
         return ny
-    elif name == "nz":
-        return nz
     elif name == "ncoords":
         return ncoords
     elif name == "longitude":
