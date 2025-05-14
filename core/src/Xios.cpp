@@ -1512,13 +1512,13 @@ void Xios::createFile(const std::string fileId)
     }
 
     // Set the file mode and some defaults
-    setFileType(fileId, "one_file");
     if (readAccess) {
-        setFileParAccess(fileId, "collective");
         setFileMode(fileId, "read");
     } else {
         setFileMode(fileId, "write");
     }
+    setFileType(fileId, "one_file");
+    setFileParAccess(fileId, "collective");
 
     // Set the input or output period based on the model configuration
     std::string periodStr;
