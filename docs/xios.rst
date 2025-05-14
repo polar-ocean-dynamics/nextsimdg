@@ -37,7 +37,7 @@ calendar used by XIOS and take the following default values.
   time_step = P0-0T01:00:00
 
 Files and fields to be read and written to files are configured via `XiosInput`
-and `XiosOutut` sections, which accept the same entries. For example, we could
+and `XiosOutput` sections, which accept the same entries. For example, we could
 set the following values, which would specify two fields labelled `field_A` and
 `field_B`, which are written to file `my_output_file.nc` every two (simulated)
 hours.
@@ -47,3 +47,16 @@ hours.
   period = P0-0T02:00:00
   filename = my_output_file.nc
   fields = field_A,field_B
+
+Note that both the `XiosInput` and `XiosOutput` sections are optional.
+
+Developer notes
+^^^^^^^^^^^^^^^
+
+The integration of XIOS into nextSIM-DG's is built around a static `Xios`
+handler class, which provides a C++ API for the various XIOS functions. When the
+handler is instantiated, the config sections above will be parsed. Based on the
+values that are parsed, the handler object will automatically create `Field` and
+`File` data structures for XIOS and associate these as appropriate. If the
+`XiosInput` section is used, an attempt will be made to open the file provided
+by the `filename` entry.
