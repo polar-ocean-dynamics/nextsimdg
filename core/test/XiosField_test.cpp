@@ -2,7 +2,7 @@
  * @file    XiosField_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    12 May 2025
+ * @date    14 May 2025
  * @brief   Tests for XIOS fields
  * @details
  * This test is designed to test field functionality of the C++ interface
@@ -32,9 +32,9 @@ MPI_TEST_CASE("TestXiosField", 3)
     // Enable XIOS in the 'config' and provide parameters to configure it
     enableXios();
     std::stringstream config;
-    config << "[XiosInput]" << std::endl;
-    config << "field_names = field_C" << std::endl;
     config << "[XiosOutput]" << std::endl;
+    config << "period = P0-0T03:00:00" << std::endl;
+    config << "filename = xios_test_output" << std::endl;
     config << "field_names = field_A" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
@@ -56,8 +56,9 @@ MPI_TEST_CASE("TestXiosField", 3)
 
     // --- Tests for field API
     // Field creation
-    // NOTE: Fields are automatically created with the appropriate read access based off the
-    // XiosInput.field_names and XiosOutput.field_names entries in the config upon initialization.
+    // NOTE: Fields associated with files are automatically created with the appropriate read access
+    // based off the XiosInput.field_names or XiosOutput.field_names entries in the config when the
+    // file is created at initialisation
     const std::string fieldId = "field_A";
     REQUIRE_THROWS_WITH(xiosHandler.createField(fieldId), "Xios: Field 'field_A' already exists");
     // Disallow creation of fields that aren't in either config section
@@ -79,10 +80,9 @@ MPI_TEST_CASE("TestXiosField", 3)
     xiosHandler.setFieldGridRef(fieldId, gridRef);
     REQUIRE(xiosHandler.getFieldGridRef(fieldId) == gridRef);
     // Read access
-    // NOTE: This is set automatically (see above note)
+    // NOTE: createFile parses the associated field names, creates corresponding fields, and calls
+    // setFieldReadAccess (see above note)
     REQUIRE(!xiosHandler.getFieldReadAccess(fieldId));
-    xiosHandler.setFieldGridRef("field_C", gridRef); // NOTE: must be set to get read access
-    REQUIRE(xiosHandler.getFieldReadAccess("field_C"));
     // Frequency offset
     Duration freqOffset = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset(fieldId, freqOffset);

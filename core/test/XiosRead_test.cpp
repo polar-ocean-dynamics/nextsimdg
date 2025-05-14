@@ -1,7 +1,7 @@
 /*!
  * @file    XiosRead_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    12 May 2025
+ * @date    14 May 2025
  * @brief   Tests for XIOS read functionality
  * @details
  * This test is designed to test the file reading functionality of the C++
@@ -86,8 +86,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
 
     // Create an file for reading of field data
     std::string fileId = "xios_test_input";
-    xiosHandler.setFileType(fileId, "one_file");
-    xiosHandler.setFileParAccess(fileId, "collective");
     xiosHandler.fileAddField(fileId, "field_2D");
 
     xiosHandler.close_context_definition();
