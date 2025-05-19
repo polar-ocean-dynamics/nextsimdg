@@ -116,8 +116,8 @@ public:
     void createGrid(const std::string gridId);
     void gridAddAxis(std::string axisId, const std::string domainId);
     void gridAddDomain(const std::string gridId, const std::string domainId);
-    std::vector<std::string> gridGetAxisIds(const std::string gridId);
-    std::vector<std::string> gridGetDomainIds(const std::string gridId);
+    std::vector<std::string> getGridAxisIds(const std::string gridId);
+    std::vector<std::string> getGridDomainIds(const std::string gridId);
 
     /* Field */
     void createField(const std::string fieldId);

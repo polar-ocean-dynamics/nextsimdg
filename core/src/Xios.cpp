@@ -1094,7 +1094,7 @@ void Xios::gridAddDomain(const std::string gridId, const std::string domainId)
  * @param the grid ID
  * @return all axis IDs associated with the grid
  */
-std::vector<std::string> Xios::gridGetAxisIds(const std::string gridId)
+std::vector<std::string> Xios::getGridAxisIds(const std::string gridId)
 {
     return getGrid(gridId)->getAxisList();
 }
@@ -1105,7 +1105,7 @@ std::vector<std::string> Xios::gridGetAxisIds(const std::string gridId)
  * @param the grid ID
  * @return all domain IDs associated with the grid
  */
-std::vector<std::string> Xios::gridGetDomainIds(const std::string gridId)
+std::vector<std::string> Xios::getGridDomainIds(const std::string gridId)
 {
     return getGrid(gridId)->getDomainList();
 }

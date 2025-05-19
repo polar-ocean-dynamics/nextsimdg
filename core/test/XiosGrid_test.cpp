@@ -57,12 +57,12 @@ MPI_TEST_CASE("TestXiosGrid", 4)
     REQUIRE_THROWS_WITH(xiosHandler.createGrid(gridId), "Xios: Grid 'grid_2D' already exists");
     // Add axis
     xiosHandler.gridAddAxis("grid_2D", "axis_Z");
-    std::vector<std::string> axisIds = xiosHandler.gridGetAxisIds(gridId);
+    std::vector<std::string> axisIds = xiosHandler.getGridAxisIds(gridId);
     REQUIRE(axisIds.size() == 1);
     REQUIRE(axisIds[0] == "axis_Z");
     // Add domain
     xiosHandler.gridAddDomain("grid_2D", "domain_XY");
-    std::vector<std::string> domainIds = xiosHandler.gridGetDomainIds(gridId);
+    std::vector<std::string> domainIds = xiosHandler.getGridDomainIds(gridId);
     REQUIRE(domainIds.size() == 1);
     REQUIRE(domainIds[0] == "domain_XY");
 
