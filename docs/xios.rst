@@ -60,3 +60,10 @@ values that are parsed, the handler object will automatically create `Field` and
 `File` data structures for XIOS and associate these as appropriate. If the
 `XiosInput` section is used, an attempt will be made to open the file provided
 by the `filename` entry.
+
+XIOS requires information on the domain decomposition for it to be able to read
+and write data in parallel. This information is held by the `ModelMetadata`
+class, which may be constructed based off a partition metadata file. Upon
+construction of this object, if XIOS is enabled then the XIOS handler will
+automatically create a `Domain` data structure with the appropriate local and
+global sizes and offsets.
