@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    14 May 2025
+ * @date    19 May 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -488,7 +488,8 @@ void Xios::createAxis(const std::string axisId)
         throw std::runtime_error("Xios: Failed to create axis '" + axisId + "'");
     }
     if (axisId == "z_axis") {
-        std::string domainId = "xy_domain";
+        // Create grid_3D associated with a domain called xy_domain and an axis called z_axis
+        const std::string domainId = "xy_domain";
         cxios_domain_valid_id(&exists, domainId.c_str(), domainId.length());
         if (exists) {
             createGrid("grid_3D");
@@ -641,9 +642,13 @@ void Xios::createDomain(const std::string domainId)
         throw std::runtime_error("Xios: Failed to create domain '" + domainId + "'");
     }
     if (domainId == "xy_domain") {
-        createGrid("grid_2D");
-        gridAddDomain("grid_2D", "xy_domain");
-        std::string axisId = "z_axis";
+        // Create grid_2D associated with a domain called xy_domain
+        const std::string gridId = "grid_2D";
+        createGrid(gridId);
+        gridAddDomain(gridId, "xy_domain");
+
+        // Create grid_3D if there is also an axis called z_axis
+        const std::string axisId = "z_axis";
         cxios_axis_valid_id(&exists, axisId.c_str(), axisId.length());
         if (exists) {
             createGrid("grid_3D");
@@ -1046,6 +1051,7 @@ void Xios::createGrid(const std::string gridId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create grid '" + gridId + "'");
     }
+    setGridName(gridId, gridId);
 }
 
 /*!
