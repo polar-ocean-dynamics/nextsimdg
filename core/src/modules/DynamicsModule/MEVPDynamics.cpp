@@ -1,7 +1,7 @@
 /*!
  * @file MEVPDynamics.cpp
  *
- * @date 05 Dec 2024
+ * @date 19 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Piotr Minakowski <piotr.minakowski@ovgu.de>
  * @author Einar Ólason <einar.olason@nersc.no>
@@ -74,6 +74,11 @@ MEVPDynamics::MEVPDynamics()
 {
     getStore().registerArray(Protected::ICE_U, &uice, RO);
     getStore().registerArray(Protected::ICE_V, &vice, RO);
+
+    getStore().registerArray(Protected::SHEAR, &shear, RO);
+    getStore().registerArray(Protected::DIV, &divergence, RO);
+    getStore().registerArray(Protected::SIGMAI, &sigmaI, RO);
+    getStore().registerArray(Protected::SIGMAII, &sigmaII, RO);
 }
 
 void MEVPDynamics::setData(const ModelState::DataMap& ms)
@@ -120,6 +125,11 @@ void MEVPDynamics::update(const TimestepTime& tst)
 
     taux = kernel.getDG0Data(uIOStressName);
     tauy = kernel.getDG0Data(vIOStressName);
+
+    shear = kernel.getDG0Data(shearName);
+    divergence = kernel.getDG0Data(divergenceName);
+    sigmaI = kernel.getDG0Data(sigmaIName);
+    sigmaII = kernel.getDG0Data(sigmaIIName);
 }
 
 MEVPDynamics::HelpMap& MEVPDynamics::getHelpText(HelpMap& map, bool getAll)
