@@ -1,7 +1,7 @@
 /*!
  * @file    XiosRead_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    14 May 2025
+ * @date    19 May 2025
  * @brief   Tests for XIOS read functionality
  * @details
  * This test is designed to test the file reading functionality of the C++
@@ -83,10 +83,6 @@ MPI_TEST_CASE("TestXiosRead", 2)
     xiosHandler.setFieldGridRef("field_2D", "grid_2D");
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset("field_2D", timestep);
-
-    // Create an file for reading of field data
-    std::string fileId = "xios_test_input";
-    xiosHandler.fileAddField(fileId, "field_2D");
 
     xiosHandler.close_context_definition();
 

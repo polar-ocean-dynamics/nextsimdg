@@ -1,7 +1,7 @@
 /*!
  * @file    XiosWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    14 May 2025
+ * @date    19 May 2025
  * @brief   Tests for XIOS write functionality
  * @details
  * This test is designed to test the file writing functionality of the C++
@@ -84,10 +84,10 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset("field_2D", timestep);
 
-    // Create an file for writing of field data
-    std::string fileId = "xios_test_output";
+    // Set file split frequency
+    // NOTE: Files are created when the XIOS handler is constructed
+    const std::string fileId = "xios_test_output";
     xiosHandler.setFileSplitFreq(fileId, Duration("P0-0T03:00:00"));
-    xiosHandler.fileAddField(fileId, "field_2D");
 
     xiosHandler.close_context_definition();
 
