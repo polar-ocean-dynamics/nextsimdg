@@ -1228,24 +1228,6 @@ void Xios::createField(const std::string fieldId)
 }
 
 /*!
- * Set the name of a field with a given ID
- *
- * @param the field ID
- * @param name to set
- */
-void Xios::setFieldName(const std::string fieldId, const std::string fieldName)
-{
-    xios::CField* field = getField(fieldId);
-    if (cxios_is_defined_field_name(field)) {
-        Logged::warning("Xios: Overwriting name for field '" + fieldId + "'");
-    }
-    cxios_set_field_name(field, fieldName.c_str(), fieldName.length());
-    if (!cxios_is_defined_field_name(field)) {
-        throw std::runtime_error("Xios: Failed to set name for field '" + fieldId + "'");
-    }
-}
-
-/*!
  * Set the operation for a field with a given ID
  *
  * @param the field ID
@@ -1316,23 +1298,6 @@ void Xios::setFieldFreqOffset(const std::string fieldId, const Duration freqOffs
         throw std::runtime_error(
             "Xios: Failed to set frequency offset for field '" + fieldId + "'");
     }
-}
-
-/*!
- * Get the name of a field with a given ID
- *
- * @param the field ID
- * @return name of the corresponding field
- */
-std::string Xios::getFieldName(const std::string fieldId)
-{
-    xios::CField* field = getField(fieldId);
-    if (!cxios_is_defined_field_name(field)) {
-        throw std::runtime_error("Xios: Undefined name for field '" + fieldId + "'");
-    }
-    char cStr[cStrLen];
-    cxios_get_field_name(field, cStr, cStrLen);
-    return convertCStrToCppStr(cStr, cStrLen);
 }
 
 /*!
@@ -1518,9 +1483,15 @@ void Xios::createFile(const std::string fileId)
     // XiosInput.field_names or XiosOutput.field_names entries in the config.
     for (std::string fieldId : configGetFieldNames(readAccess)) {
         createField(fieldId);
-        setFieldName(fieldId, fieldId);
         fileAddField(fileId, fieldId);
         setFieldReadAccess(fieldId, readAccess);
+
+        // Set field name
+        xios::CField* field = getField(fieldId);
+        cxios_set_field_name(field, fieldId.c_str(), fieldId.length());
+        if (!cxios_is_defined_field_name(field)) {
+            throw std::runtime_error("Xios: Failed to set name for field '" + fieldId + "'");
+        }
     }
 }
 

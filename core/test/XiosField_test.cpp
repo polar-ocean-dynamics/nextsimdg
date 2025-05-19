@@ -2,7 +2,7 @@
  * @file    XiosField_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    14 May 2025
+ * @date    19 May 2025
  * @brief   Tests for XIOS fields
  * @details
  * This test is designed to test field functionality of the C++ interface
@@ -64,9 +64,6 @@ MPI_TEST_CASE("TestXiosField", 3)
     // Disallow creation of fields that aren't in either config section
     REQUIRE_THROWS_WITH(xiosHandler.createField("field_B"),
         "Xios: Field 'field_B' cannot be found in the XiosInput or XiosOutput config sections");
-    // Field name
-    // NOTE: This is set to the fieldId when a field is created
-    REQUIRE(xiosHandler.getFieldName(fieldId) == fieldId);
     // Operation
     REQUIRE_THROWS_WITH(
         xiosHandler.getFieldOperation(fieldId), "Xios: Undefined operation for field 'field_A'");
