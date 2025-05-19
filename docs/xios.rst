@@ -59,7 +59,9 @@ handler is instantiated, the config sections above will be parsed. Based on the
 values that are parsed, the handler object will automatically create `Field` and
 `File` data structures for XIOS and associate these as appropriate. If the
 `XiosInput` section is used, an attempt will be made to open the file provided
-by the `filename` entry.
+by the `filename` entry. Note that the nextSIM-DG XIOS integration is set up
+such that the filename and field names coincide with the fileId and fieldId of
+the corresponding `File` and `Field` objects.
 
 XIOS requires information on the domain decomposition for it to be able to read
 and write data in parallel. This information is held by the `ModelMetadata`
