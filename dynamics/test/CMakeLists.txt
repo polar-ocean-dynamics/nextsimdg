@@ -103,11 +103,17 @@ if(NOT ENABLE_MPI)
     )
     target_link_libraries(testAdvectionPeriodicBC LINK_PUBLIC doctest::doctest Eigen3::Eigen)
 
-    add_test(NAME testDGModelArray COMMAND testDGModelArray)
-    add_test(NAME testDGVectorHolder COMMAND testDGVectorHolder)
-    add_test(NAME testCGModelArray COMMAND testCGModelArray)
-    add_test(NAME testParametricMesh COMMAND testParametricMesh)
-    add_test(NAME testParametricMeshArea COMMAND testParametricMeshArea)
-    add_test(NAME testAdvection COMMAND testAdvection)
-    add_test(NAME testAdvectionPeriodicBC COMMAND testAdvectionPeriodicBC)
+    set(TEST_EXECUTABLES
+        testDGModelArray
+        testDGVectorHolder
+        testCGModelArray
+        testParametricMesh
+        testParametricMeshArea
+        testAdvection
+        testAdvectionPeriodicBC
+    )
+
+    foreach(test_exec IN LISTS TEST_EXECUTABLES)
+        add_test(NAME ${test_exec} COMMAND ${test_exec})
+    endforeach()
 endif()

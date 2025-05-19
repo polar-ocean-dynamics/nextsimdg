@@ -19,6 +19,29 @@ include_directories(${COMMON_INCLUDE_DIRS})
 set(MODEL_INCLUDE_DIR "../../core/src/discontinuousgalerkin")
 
 if(ENABLE_MPI)
+
+    # This function takes a list of test executables and adds them to the test suite
+    function(add_mpi_test test_exec_list)
+        foreach(test_exec IN LISTS test_exec_list)
+            # Extract the number of MPI ranks from the test name (e.g., TestName_MPI3 -> 3)
+            string(REGEX MATCH "_MPI([0-9]+)$" _match "${test_exec}")
+            set(num_ranks "${CMAKE_MATCH_1}")
+            if(num_ranks)
+                # In the MPI tests it's important to include the "-ns" flag which
+                # tells doctest to fail if test has been skipped. Without this, the
+                # test will technically pass if we run with fewer ranks than
+                # requested.
+                add_test(
+                    NAME ${test_exec}
+                    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
+                    ${num_ranks} ${test_exec} -ns
+                )
+            else()
+                message(WARNING "Could not extract MPI rank from test name: ${test_exec}")
+            endif()
+        endforeach()
+    endfunction()
+
     if(ENABLE_XIOS)
         set(XIOS_INCLUDE_LIST
             "${xios_INCLUDES}"
@@ -103,25 +126,18 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testXiosWrite_MPI2 PRIVATE nextsimlib doctest::doctest)
 
-        # In the MPI tests it's important to include the "-ns" flag which tells
-        # doctest to fail if test has been skipped. Without this, the test will
-        # technically pass if we run with fewer ranks than requested.
-        add_test(NAME testXiosCalendar_MPI1 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 1 testXiosCalendar_MPI1 -ns)
-        add_test(NAME testXiosAxis_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 3 testXiosAxis_MPI3 -ns)
-        add_test(NAME testXiosDomain_MPI4 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 4 testXiosDomain_MPI4 -ns)
-        add_test(NAME testXiosGrid_MPI4 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 4 testXiosGrid_MPI4 -ns)
-        add_test(NAME testXiosField_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 3 testXiosField_MPI3 -ns)
-        add_test(NAME testXiosFile_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosFile_MPI2 -ns)
-        add_test(NAME testXiosRead_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosRead_MPI2 -ns)
-        add_test(NAME testXiosWrite_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 2 testXiosWrite_MPI2 -ns)
+        set(XIOS_TESTS
+            testXiosCalendar_MPI1
+            testXiosAxis_MPI3
+            testXiosDomain_MPI4
+            testXiosGrid_MPI4
+            testXiosField_MPI3
+            testXiosFile_MPI2
+            testXiosRead_MPI2
+            testXiosWrite_MPI2
+        )
+
+        add_mpi_test("${XIOS_TESTS}")
     else()
         add_executable(testRectGrid_MPI3 "RectGrid_test.cpp" "MainMPI.cpp")
         target_compile_definitions(
@@ -177,15 +193,12 @@ if(ENABLE_MPI)
         )
         target_link_libraries(testParaGrid_MPI2 PRIVATE nextsimlib doctest::doctest)
 
-        # In the MPI tests it's important to include the "-ns" flag which tells
-        # doctest to fail if test has been skipped. Without this, the test will
-        # technically pass if we run with fewer ranks than requested.
-        add_test(NAME testRectGrid_MPI3 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 3 testRectGrid_MPI3 -ns)
-        add_test(NAME testParaGrid_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 2 testParaGrid_MPI2 -ns)
-        add_test(NAME testConfigOutput_MPI2 COMMAND ${MPIEXEC_EXECUTABLE}
-            ${MPIEXEC_NUMPROC_FLAG} 2 testConfigOutput_MPI2 -ns)
+        set(MPI_TESTS
+            testRectGrid_MPI3
+            testParaGrid_MPI2
+            testConfigOutput_MPI2
+        )
+        add_mpi_test("${MPI_TESTS}")
     endif()
 
 else()
@@ -313,24 +326,30 @@ else()
     target_include_directories(testModelArraySlice PRIVATE "../src" "${MODEL_INCLUDE_DIR}")
     target_link_libraries(testModelArraySlice PRIVATE doctest::doctest Eigen3::Eigen)
 
-    add_test(NAME testRectGrid COMMAND testRectGrid)
-    add_test(NAME testParaGrid COMMAND testParaGrid)
-    add_test(NAME testConfigOutput COMMAND testConfigOutput)
-    add_test(NAME testIterator COMMAND testIterator)
-    add_test(NAME testCommandLineParser COMMAND testCommandLineParser)
-    add_test(NAME testConfigurator COMMAND testConfigurator)
-    add_test(NAME testConfiguredModule COMMAND testConfiguredModule)
-    add_test(NAME testTimeClasses COMMAND testTimeClasses)
-    add_test(NAME testModelComponent COMMAND testModelComponent)
-    add_test(NAME testModelArrayRef COMMAND testModelArrayRef)
-    add_test(NAME testPrognosticData COMMAND testPrognosticData)
-    add_test(NAME testPrognosticDataIO COMMAND testPrognosticDataIO)
-    add_test(NAME testMonthlyCubicBSpline COMMAND testMonthlyCubicBSpline)
-    add_test(NAME testFileCallbackCloser COMMAND testFileCallbackCloser)
-    add_test(NAME testFinalizer COMMAND testFinalizer)
-    add_test(NAME testModelArray COMMAND testModelArray)
-    add_test(NAME testSlice COMMAND testSlice)
-    add_test(NAME testModelArraySlice COMMAND testModelArraySlice)
+    set(TEST_EXECUTABLES
+        testRectGrid
+        testParaGrid
+        testConfigOutput
+        testIterator
+        testCommandLineParser
+        testConfigurator
+        testConfiguredModule
+        testTimeClasses
+        testModelComponent
+        testModelArrayRef
+        testPrognosticData
+        testPrognosticDataIO
+        testMonthlyCubicBSpline
+        testFileCallbackCloser
+        testFinalizer
+        testModelArray
+        testSlice
+        testModelArraySlice
+    )
+
+    foreach(test_exec IN LISTS TEST_EXECUTABLES)
+        add_test(NAME ${test_exec} COMMAND ${test_exec})
+    endforeach()
 
     # The help config test needs access to the full binary
     file(CREATE_LINK ${NEXTSIM_BINARY_PATH} ${CMAKE_CURRENT_BINARY_DIR}/nextsim SYMBOLIC)
