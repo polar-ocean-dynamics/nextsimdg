@@ -91,7 +91,14 @@ Xios::Xios(const std::string contextid, const std::string calendartype)
             if (filenameStr.length() > 0) {
                 filenameStr = ((std::filesystem::path)filenameStr).replace_extension();
                 createFile(filenameStr);
-                setFileName(filenameStr, filenameStr);
+
+                // Set file name
+                xios::CFile* file = getFile(filenameStr);
+                cxios_set_file_name(file, filenameStr.c_str(), filenameStr.length());
+                if (!cxios_is_defined_file_name(file)) {
+                    throw std::runtime_error(
+                        "Xios: Failed to set name for file '" + filenameStr + "'");
+                }
             }
         }
     }
@@ -1518,24 +1525,6 @@ void Xios::createFile(const std::string fileId)
 }
 
 /*!
- * Set the name of a file with a given ID
- *
- * @param the file ID
- * @param file name to set
- */
-void Xios::setFileName(const std::string fileId, const std::string fileName)
-{
-    xios::CFile* file = getFile(fileId);
-    if (cxios_is_defined_file_name(file)) {
-        Logged::warning("Xios: Overwriting name for file '" + fileId + "'");
-    }
-    cxios_set_file_name(file, fileName.c_str(), fileName.length());
-    if (!cxios_is_defined_file_name(file)) {
-        throw std::runtime_error("Xios: Failed to set name for file '" + fileId + "'");
-    }
-}
-
-/*!
  * Set the type of a file with a given ID
  *
  * @param the file ID
@@ -1623,23 +1612,6 @@ void Xios::setFileParAccess(const std::string fileId, const std::string parAcces
     if (!cxios_is_defined_file_par_access(file)) {
         throw std::runtime_error("Xios: Failed to set parallel access for file '" + fileId + "'");
     }
-}
-
-/*!
- * Get the name of a file with a given ID
- *
- * @param the file ID
- * @return name of the corresponding file
- */
-std::string Xios::getFileName(const std::string fileId)
-{
-    xios::CFile* file = getFile(fileId);
-    if (!cxios_is_defined_file_name(file)) {
-        throw std::runtime_error("Xios: Undefined name for file '" + fileId + "'");
-    }
-    char cStr[cStrLen];
-    cxios_get_file_name(file, cStr, cStrLen);
-    return convertCStrToCppStr(cStr, cStrLen);
 }
 
 /*!
