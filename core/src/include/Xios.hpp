@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    12 May 2025
+ * @date    19 May 2025
  * @brief   XIOS interface header
  * @details
  *
@@ -114,8 +114,6 @@ public:
 
     /* Grid */
     void createGrid(const std::string gridId);
-    void setGridName(const std::string gridId, const std::string name);
-    std::string getGridName(const std::string gridId);
     void gridAddAxis(std::string axisId, const std::string domainId);
     void gridAddDomain(const std::string gridId, const std::string domainId);
     std::vector<std::string> gridGetAxisIds(const std::string gridId);

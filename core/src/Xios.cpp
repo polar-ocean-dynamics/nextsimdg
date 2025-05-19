@@ -1051,39 +1051,7 @@ void Xios::createGrid(const std::string gridId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create grid '" + gridId + "'");
     }
-    setGridName(gridId, gridId);
-}
-
-/*!
- * Get the name of a grid with a given ID
- *
- * @param the grid ID
- * @return name of the corresponding grid
- */
-std::string Xios::getGridName(const std::string gridId)
-{
-    xios::CGrid* grid = getGrid(gridId);
-    if (!cxios_is_defined_grid_name(grid)) {
-        throw std::runtime_error("Xios: Undefined name for grid '" + gridId + "'");
-    }
-    char cStr[cStrLen];
-    cxios_get_grid_name(grid, cStr, cStrLen);
-    return convertCStrToCppStr(cStr, cStrLen);
-}
-
-/*!
- * Set the name of a grid with a given ID
- *
- * @param the grid ID
- * @param name to set
- */
-void Xios::setGridName(const std::string gridId, const std::string gridName)
-{
-    xios::CGrid* grid = getGrid(gridId);
-    if (cxios_is_defined_grid_name(grid)) {
-        Logged::warning("Xios: Overwriting name for grid '" + gridId + "'");
-    }
-    cxios_set_grid_name(grid, gridName.c_str(), gridName.length());
+    cxios_set_grid_name(grid, gridId.c_str(), gridId.length());
     if (!cxios_is_defined_grid_name(grid)) {
         throw std::runtime_error("Xios: Failed to set name for grid '" + gridId + "'");
     }
