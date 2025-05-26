@@ -1,7 +1,7 @@
 /*!
  * @file    XiosWrite_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
- * @date    06 May 2025
+ * @date    07 May 2025
  * @brief   Tests for XIOS write functionality
  * @details
  * This test is designed to test the file writing functionality of the C++
@@ -37,8 +37,9 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     config << "start = 2023-03-17T17:11:00Z" << std::endl;
     config << "time_step = P0-0T01:30:00" << std::endl;
     config << "[XiosOutput]" << std::endl;
-    config << "period = P0-0T03:00:00" << std::endl;
+    config << "period = P0-0T01:30:00" << std::endl;
     config << "filename = xios_test_output" << std::endl;
+    config << "field_names = field_2D" << std::endl;
     std::unique_ptr<std::istream> pcstream(new std::stringstream(config.str()));
     Configurator::addStream(std::move(pcstream));
 
@@ -63,7 +64,6 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     const size_t nz = 2;
     ModelArray::setDimension(ModelArray::Dimension::X, nx_glo, nx, 0);
     ModelArray::setDimension(ModelArray::Dimension::Y, ny_glo, ny, 0);
-    ModelArray::setDimension(ModelArray::Dimension::Z, nz, nz, 0);
 
     // Create a 4x2 horizontal domain with a partition halving the x-extent
     // TODO: Set local and global domain sizes upon calling ModelArray::setDimension for X and Y
@@ -75,8 +75,6 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     xiosHandler.setDomainLocalYStart("xy_domain", 0);
     xiosHandler.setDomainLocalXValues("xy_domain", { -1.0 + rank, -0.5 + rank });
     xiosHandler.setDomainLocalYValues("xy_domain", { -1.0, 1.0 });
-    xiosHandler.createAxis("z_axis");
-    xiosHandler.setAxisValues("z_axis", { 0.0, 1.0 });
 
     // Create fields on the two grids
     // TODO: Create field along with HField
@@ -84,42 +82,23 @@ MPI_TEST_CASE("TestXiosWrite", 2)
     xiosHandler.createField("field_2D");
     xiosHandler.setFieldOperation("field_2D", "instant");
     xiosHandler.setFieldGridRef("field_2D", "grid_2D");
-    xiosHandler.setFieldReadAccess("field_2D", false);
     Duration timestep = xiosHandler.getCalendarTimestep();
     xiosHandler.setFieldFreqOffset("field_2D", timestep);
-    xiosHandler.createField("field_3D");
-    xiosHandler.setFieldOperation("field_3D", "instant");
-    xiosHandler.setFieldGridRef("field_3D", "grid_3D");
-    xiosHandler.setFieldReadAccess("field_3D", false);
-    xiosHandler.setFieldFreqOffset("field_3D", timestep);
 
     // Create an file for writing of field data
     std::string fileId = "xios_test_output";
-    xiosHandler.createFile(fileId);
     xiosHandler.setFileType(fileId, "one_file");
-    xiosHandler.setFileOutputFreq(fileId, timestep);
-    xiosHandler.setFileMode(fileId, "write");
     xiosHandler.setFileSplitFreq(fileId, Duration("P0-0T03:00:00"));
     xiosHandler.fileAddField(fileId, "field_2D");
-    xiosHandler.fileAddField(fileId, "field_3D");
 
     xiosHandler.close_context_definition();
 
     // Create some fake data to test writing methods
     HField field_2D(ModelArray::Type::H);
     field_2D.resize();
-    HField field_3D(ModelArray::Type::Z);
-    field_3D.resize();
     for (size_t j = 0; j < ny; ++j) {
         for (size_t i = 0; i < nx; ++i) {
             field_2D(i, j) = 1.0 * (i + nx * j);
-        }
-    }
-    for (size_t k = 0; k < nz; ++k) {
-        for (size_t j = 0; j < ny; ++j) {
-            for (size_t i = 0; i < nx; ++i) {
-                field_3D(i, j, k) = 1.0 * (i + nx * (j + ny * k));
-            }
         }
     }
 
@@ -140,7 +119,6 @@ MPI_TEST_CASE("TestXiosWrite", 2)
         REQUIRE(xiosHandler.getCalendarStep() == ts);
         // Send data to XIOS to be written to disk
         xiosHandler.write("field_2D", field_2D);
-        xiosHandler.write("field_3D", field_3D);
     }
 
     // Check the files have indeed been created then remove it
