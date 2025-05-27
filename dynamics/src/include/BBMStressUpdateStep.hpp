@@ -1,8 +1,9 @@
 /*!
  * @file BBMStressUpdateStep.hpp
  *
- * @date 06 Dec 2024
+ * @date 27 May 2025
  * @author Tim Spain <timothy.spain@nersc.no>
+ * @author Tim Williams <timothy.williams@nersc.no>
  */
 
 #ifndef BBMSTRESSUPDATESTEP_HPP
