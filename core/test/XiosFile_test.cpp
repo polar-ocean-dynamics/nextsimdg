@@ -2,7 +2,7 @@
  * @file    XiosFile_test.cpp
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    14 May 2025
+ * @date    19 May 2025
  * @brief   Tests for XIOS file
  * @details
  * This test is designed to test file functionality of the C++ interface
@@ -79,16 +79,12 @@ MPI_TEST_CASE("TestXiosFile", 2)
     const std::string inFileId = "xios_test_input";
     const std::string outFileId = "xios_test_output";
     REQUIRE_THROWS_WITH(
-        xiosHandler.getFileName("unittest_undef"), "Xios: Undefined file 'unittest_undef'");
+        xiosHandler.getFileType("unittest_undef"), "Xios: Undefined file 'unittest_undef'");
     // File creation
     // NOTE: This is called based on the XiosInput.filename and XiosOutput.filename entries upon
     // initialization
     REQUIRE_THROWS_WITH(
         xiosHandler.createFile(outFileId), "Xios: File 'xios_test_output' already exists");
-    // File name
-    // NOTE: This is set based off the XiosInput.filename and XiosOutput.filename entries when a
-    // file is created
-    REQUIRE(xiosHandler.getFileName(outFileId) == outFileId);
     // File type
     // NOTE: This is to "one_file" when createFile is called
     REQUIRE(xiosHandler.getFileType(outFileId) == "one_file");
