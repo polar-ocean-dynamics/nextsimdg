@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    12 May 2025
+ * @date    23 May 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -1244,9 +1244,6 @@ void Xios::createField(const std::string fieldId)
     if (!exists) {
         throw std::runtime_error("Xios: Failed to create field '" + fieldId + "'");
     }
-
-    // Set read access based on the config
-    setFieldReadAccess(fieldId, readAccess);
 }
 
 /*!
@@ -1496,39 +1493,34 @@ void Xios::createFile(const std::string fileId)
         >> outputFilenameStr;
     bool writeAccess = ((outputFilenameStr.length() > 0) && (outputFilenameStr == fileId));
 
-    // Check that the filename is in the XiosOutput or XiosInput config section, except during unit
-    // testing (with fileId beginning with 'unittest')
-    if (!(fileId.rfind("unittest", 0) == 0)) {
-        if (!(readAccess || writeAccess)) {
-            throw std::runtime_error("Xios: File '" + fileId
-                + "' cannot be found in the XiosInput or XiosOutput config sections");
-        }
-    }
-
     // Check that the filename is not in both the XiosOutput and XiosInput config sections
     if (readAccess && writeAccess) {
         throw std::runtime_error("Xios: File '" + fileId
             + "' found in both the XiosInput and XiosOutput config sections");
         // TODO: Refactor to allow a field to be both read and written
     }
+
+    // Terminate early for special unit test cases, for which IDs start with 'unittest'
+    if (fileId.rfind("unittest", 0) == 0) {
+        Logged::warning("Xios: Special 'unittest' ID found; skipping automated setup. Are you sure "
+                        "you want to do this?");
+        return;
+    }
+
+    // Check that the filename is in the XiosOutput or XiosInput config section
+    if (!(readAccess || writeAccess)) {
+        throw std::runtime_error("Xios: File '" + fileId
+            + "' cannot be found in the XiosInput or XiosOutput config sections");
+    }
+
+    // Set the file mode and some defaults
     if (readAccess) {
         setFileMode(fileId, "read");
     } else {
         setFileMode(fileId, "write");
     }
-
-    // Set the filename for the field based on the model configuration
-    std::string filenameStr;
-    if (readAccess) {
-        istringstream(Configured::getConfiguration(keyMap.at(INPUT_FILENAME_KEY), std::string()))
-            >> filenameStr;
-    } else {
-        istringstream(Configured::getConfiguration(keyMap.at(OUTPUT_FILENAME_KEY), std::string()))
-            >> filenameStr;
-    }
-    if (filenameStr.length() > 0) {
-        setFileName(fileId, ((std::filesystem::path)filenameStr).replace_extension());
-    }
+    setFileType(fileId, "one_file");
+    setFileParAccess(fileId, "collective");
 
     // Set the input or output period based on the model configuration
     std::string periodStr;
@@ -1541,6 +1533,15 @@ void Xios::createFile(const std::string fileId)
     }
     if (periodStr.length() > 0) {
         setFileOutputFreq(fileId, Duration(periodStr));
+    }
+
+    // Create all fields found in the config based off the field names found in the
+    // XiosInput.field_names or XiosOutput.field_names entries in the config.
+    for (std::string fieldId : configGetFieldNames(readAccess)) {
+        createField(fieldId);
+        setFieldName(fieldId, fieldId);
+        fileAddField(fileId, fieldId);
+        setFieldReadAccess(fieldId, readAccess);
     }
 }
 
