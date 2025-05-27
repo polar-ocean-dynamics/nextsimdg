@@ -3,7 +3,7 @@
  * @author  Tom Meltzer <tdm39@cam.ac.uk>
  * @author  Joe Wallwork <jw2423@cam.ac.uk>
  * @author  Adeleke Bankole <ab3191@cam.ac.uk>
- * @date    19 May 2025
+ * @date    23 May 2025
  * @brief   XIOS interface implementation
  * @details
  *
@@ -1448,6 +1448,8 @@ void Xios::createFile(const std::string fileId)
 
     // Terminate early for special unit test cases, for which IDs start with 'unittest'
     if (fileId.rfind("unittest", 0) == 0) {
+        Logged::warning("Xios: Special 'unittest' ID found; skipping automated setup. Are you sure "
+                        "you want to do this?");
         return;
     }
 
