@@ -1,7 +1,7 @@
 /*!
  * @file ParaGridIO.cpp
  *
- * @date 09 Dec 2024
+ * @date 03 Jun 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -314,7 +314,7 @@ void ParaGridIO::dumpModelState(
 
     std::set<std::string> restartFields = { hiceName, ciceName, hsnowName, ticeName, sstName,
         sssName, maskName, coordsName, xName, yName, longitudeName, latitudeName, gridAzimuthName,
-        uName, vName, damageName }; // TODO and others
+        uName, vName, damageName }; // TODO and others - or remove this list?
     // If the above fields are found in the supplied ModelState, output them
     for (auto entry : state.data) {
         if (restartFields.count(entry.first)) {
