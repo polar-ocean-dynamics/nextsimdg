@@ -47,9 +47,6 @@ public:
 
     void update(const TimestepTime&);
 
-    static double minimumIceThickness() { return IceMinima::h(); }
-    static double minimumIceConcentration() { return IceMinima::c(); }
-
     /*!
      * Updates the true ice and snow thickness arrays from the cell averages.
      */
@@ -79,15 +76,6 @@ private:
 
     bool doThermo = true; // Perform any thermodynamics calculations at all
 
-    void newIceFormation(size_t i, const TimestepTime&);
-    void lateralIceSpread(size_t i, const TimestepTime&);
-    void applyLimits(size_t i, const TimestepTime&);
-    void updateWrapper(size_t i, const TimestepTime& tst)
-    {
-        newIceFormation(i, tst);
-        lateralIceSpread(i, tst);
-        applyLimits(i, tst);
-    }
     void initializeThicknessesElement(size_t i, const TimestepTime&);
 };
 
