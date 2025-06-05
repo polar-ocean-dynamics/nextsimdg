@@ -1,6 +1,6 @@
 /*!
  * @file Advection_test.cpp
- * @date 19 August 2024
+ * @date 05 Jun 2025
  * @author Thomas Richter <thomas.richter@ovgu.de>
  */
 
@@ -266,18 +266,6 @@ TEST_CASE("Advection")
 
     // Exact values taken 25/06/2024 after some plausibility check of the results
     // and by checking the theoretical order of convergence to be expected
-    // std::array<std::array<double, 6>, 3> exact
-    //     = { std::array<double, 6>(
-    //             { 5.1256149074257538e-02, 4.8288256703303903e-02, 4.3105635248809886e-02,
-    //                 3.5793986049422598e-02, 2.6937487824223016e-02, 1.8456775604583933e-02 }),
-    //           std::array<double, 6>(
-    //               { 2.9450967798560313e-02, 1.3427281824939470e-02, 5.8574889800512000e-03,
-    //                   2.2756813704797301e-03, 7.3564079504566610e-04, 1.9177169540867740e-04 }),
-    //           std::array<double, 6>(
-    //               { 9.9340386651904228e-03, 4.0274889287136816e-03, 1.2400186092664943e-03,
-    //                   2.8460130790583933e-04, 4.5459555769938981e-05, 4.6851425365137733e-06 })
-    //                   };
-
     // New values 07/04/2025 after reimplementation of boundary data. Dirichlet data is now
     // realized using the landmaks info. Therefore, the physical domain shrinks by one layer all
     // around and this slightly changes the exact values.
