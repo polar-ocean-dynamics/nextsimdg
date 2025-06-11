@@ -1,7 +1,7 @@
 /*!
  * @file DummyIceSpread.hpp
  *
- * @date 04 Jun 2025
+ * @date 18 Apr 2023
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -20,9 +20,16 @@ public:
     }
     ~DummyIceSpread() = default;
 
-    void update(const TimestepTime& tstep) override {
-        // No-op for dummy implementation
-    };
+    void freeze(const TimestepTime& tstep, double hice, double hsnow, double deltaHi, double newIce,
+        double& cice, double& qow, double& deltaCfreeze) override
+    {
+        deltaCfreeze = 0.;
+    }
+    void melt(const TimestepTime& tstep, double hice, double hsnow, double deltaHi, double& cice,
+        double& qow, double& deltaCmelt) override
+    {
+        deltaCmelt = 0.;
+    }
 };
 
 } /* namespace Nextsim */

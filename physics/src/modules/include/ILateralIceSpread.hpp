@@ -1,7 +1,7 @@
 /*!
  * @file ILateralIceSpread.hpp
  *
- * @date 04 Jun 2025
+ * @date Jul 5, 2022
  * @author Tim Spain <timothy.spain@nersc.no>
  * @author Einar Ólason <einar.olason@nersc.no>
  */
@@ -20,45 +20,53 @@ public:
     virtual ~ILateralIceSpread() = default;
 
     std::string getName() const override { return "LateralIceSpread"; }
-    void setData(const ModelState::DataMap& ms) override
-    {
-        deltaCIce.resize();
-        newice.resize();
-        snowMelt.resize();
-    }
-
+    void setData(const ModelState::DataMap& ms) override { }
     /*!
-     * Updates the lateral ice melt and formation for the timestep.
+     * Updates the freezing of open water for the timestep.
      *
      * @param tStep The object containing the timestep start and duration times.
+     * @param hice The ice-average ice thickness.
+     * @param hsnow The ice-average snow thickness.
+     * @param deltaHi The change in ice thickness this timestep.
+     * @param newIce The positive change in ice thickness this timestep.
+     * @param cice The ice concentration.
+     * @param qow The open water heat flux.
+     * @param deltaCFreeze The change in concentration due to freezing.
      */
-    virtual void update(const TimestepTime& tstep) = 0;
+    virtual void freeze(const TimestepTime& tstep, double hice, double hsnow, double deltaHi,
+        double newIce, double& cice, double& qow, double& deltaCfreeze)
+        = 0;
+    /*!
+     * Updates the lateral melting of ice for the timestep.
+     *
+     * @param tStep The object containing the timestep start and duration times.
+     * @param hice The ice-average ice thickness.
+     * @param hsnow The ice-average snow thickness.
+     * @param deltaHi The change in ice thickness this timestep.
+     * @param cice The ice concentration.
+     * @param qow The open water heat flux.
+     * @param deltaCmelt The change in concentration due to melting.
+     */
+    virtual void melt(const TimestepTime& tstep, double hice, double hsnow, double deltaHi,
+        double& cice, double& qow, double& deltaCmelt)
+        = 0;
 
 protected:
     ILateralIceSpread()
-        : deltaCIce(ModelArray::Type::H)
-        , newice(ModelArray::Type::H)
-        , snowMelt(ModelArray::Type::H)
-        , cice(getStore())
-        , deltaHi(getStore())
+        : cice(getStore())
+        , qow(getStore())
         , hice(getStore())
         , hsnow(getStore())
-        , qow(getStore())
+        , deltaHi(getStore())
     {
-        getStore().registerArray(Shared::DELTA_CICE, &deltaCIce, RW);
-        getStore().registerArray(Shared::HSNOW_MELT, &snowMelt, RW);
-        getStore().registerArray(Shared::NEW_ICE, &newice, RW);
     }
 
-    HField deltaCIce; // Change in ice concentration
-    HField newice; // New ice over open water this timestep, m
-    HField snowMelt; // Ocean to snow transfer of freshwater kg m⁻²
-
     ModelArrayRef<Shared::C_ICE, RW> cice; // From IceGrowth
-    ModelArrayRef<Shared::DELTA_HICE, RO> deltaHi; // From Vertical Ice Growth
-    ModelArrayRef<Shared::H_ICE, RW> hice; // From IceGrowth
-    ModelArrayRef<Shared::H_SNOW, RW> hsnow; // From Ice Growth?
     ModelArrayRef<Shared::Q_OW, RW> qow; // From FluxCalculation
+
+    ModelArrayRef<Shared::H_ICE, RO> hice; // From IceGrowth
+    ModelArrayRef<Shared::H_SNOW, RO> hsnow; // From Ice Growth?
+    ModelArrayRef<Shared::DELTA_HICE, RO> deltaHi; // From Vertical Ice Growth
 };
 
 } /* namespace Nextsim */
