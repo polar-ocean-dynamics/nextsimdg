@@ -26,11 +26,10 @@ public:
         newice.resize();
         snowMelt.resize();
 
-        /*
-         * Set these to zero, so we don't have uninitialized values floating around.
-         * As long as we have the nextsim_thermo.use_thermo_forcing option, all
-         * derived classes must initialise these values to something sensible.
-         */
+        /* Set these to zero, so we don't have uninitialized values floating around.
+         * This could be done in the derived classes, but it is convenient to do it here because
+         * since we have the nextsim_thermo.use_thermo_forcing option, all derived classes must
+         * initialise these values to something sensible.*/
         deltaCIce = 0.;
         newice = 0.;
         snowMelt = 0.;
