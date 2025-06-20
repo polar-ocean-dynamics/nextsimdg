@@ -1,7 +1,7 @@
 /*!
  * @file FluxConfiguredAtmosphere.cpp
  *
- * @date 20 May 2025
+ * @date 20 Jun 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -106,6 +106,10 @@ void FluxConfiguredAtmosphere::setData(const ModelState::DataMap& dm)
     evap = evap0;
     uwind = u0;
     vwind = v0;
+
+    penSW = 0; // Penetrative shortwave radiation is not configured here
+    tauXOW = 0; // Open water stress in x direction
+    tauYOW = 0; // Open water stress in y direction
 }
 
 void FluxConfiguredAtmosphere::update(const TimestepTime& tst)
