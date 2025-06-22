@@ -1,7 +1,7 @@
 /*!
  * @file DGModelArray.hpp
  *
- * @date Oct 6, 2022
+ * @date 21 Jun 2025
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
@@ -22,7 +22,8 @@ public:
         if (N == ma.components(0).size()) {
             dg = ma.data().matrix();
         } else {
-            // Assign only to the 0 component.
+            // Assign only to the 0 component and make sure everything else is zero.
+            dg.zero();
             dg.col(0) = ma.data().matrix();
         }
         return dg;
