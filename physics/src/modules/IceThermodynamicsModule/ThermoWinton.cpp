@@ -342,7 +342,7 @@ void ThermoWinton::calculateElement(size_t i, const TimestepTime& tst)
     // Remove very small ice thickness
     if (hi < IceMinima::h()) {
         // (30) - with multiplication of rhoi and rhos and division with dt
-        qio[i] -= (-bulkLHFusionSnow * hs + (e1 + e2) * hi / 2) / dt;
+        qio[i] += (-bulkLHFusionSnow * hs + (e1 + e2) * hi / 2) / dt;
 
         if (deltaHi[i] < 0) {
             topMelt[i] *= oldHi[i] / deltaHi[i];
