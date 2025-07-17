@@ -5,9 +5,9 @@
  * @author Tim Spain <timothy.spain@nersc.no>
  */
 
-#include "include/Slice.hpp"
 #include "include/ThermoWinton.hpp"
 #include "include/IceMinima.hpp"
+#include "include/Slice.hpp"
 
 #include "include/constants.hpp"
 #include "include/gridNames.hpp"
@@ -65,13 +65,12 @@ ConfigMap ThermoWinton::getConfiguration() const
 
 ModelState ThermoWinton::getStateDiagnostic() const
 {
-    ModelState state =  { {
-            { "snow_melt", snowMelt },
-            { "top_melt", topMelt },
-            { "bottom_melt", botMelt },
-    },
-            getConfiguration()
-    };
+    ModelState state = { {
+                             { "snow_melt", snowMelt },
+                             { "top_melt", topMelt },
+                             { "bottom_melt", botMelt },
+                         },
+        getConfiguration() };
 
     state.merge(getStatePrognostic());
     return state.merge(IIceThermodynamics::getStateDiagnostic());
@@ -79,11 +78,11 @@ ModelState ThermoWinton::getStateDiagnostic() const
 
 ModelState ThermoWinton::getStatePrognostic() const
 {
-    ModelState state = {
-        {
-            { tInteriorName, tInternal },
-            { tBottomName, tBottom },
-        }, getConfiguration() };
+    ModelState state = { {
+                             { tInteriorName, tInternal },
+                             { tBottomName, tBottom },
+                         },
+        getConfiguration() };
 
     return state.merge(IIceThermodynamics::getStatePrognostic());
 }
@@ -130,18 +129,18 @@ void ThermoWinton::setData(const ModelState::DataMap& state)
     if (state.count(ticeName) > 0) {
         const ModelArray& ticeIn = state.at(ticeName);
         if (!setSurface) {
-            const ArraySlicer::Slice surfSlice {{{ }, { }, {0}}};
+            const ArraySlicer::Slice surfSlice { { {}, {}, { 0 } } };
             tsurf = ticeIn[surfSlice];
             setSurface = true;
         }
         if (!setInterior) {
             // A Slice such that k=0 if nz=1 and k=1 if nz=3
-            const ArraySlicer::Slice interiorSlice {{{ }, { }, {ticeIn.dimensions()[2]/2}}};
+            const ArraySlicer::Slice interiorSlice { { {}, {}, { ticeIn.dimensions()[2] / 2 } } };
             tInternal = ticeIn[interiorSlice];
             setInterior = true;
         }
         if (!setBottom) {
-            const ArraySlicer::Slice bottomSlice {{{ }, { }, {-1}}};
+            const ArraySlicer::Slice bottomSlice { { {}, {}, { -1 } } };
             tBottom = ticeIn[bottomSlice];
             setBottom = true;
         }
@@ -170,9 +169,11 @@ void ThermoWinton::calculateElement(size_t i, const TimestepTime& tst)
 {
 
     // Don't do anything if there is no ice
-    if (cice[i] <= 0 || hice[i] <= 0) {
+    if (cice[i] <= IceMinima::c() || hice[i] <= IceMinima::h()) {
 
         snowToIce[i] = 0;
+
+        qio[i] += Water::Lf * (hice[i] * Ice::rho + hsnow[i] * Ice::rhoSnow) / tst.step;
 
         deltaHi[i] = 0;
         hice[i] = 0;
